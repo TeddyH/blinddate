@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter:*)",
+      "Bash(pkill:*)",
+      "Bash(adb -s emulator-5554 shell pm clear com.example.blinddate)",
+      "Read(//Volumes/Data2TB/conn/**)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(brew install:*)",
+      "Bash(supabase:*)",
+      "Bash(cat:*)",
+      "Bash(PGPASSWORD:*)",
+      "Bash(psql:*)",
+      "Bash(chmod:*)",
+      "Bash(/tmp/execute_batch_matching.sh:*)",
+      "Bash(curl:*)",
+      "Bash(/tmp/run_batch_matching.sh:*)",
+      "Bash(nc localhost 55001)",
+      "Bash(tee:*)",
+      "Bash(crontab:*)",
+      "Bash(bash:*)",
+      "Read(//Users/honghyungseok/conn/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
