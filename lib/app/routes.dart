@@ -6,7 +6,7 @@ import '../features/auth/screens/profile_setup_screen.dart';
 import '../features/auth/screens/approval_waiting_screen.dart';
 import '../features/auth/screens/approval_rejected_screen.dart';
 import '../features/matching/screens/scheduled_home_screen.dart';
-import '../features/matching/screens/recommendations_screen.dart';
+import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/chat/screens/chat_list_screen.dart';
 import '../features/chat/screens/chat_screen.dart';
@@ -62,12 +62,12 @@ class AppRoutes {
           GoRoute(
             path: home,
             name: 'home',
-            builder: (context, state) => const ScheduledHomeScreen(),
+            builder: (context, state) => const DashboardScreen(),
           ),
           GoRoute(
             path: recommendations,
             name: 'recommendations',
-            builder: (context, state) => const RecommendationsScreen(),
+            builder: (context, state) => const ScheduledHomeScreen(),
           ),
           GoRoute(
             path: chatList,

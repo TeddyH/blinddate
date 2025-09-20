@@ -9,6 +9,7 @@ import '../../../core/services/storage_service.dart';
 import '../../../app/routes.dart';
 import '../../../shared/widgets/image_picker_grid.dart';
 import '../../../shared/widgets/interest_chip_input.dart';
+import '../../../shared/widgets/profile_section_card.dart';
 import '../../../shared/models/image_source.dart' as model;
 import '../services/auth_service.dart';
 
@@ -20,13 +21,9 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
-  final PageController _pageController = PageController();
   final _nicknameController = TextEditingController();
   final _bioController = TextEditingController();
   final _formKey1 = GlobalKey<FormState>();
-  final _formKey2 = GlobalKey<FormState>();
-
-  int _currentPage = 0;
   List<model.ProfileImageSource> _images = [];
   List<String> _interests = [];
   String? _selectedGender;
@@ -46,7 +43,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   @override
   void dispose() {
-    _pageController.dispose();
     _nicknameController.dispose();
     _bioController.dispose();
     super.dispose();
@@ -57,11 +53,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       final authService = context.read<AuthService>();
       final profile = await authService.getUserProfile();
 
+      debugPrint('=== PROFILE SETUP DEBUG ===');
+      debugPrint('Profile data: $profile');
+
       if (profile != null) {
         // Load existing images from URLs
         final storageService = StorageService.instance;
         final imageUrls = storageService.getImageUrlsFromProfile(profile);
         final imageSources = imageUrls.map((url) => model.NetworkImageSource(url)).toList();
+
+        debugPrint('Image URLs: $imageUrls');
+        debugPrint('Image sources count: ${imageSources.length}');
+        debugPrint('Nickname: ${profile['nickname']}');
+        debugPrint('Bio: ${profile['bio']}');
+        debugPrint('Interests: ${profile['interests']}');
+        debugPrint('Gender: ${profile['gender']}');
 
         setState(() {
           _isUpdating = true;
@@ -71,6 +77,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           _selectedGender = profile['gender'];
           _images = imageSources;
         });
+      } else {
+        debugPrint('Profile is null');
       }
     } catch (e) {
       debugPrint('Error loading existing profile: $e');
@@ -81,23 +89,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
-  void _nextPage() {
-    if (_validatePage1()) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
 
-  void _previousPage() {
-    _pageController.previousPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
-  bool _validatePage1() {
+  bool _validateForm() {
     bool isValid = true;
 
     // Clear previous errors
@@ -108,14 +101,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     // Validate form
     if (!_formKey1.currentState!.validate()) {
-      isValid = false;
-    }
-
-    // Validate images
-    if (_images.isEmpty) {
-      setState(() {
-        _imageError = '최소 1장의 프로필 사진을 선택해주세요.';
-      });
       isValid = false;
     }
 
@@ -130,15 +115,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       isValid = false;
     }
 
+    // Validate interests
+    if (_interests.isEmpty) {
+      setState(() {
+        _interestError = '최소 1개의 관심사를 선택해주세요.';
+      });
+      isValid = false;
+    }
+
     return isValid;
   }
 
-  bool _validatePage2() {
-    return _formKey2.currentState!.validate();
-  }
 
   Future<void> _submitProfile() async {
-    if (!_validatePage2()) return;
+    if (!_validateForm()) return;
 
     setState(() {
       _isLoading = true;
@@ -165,10 +155,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             .toList();
 
         // Create new profile
+        // Default birth date for age 25
+        final birthDate = DateTime.now().subtract(const Duration(days: 365 * 25));
+
         await authService.createUserProfile(
           nickname: _nicknameController.text.trim(),
           country: 'KR', // Default to Korea
-          birthDate: DateTime.now().subtract(const Duration(days: 365 * 25)), // Default age 25
+          birthDate: birthDate,
           bio: _bioController.text.trim(),
           interests: _interests,
           gender: _selectedGender!,
@@ -208,6 +201,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     if (_isLoadingData) {
@@ -220,7 +214,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isUpdating ? '프로필 수정' : '프로필 설정'),
+        title: Text(
+          _isUpdating ? '프로필 수정' : '프로필 설정',
+          style: AppTextStyles.h2.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           // 로그아웃 버튼 (개발용)
           IconButton(
@@ -234,68 +237,48 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             },
             tooltip: '로그아웃',
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Text(
-                '${_currentPage + 1}/2',
-                style: AppTextStyles.body2.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
-          ),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Progress indicator
-            LinearProgressIndicator(
-              value: (_currentPage + 1) / 2,
-              backgroundColor: AppColors.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-            ),
 
             // Page content
             Expanded(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (page) {
-                  setState(() {
-                    _currentPage = page;
-                  });
-                },
-                children: [
-                  _buildPage1(),
-                  _buildPage2(),
-                ],
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Form(
+                  key: _formKey1,
+                  child: Column(
+                    children: [
+                      // Profile Images Section
+                      _buildProfileImagesSection(),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Basic Info Section
+                      _buildBasicInfoSection(),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Additional Info Section
+                      _buildAdditionalInfoSection(),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
+                  ),
+                ),
               ),
             ),
 
             // Bottom navigation
             Container(
-              padding: AppLayout.screenPadding.copyWith(
+              padding: const EdgeInsets.all(AppSpacing.lg).copyWith(
                 top: AppSpacing.md,
                 bottom: AppSpacing.lg,
               ),
-              child: Row(
-                children: [
-                  if (_currentPage > 0) ...[
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _previousPage,
-                        child: const Text('이전'),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                  ],
-                  Expanded(
-                    flex: _currentPage == 0 ? 1 : 1,
+              child: SizedBox(
+                width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _isLoading
-                        ? null
-                        : (_currentPage == 0 ? _nextPage : _submitProfile),
+                      onPressed: _isLoading ? null : _submitProfile,
                       child: _isLoading
                         ? const SizedBox(
                             width: 20,
@@ -305,10 +288,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : Text(_currentPage == 0 ? '다음' : '완료'),
+                        : Text(_isUpdating ? '수정 완료' : '프로필 등록'),
                     ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -317,276 +298,316 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     );
   }
 
-  Widget _buildPage1() {
-    return SingleChildScrollView(
-      padding: AppLayout.screenPadding,
-      child: Form(
-        key: _formKey1,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: AppSpacing.lg),
-
-            // Header
-            Text(
-              _isUpdating ? '프로필 정보를 수정해주세요' : '기본 정보를 입력해주세요',
-              style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
-              ),
+  Widget _buildProfileImagesSection() {
+    return ProfileSectionCard(
+      title: '프로필 사진',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Photo grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: AppSpacing.sm,
+              mainAxisSpacing: AppSpacing.sm,
+              childAspectRatio: 1,
             ),
+            itemCount: 3,
+            itemBuilder: (context, index) {
+              final hasImage = index < _images.length;
 
-            const SizedBox(height: AppSpacing.md),
-
-            Text(
-              _isUpdating
-                ? '수정된 프로필은 관리자 재검토를 거쳐 승인됩니다.'
-                : '매력적인 프로필로 더 많은 매칭 기회를 만들어보세요.',
-              style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Profile Images
-            Text(
-              '프로필 사진',
-              style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            ImagePickerGrid(
-              images: _images,
-              onImagesChanged: (images) {
-                setState(() {
-                  _images = images;
-                  _imageError = null;
-                });
-              },
-              errorText: _imageError,
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Nickname
-            Text(
-              '닉네임',
-              style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            TextFormField(
-              controller: _nicknameController,
-              decoration: const InputDecoration(
-                hintText: '다른 사용자에게 보여질 닉네임을 입력하세요',
-                prefixIcon: Icon(Icons.person_outline),
-              ),
-              maxLength: 20,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '닉네임을 입력해주세요.';
-                }
-                if (value.trim().length < 2) {
-                  return '닉네임은 최소 2자 이상이어야 합니다.';
-                }
-                return null;
-              },
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Gender selection
-            Text(
-              '성별',
-              style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildGenderOption('male', '남성', Icons.male),
+              return Container(
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    style: BorderStyle.solid,
+                  ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildGenderOption('female', '여성', Icons.female),
+                child: InkWell(
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('이미지 선택 기능은 추후 추가될 예정입니다'),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: hasImage
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: _buildImageWidget(_images[index]),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_a_photo_outlined,
+                            color: AppColors.primary,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '사진 추가',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
                 ),
-              ],
-            ),
+              );
+            },
+          ),
 
-            const SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '최대 3장까지 업로드 가능합니다',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          if (_imageError != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              _imageError!,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.error,
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildPage2() {
-    return SingleChildScrollView(
-      padding: AppLayout.screenPadding,
-      child: Form(
-        key: _formKey2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: AppSpacing.lg),
-
-            // Header
-            Text(
-              _isUpdating ? '자기소개와 관심사를 수정해주세요' : '자기소개와 관심사를 작성해주세요',
-              style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
-              ),
+  Widget _buildBasicInfoSection() {
+    return ProfileSectionCard(
+      title: '기본 정보',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Nickname
+          TextFormField(
+            controller: _nicknameController,
+            decoration: const InputDecoration(
+              labelText: '닉네임',
+              hintText: '다른 사람들에게 보여질 이름을 입력하세요',
             ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return '닉네임을 입력해주세요';
+              }
+              if (value.trim().length < 2) {
+                return '닉네임은 2글자 이상이어야 합니다';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
 
-            const SizedBox(height: AppSpacing.md),
+          // Bio
+          TextFormField(
+            controller: _bioController,
+            maxLines: 8,
+            maxLength: 500,
+            decoration: const InputDecoration(
+              labelText: '자기소개',
+              hintText: '자신을 매력적으로 소개해보세요 (최소 100자)',
+            ),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return '자기소개를 입력해주세요';
+              }
+              if (value.trim().length < 100) {
+                return '자기소개는 최소 100자 이상 작성해주세요';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: AppSpacing.md),
 
+          // Gender
+          Text(
+            '성별',
+            style: AppTextStyles.body1.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('남성'),
+                  value: 'male',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              Expanded(
+                child: RadioListTile<String>(
+                  title: const Text('여성'),
+                  value: 'female',
+                  groupValue: _selectedGender,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdditionalInfoSection() {
+    return ProfileSectionCard(
+      title: '관심사',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Interests
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              '영화/드라마', '음악', '독서', '여행', '운동', '요리',
+              '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
+              '콘서트', '스포츠', '등산', '바다', '반려동물', '술',
+              '커피', '디저트', '패션', '뷰티', '자동차', '바이크',
+            ].map((interest) {
+              final isSelected = _interests.contains(interest);
+              return FilterChip(
+                label: Text(interest),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      if (_interests.length < 5) {
+                        _interests.add(interest);
+                        _interestError = null;
+                      } else {
+                        _interestError = '최대 5개까지 선택할 수 있습니다';
+                      }
+                    } else {
+                      _interests.remove(interest);
+                      _interestError = null;
+                    }
+                  });
+                },
+                selectedColor: AppColors.primary.withValues(alpha: 0.2),
+                checkmarkColor: AppColors.primary,
+              );
+            }).toList(),
+          ),
+
+          if (_interests.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              _isUpdating
-                ? '자기소개와 관심사로 더 나은 프로필을 만들어보세요!'
-                : '자기소개와 관심사는 더 많은 관심을 받을 수 있어요.\n자신의 매력을 마음껏 어필해보세요!',
-              style: AppTextStyles.body1.copyWith(
+              '선택된 관심사: ${_interests.length}/5개',
+              style: AppTextStyles.caption.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Bio Section Header
-            Text(
-              '자기소개',
-              style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // Bio input
-            TextFormField(
-              controller: _bioController,
-              maxLines: 8,
-              maxLength: AppConstants.maxBioLength,
-              decoration: const InputDecoration(
-                hintText: '• 자신의 성격이나 취미를 소개해주세요\n• 어떤 사람과 만나고 싶은지 알려주세요\n• 평소 좋아하는 활동이나 관심사를 적어주세요\n• 진솔하고 매력적인 모습을 보여주세요',
-                alignLabelWithHint: true,
-                contentPadding: EdgeInsets.all(AppSpacing.md),
-              ),
-              style: AppTextStyles.body1,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '자기소개를 입력해주세요.';
-                }
-                if (value.trim().length < 100) {
-                  return '자기소개는 최소 100자 이상 작성해주세요.';
-                }
-                return null;
-              },
-              onChanged: (value) {
-                setState(() {}); // For character counter
-              },
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            // Character counter and tip
-            Row(
-              children: [
-                Text(
-                  '${_bioController.text.length}/${AppConstants.maxBioLength}자',
-                  style: AppTextStyles.caption.copyWith(
-                    color: _bioController.text.length >= 100
-                      ? AppColors.success
-                      : AppColors.textSecondary,
-                  ),
-                ),
-                const Spacer(),
-                if (_bioController.text.length < 100)
-                  Text(
-                    '${100 - _bioController.text.length}자 더 입력해주세요',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.warning,
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Tips container
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.accent.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.lightbulb_outline,
-                        size: 20,
-                        color: AppColors.accent,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        '작성 팁',
-                        style: AppTextStyles.body2.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.accent,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    '• 긍정적이고 밝은 내용으로 작성해보세요\n• 구체적인 경험이나 에피소드를 포함하면 좋아요\n• 상대방이 궁금해할 만한 내용을 담아보세요\n• 진부한 표현보다는 개성 있는 문체를 사용해보세요',
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Interests
-            Text(
-              '관심사',
-              style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            InterestChipInput(
-              interests: _interests,
-              onChanged: (interests) {
-                setState(() {
-                  _interests = interests;
-                  _interestError = null;
-                });
-              },
-              errorText: _interestError,
-            ),
-
-            const SizedBox(height: AppSpacing.xxl),
           ],
-        ),
+
+          if (_interestError != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              _interestError!,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ],
+        ],
       ),
     );
+  }
+
+
+  Widget _buildImageWidget(model.ProfileImageSource imageSource) {
+    if (imageSource is model.NetworkImageSource) {
+      return Image.network(
+        imageSource.url,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.broken_image,
+                color: AppColors.textSecondary,
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '이미지 오류',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } else if (imageSource is model.FileImageSource) {
+      return Image.file(
+        imageSource.file,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.broken_image,
+                color: AppColors.textSecondary,
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '이미지 오류',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.photo_outlined,
+            color: AppColors.textSecondary,
+            size: 24,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '사진 없음',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   Widget _buildGenderOption(String value, String label, IconData icon) {

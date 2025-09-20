@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/constants/table_names.dart';
-import '../../../core/constants/app_constants.dart';
 
 class ScheduledMatch {
   final String id;
@@ -97,7 +97,7 @@ class ScheduledMatchingService extends ChangeNotifier {
 
       debugPrint('Scheduled matches response: $response');
 
-      if (response == null || (response as List).isEmpty) {
+      if ((response as List).isEmpty) {
         _todaysMatches = [];
         notifyListeners();
         return [];
@@ -130,8 +130,8 @@ class ScheduledMatchingService extends ChangeNotifier {
           matchDate: DateTime.parse(json['match_date']),
           expiresAt: DateTime.parse(json['expires_at']),
           status: json['status'],
-          user1Profile: user1Response ?? {},
-          user2Profile: user2Response ?? {},
+          user1Profile: user1Response,
+          user2Profile: user2Response,
         ));
       }
 
@@ -259,12 +259,18 @@ class ScheduledMatchingService extends ChangeNotifier {
 
   void _setLoading(bool loading) {
     _isLoading = loading;
-    notifyListeners();
+    // Use addPostFrameCallback to avoid setState during build
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void _setError(String error) {
     _errorMessage = error;
-    notifyListeners();
+    // Use addPostFrameCallback to avoid setState during build
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void _clearError() {

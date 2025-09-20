@@ -20,7 +20,16 @@
       "Bash(tee:*)",
       "Bash(crontab:*)",
       "Bash(bash:*)",
-      "Read(//Users/honghyungseok/conn/**)"
+      "Read(//Users/honghyungseok/conn/**)",
+      "Bash(nc localhost 56450)",
+      "Bash(adb:*)",
+      "Read(//Users/honghyungseok/Library/Android/sdk/**)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb -s emulator-5554 emu kill)",
+      "Bash(find:*)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone -no-snapshot -cold-boot)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -list-avds)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone_API_36.0 -no-snapshot -cold-boot)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone_API_36.0 -no-snapshot)"
     ],
     "deny": [],
     "ask": []

@@ -34,7 +34,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
 
     try {
       final authService = context.read<AuthService>();
-      final profile = await authService.getUserProfile();
+      final profile = await authService.getUserProfile(forceRefresh: true);
 
       if (mounted) {
         if (profile == null) {
