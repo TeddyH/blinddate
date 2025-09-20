@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
-import '../services/matching_service.dart';
+import '../services/scheduled_matching_service.dart';
 
 class UserCard extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -29,9 +29,9 @@ class _UserCardState extends State<UserCard> {
 
   @override
   Widget build(BuildContext context) {
-    final matchingService = context.read<MatchingService>();
-    final images = matchingService.getUserImages(widget.user);
-    final age = matchingService.calculateAge(widget.user['birth_date'] ?? '');
+    final scheduledMatchingService = context.read<ScheduledMatchingService>();
+    final images = scheduledMatchingService.getUserImages(widget.user);
+    final age = scheduledMatchingService.calculateAge(widget.user['birth_date'] ?? '');
     final interests = List<String>.from(widget.user['interests'] ?? []);
 
     return Card(

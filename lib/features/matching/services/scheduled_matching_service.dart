@@ -8,8 +8,6 @@ class ScheduledMatch {
   final String user1Id;
   final String user2Id;
   final DateTime matchDate;
-  final DateTime revealTime;
-  final DateTime? revealedAt;
   final DateTime expiresAt;
   final String status;
   final Map<String, dynamic> user1Profile;
@@ -20,8 +18,6 @@ class ScheduledMatch {
     required this.user1Id,
     required this.user2Id,
     required this.matchDate,
-    required this.revealTime,
-    this.revealedAt,
     required this.expiresAt,
     required this.status,
     required this.user1Profile,
@@ -34,8 +30,6 @@ class ScheduledMatch {
       user1Id: json['user1_id'],
       user2Id: json['user2_id'],
       matchDate: DateTime.parse(json['match_date']),
-      revealTime: DateTime.parse(json['reveal_time']),
-      revealedAt: json['revealed_at'] != null ? DateTime.parse(json['revealed_at']) : null,
       expiresAt: DateTime.parse(json['expires_at']),
       status: json['status'],
       user1Profile: json['user1_profile'] ?? {},
@@ -57,7 +51,7 @@ class ScheduledMatch {
     return currentUserId == user1Id ? user2Id : user1Id;
   }
 
-  bool get isRevealed => status == 'revealed' || revealedAt != null;
+  bool get isRevealed => status == 'revealed';
   bool get isPending => status == 'pending';
   bool get isExpired => status == 'expired' || DateTime.now().isAfter(expiresAt);
 }
@@ -99,7 +93,7 @@ class ScheduledMatchingService extends ChangeNotifier {
           .or('user1_id.eq.$userId,user2_id.eq.$userId')
           .gte('match_date', startOfYesterday.toIso8601String().split('T')[0])
           .lt('match_date', endOfToday.toIso8601String().split('T')[0])
-          .order('reveal_time', ascending: false);
+          .order('created_at', ascending: false);
 
       debugPrint('Scheduled matches response: $response');
 
@@ -134,8 +128,6 @@ class ScheduledMatchingService extends ChangeNotifier {
           user1Id: user1Id,
           user2Id: user2Id,
           matchDate: DateTime.parse(json['match_date']),
-          revealTime: DateTime.parse(json['reveal_time']),
-          revealedAt: json['revealed_at'] != null ? DateTime.parse(json['revealed_at']) : null,
           expiresAt: DateTime.parse(json['expires_at']),
           status: json['status'],
           user1Profile: user1Response ?? {},
@@ -159,45 +151,10 @@ class ScheduledMatchingService extends ChangeNotifier {
 
   // Check if there are any matches ready to be revealed
   Future<List<ScheduledMatch>> checkForRevealedMatches() async {
-    try {
-      final userId = _supabaseService.currentUser?.id;
-      if (userId == null) return [];
-
-      final now = DateTime.now();
-
-      // Get matches that should be revealed but haven't been marked as revealed yet
-      final response = await _supabaseService
-          .from(TableNames.scheduledMatches)
-          .select('*')
-          .or('user1_id.eq.$userId,user2_id.eq.$userId')
-          .eq('status', 'pending')
-          .lte('reveal_time', now.toIso8601String());
-
-      final revealedMatches = (response as List)
-          .map((json) => ScheduledMatch(
-            id: json['id'],
-            user1Id: json['user1_id'],
-            user2Id: json['user2_id'],
-            matchDate: DateTime.parse(json['match_date']),
-            revealTime: DateTime.parse(json['reveal_time']),
-            revealedAt: json['revealed_at'] != null ? DateTime.parse(json['revealed_at']) : null,
-            expiresAt: DateTime.parse(json['expires_at']),
-            status: json['status'],
-            user1Profile: {},
-            user2Profile: {},
-          ))
-          .toList();
-
-      // Update local cache
-      if (revealedMatches.isNotEmpty) {
-        await getTodaysMatches(); // Refresh the full list
-      }
-
-      return revealedMatches;
-    } catch (e) {
-      debugPrint('Error checking for revealed matches: $e');
-      return [];
-    }
+    // Since all matches are now created as 'revealed', this function is no longer needed
+    // Just refresh the matches list
+    await getTodaysMatches();
+    return _todaysMatches;
   }
 
   // Record user interaction with a match
@@ -270,60 +227,6 @@ class ScheduledMatchingService extends ChangeNotifier {
     }
   }
 
-  // Get user's match preferences
-  Future<Map<String, dynamic>?> getUserMatchPreferences() async {
-    try {
-      final userId = _supabaseService.currentUser?.id;
-      if (userId == null) return null;
-
-      final response = await _supabaseService
-          .from(TableNames.userMatchPreferences)
-          .select()
-          .eq('user_id', userId)
-          .maybeSingle();
-
-      return response;
-    } catch (e) {
-      debugPrint('Error fetching user match preferences: $e');
-      return null;
-    }
-  }
-
-  // Update user's match preferences
-  Future<void> updateUserMatchPreferences({
-    int? minAge,
-    int? maxAge,
-    int? preferredDistanceKm,
-    bool? notifyOnMatch,
-    bool? active,
-  }) async {
-    try {
-      final userId = _supabaseService.currentUser?.id;
-      if (userId == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final updates = <String, dynamic>{
-        'user_id': userId,
-      };
-
-      if (minAge != null) updates['min_age'] = minAge;
-      if (maxAge != null) updates['max_age'] = maxAge;
-      if (preferredDistanceKm != null) updates['preferred_distance_km'] = preferredDistanceKm;
-      if (notifyOnMatch != null) updates['notify_on_match'] = notifyOnMatch;
-      if (active != null) updates['active'] = active;
-
-      await _supabaseService
-          .from(TableNames.userMatchPreferences)
-          .upsert(updates);
-
-      debugPrint('Updated match preferences for user $userId');
-    } catch (e) {
-      debugPrint('Error updating match preferences: $e');
-      throw Exception('매칭 설정 업데이트 중 오류가 발생했습니다: $e');
-    }
-  }
-
   // Calculate time until next reveal (noon KST)
   Duration getTimeUntilNextReveal() {
     final now = DateTime.now();
@@ -367,5 +270,37 @@ class ScheduledMatchingService extends ChangeNotifier {
   void _clearError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  // Utility functions moved from MatchingService
+
+  // Get user's profile images
+  List<String> getUserImages(Map<String, dynamic> user) {
+    final imageUrls = user['profile_image_urls'];
+    if (imageUrls == null) return [];
+
+    if (imageUrls is List) {
+      return imageUrls.cast<String>();
+    }
+
+    return [];
+  }
+
+  // Calculate age from birth date
+  int calculateAge(String birthDateString) {
+    try {
+      final birthDate = DateTime.parse(birthDateString);
+      final today = DateTime.now();
+      int age = today.year - birthDate.year;
+
+      if (today.month < birthDate.month ||
+          (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+
+      return age;
+    } catch (e) {
+      return 25; // Default age if parsing fails
+    }
   }
 }
