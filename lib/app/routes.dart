@@ -5,7 +5,6 @@ import '../features/auth/screens/email_auth_screen.dart';
 import '../features/auth/screens/profile_setup_screen.dart';
 import '../features/auth/screens/approval_waiting_screen.dart';
 import '../features/auth/screens/approval_rejected_screen.dart';
-import '../features/matching/screens/home_screen.dart';
 import '../features/matching/screens/scheduled_home_screen.dart';
 import '../features/matching/screens/recommendations_screen.dart';
 import '../features/profile/screens/profile_screen.dart';

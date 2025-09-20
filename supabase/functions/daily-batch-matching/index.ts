@@ -30,14 +30,10 @@ serve(async (req) => {
     const kstDate = new Date(today.getTime() + kstOffset)
     const todayStr = kstDate.toISOString().split('T')[0]
 
-    const revealTime = new Date(kstDate)
-    revealTime.setHours(12, 0, 0, 0)
-
     const expiresTime = new Date(kstDate)
     expiresTime.setHours(23, 59, 0, 0)
 
     console.log('Match date:', todayStr)
-    console.log('Reveal time:', revealTime.toISOString())
     console.log('Expires time:', expiresTime.toISOString())
 
     const { data: maleUsers, error: maleError } = await supabaseClient
@@ -83,34 +79,92 @@ serve(async (req) => {
       )
     }
 
-    const shuffledMales = maleUsers.sort(() => Math.random() - 0.5)
-    const shuffledFemales = femaleUsers.sort(() => Math.random() - 0.5)
+    // Get all past matches to avoid duplicates
+    console.log('Fetching past matches to avoid duplicates...')
+    const { data: pastMatches, error: pastMatchesError } = await supabaseClient
+      .from('blinddate_scheduled_matches')
+      .select('user1_id, user2_id')
 
-    // Create only 1 match per day (not all possible matches)
-    const maxDailyMatches = 1
-    const matchCount = Math.min(maleCount, femaleCount, maxDailyMatches)
+    if (pastMatchesError) {
+      console.error('Error fetching past matches:', pastMatchesError)
+      throw pastMatchesError
+    }
+
+    console.log('Past matches count:', pastMatches?.length || 0)
+
+    // Create set of forbidden pairs
+    const forbiddenPairs = new Set()
+    if (pastMatches) {
+      pastMatches.forEach(match => {
+        const pair = [match.user1_id, match.user2_id].sort().join('|')
+        forbiddenPairs.add(pair)
+      })
+    }
+
+    console.log('Forbidden pairs count:', forbiddenPairs.size)
+
+    // Generate all possible valid matches
+    const possibleMatches = []
+    for (const male of maleUsers) {
+      for (const female of femaleUsers) {
+        const pair = [male.id, female.id].sort().join('|')
+        if (!forbiddenPairs.has(pair)) {
+          possibleMatches.push({
+            maleId: male.id,
+            femaleId: female.id
+          })
+        }
+      }
+    }
+
+    console.log('Possible new matches count:', possibleMatches.length)
+
+    if (possibleMatches.length === 0) {
+      console.log('No new matches available - all combinations have been used')
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'No new matches available - all combinations have been used',
+          matches_created: 0,
+          male_users: maleCount,
+          female_users: femaleCount,
+          possible_matches: 0
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      )
+    }
+
+    // Shuffle possible matches and select as many as we can
+    const shuffledPossibleMatches = possibleMatches.sort(() => Math.random() - 0.5)
+    const maxDailyMatches = Math.min(maleCount, femaleCount, possibleMatches.length)
+    const matchCount = maxDailyMatches
     const matches = []
 
-    for (let i = 0; i < matchCount; i++) {
-      const maleId = shuffledMales[i].id
-      const femaleId = shuffledFemales[i].id
+    // Create matches ensuring no user appears twice
+    const usedMales = new Set()
+    const usedFemales = new Set()
 
-      const user1Id = maleId < femaleId ? maleId : femaleId
-      const user2Id = maleId < femaleId ? femaleId : maleId
+    for (const possibleMatch of shuffledPossibleMatches) {
+      if (matches.length >= matchCount) break
 
-      // Check if reveal time has passed
-      const now = new Date()
-      const shouldReveal = now >= revealTime
+      if (!usedMales.has(possibleMatch.maleId) && !usedFemales.has(possibleMatch.femaleId)) {
+        usedMales.add(possibleMatch.maleId)
+        usedFemales.add(possibleMatch.femaleId)
 
-      matches.push({
-        user1_id: user1Id,
-        user2_id: user2Id,
-        match_date: todayStr,
-        reveal_time: revealTime.toISOString(),
-        expires_at: expiresTime.toISOString(),
-        status: shouldReveal ? 'revealed' : 'pending',
-        revealed_at: shouldReveal ? revealTime.toISOString() : null
-      })
+        const user1Id = possibleMatch.maleId < possibleMatch.femaleId ? possibleMatch.maleId : possibleMatch.femaleId
+        const user2Id = possibleMatch.maleId < possibleMatch.femaleId ? possibleMatch.femaleId : possibleMatch.maleId
+
+        matches.push({
+          user1_id: user1Id,
+          user2_id: user2Id,
+          match_date: todayStr,
+          expires_at: expiresTime.toISOString(),
+          status: 'revealed'
+        })
+      }
     }
 
     const { data: insertedMatches, error: matchError } = await supabaseClient
@@ -152,7 +206,8 @@ serve(async (req) => {
         male_users: maleCount,
         female_users: femaleCount,
         match_date: todayStr,
-        reveal_time: revealTime.toISOString()
+        possible_matches: possibleMatches.length,
+        forbidden_pairs: forbiddenPairs.size
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

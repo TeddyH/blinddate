@@ -38,19 +38,6 @@ CREATE TABLE blinddate_users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- BlindDate User Profiles 테이블 생성
-CREATE TABLE blinddate_user_profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES blinddate_users(id) ON DELETE CASCADE,
-  height INTEGER,
-  job VARCHAR,
-  education VARCHAR,
-  location VARCHAR,
-  additional_photos TEXT[],
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
 -- BlindDate Matches 테이블 생성
 CREATE TABLE blinddate_matches (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -108,7 +95,6 @@ CREATE POLICY "BlindDate users can update own data" ON blinddate_users FOR UPDAT
 CREATE POLICY "BlindDate users can insert own data" ON blinddate_users FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- 다른 BlindDate 테이블들도 동일하게 RLS 설정
-ALTER TABLE blinddate_user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blinddate_matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blinddate_daily_recommendations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blinddate_messages ENABLE ROW LEVEL SECURITY;
