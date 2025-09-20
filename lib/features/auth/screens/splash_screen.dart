@@ -60,6 +60,9 @@ class _SplashScreenState extends State<SplashScreen>
         return;
       }
 
+      // Cache the profile for later use
+      authService.setCachedProfile(profile);
+
       final approvalStatus = profile['approval_status'] as String;
       debugPrint('Approval status: $approvalStatus');
 

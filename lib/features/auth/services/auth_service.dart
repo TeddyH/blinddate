@@ -13,6 +13,17 @@ class AuthService with ChangeNotifier {
   User? get currentUser => _supabaseService.currentUser;
   bool get isAuthenticated => _supabaseService.isAuthenticated;
 
+  // Cache for user profile
+  Map<String, dynamic>? _cachedProfile;
+  DateTime? _cacheTimestamp;
+
+  // Set cached profile (for when we already have the profile data)
+  void setCachedProfile(Map<String, dynamic> profile) {
+    _cachedProfile = profile;
+    _cacheTimestamp = DateTime.now();
+    debugPrint('Profile cached via setCachedProfile');
+  }
+
   // Auth state stream
   Stream<AuthState> get authStateStream => _supabaseService.authStateStream;
 
@@ -93,8 +104,17 @@ class AuthService with ChangeNotifier {
   }
 
   // Check user profile completion status
-  Future<Map<String, dynamic>?> getUserProfile() async {
+  Future<Map<String, dynamic>?> getUserProfile({bool forceRefresh = false}) async {
     if (!isAuthenticated) return null;
+
+    // Return cached profile if available and not forcing refresh
+    if (!forceRefresh &&
+        _cachedProfile != null &&
+        _cacheTimestamp != null &&
+        DateTime.now().difference(_cacheTimestamp!).inMinutes < 5) {
+      debugPrint('Returning cached profile');
+      return _cachedProfile;
+    }
 
     try {
       final response = await _supabaseService
@@ -102,9 +122,20 @@ class AuthService with ChangeNotifier {
           .select()
           .eq('id', currentUser!.id)
           .single();
+
+      // Cache the profile
+      _cachedProfile = response;
+      _cacheTimestamp = DateTime.now();
+      debugPrint('Profile cached successfully');
+
       return response;
     } catch (e) {
       debugPrint('Get user profile error: $e');
+      // Return cached profile if network fails
+      if (_cachedProfile != null) {
+        debugPrint('Returning cached profile due to network error');
+        return _cachedProfile;
+      }
       return null;
     }
   }
@@ -149,6 +180,11 @@ class AuthService with ChangeNotifier {
         'profile_image_urls': imageUrls,
         'approval_status': AppConstants.approvalPending,
       });
+
+      // Invalidate cache to force refresh on next access
+      _cachedProfile = null;
+      _cacheTimestamp = null;
+
       notifyListeners();
     } catch (e) {
       debugPrint('Create user profile error: $e');
@@ -182,6 +218,11 @@ class AuthService with ChangeNotifier {
           .from(TableNames.users)
           .update(updates)
           .eq('id', currentUser!.id);
+
+      // Invalidate cache to force refresh on next access
+      _cachedProfile = null;
+      _cacheTimestamp = null;
+
       notifyListeners();
     } catch (e) {
       debugPrint('Update user profile error: $e');

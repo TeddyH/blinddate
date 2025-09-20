@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import 'dart:ui';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -17,13 +16,11 @@ class ScheduledHomeScreen extends StatefulWidget {
 
 class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   Timer? _countdownTimer;
-  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _startCountdownTimer();
-    _startPeriodicRefresh();
     // Defer the loading to after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTodaysMatches();
@@ -33,7 +30,6 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   @override
   void dispose() {
     _countdownTimer?.cancel();
-    _refreshTimer?.cancel();
     super.dispose();
   }
 
@@ -55,15 +51,6 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
     });
   }
 
-  void _startPeriodicRefresh() {
-    // Check for revealed matches every minute
-    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
-      if (mounted) {
-        final service = context.read<ScheduledMatchingService>();
-        service.checkForRevealedMatches();
-      }
-    });
-  }
 
   String _formatCountdown(Duration duration) {
     if (duration.isNegative) return "00:00:00";
