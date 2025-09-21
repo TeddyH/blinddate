@@ -82,6 +82,7 @@ class ProfileInfoSection extends StatelessWidget {
               icon: Icons.person_outline,
               label: '성별',
               value: profile['gender'] == 'male' ? '남성' : '여성',
+              isMultiline: true,
             ),
             const SizedBox(height: AppSpacing.md),
           ],

@@ -393,9 +393,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           // Nickname
           TextFormField(
             controller: _nicknameController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: '닉네임',
               hintText: '다른 사람들에게 보여질 이름을 입력하세요',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -414,9 +417,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             controller: _bioController,
             maxLines: 8,
             maxLength: 500,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: '자기소개',
               hintText: '자신을 매력적으로 소개해보세요 (최소 100자)',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
