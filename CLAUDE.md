@@ -14,7 +14,7 @@ These documents provide essential context for understanding the project requirem
 ## Project Overview
 
 This is the "blinddate" project - a Korean dating app MVP with the following core features:
-- Daily recommendation of 2 people per user
+- Daily recommendation of 1 person per user
 - Country-based matching (same country users only)
 - Admin approval-based registration system
 - Basic DM functionality with premium real-time chat
@@ -38,7 +38,7 @@ This is a new project repository with initial documentation. The project will be
 
 Based on the concept document (documents/concept.MD), the app will follow this flow:
 1. User registration → Phone verification → Profile creation → Admin approval
-2. Daily matching system showing 2 recommendations per day
+2. Daily matching system showing 1 recommendation per day
 3. Interest-based matching with DM capabilities
 4. Premium features for real-time chat
 
@@ -50,32 +50,49 @@ The repository currently contains:
 - Initial git setup
 - Flutter/Dart project configuration (.gitignore)
 - Project concept documentation in Korean (documents/concept.MD)
-- No actual code implementation yet
+- **Implemented core features:**
+  - User authentication system (phone + email verification)
+  - Profile creation and editing system
+  - Admin approval workflow
+  - Daily 1-person matching system
+  - Match history tracking
+  - Basic chat functionality
+  - Dashboard with bottom navigation
+  - App settings and profile management
 
-## Key Features to Implement (Based on Concept Doc)
+## Implementation Status (Based on Concept Doc)
 
+✅ **Completed Features:**
 1. **User Authentication System**
-   - Phone number verification (country-specific)
-   - Email and nickname registration
-   - Profile creation with photos and interests
+   - ✅ Phone number verification (country-specific)
+   - ✅ Email and nickname registration
+   - ✅ Profile creation with photos and interests
 
 2. **Admin Approval System**
-   - Profile review and approval/rejection workflow
-   - Admin dashboard for user management
+   - ✅ Profile review and approval/rejection workflow
+   - ⏳ Admin dashboard for user management (backend ready, UI pending)
 
 3. **Matching System**
-   - Daily 2-person recommendation algorithm
-   - Interest/Pass selection mechanism
-   - Mutual interest detection
+   - ✅ Daily 1-person recommendation algorithm
+   - ✅ Interest/Pass selection mechanism
+   - ✅ Mutual interest detection
+   - ✅ Match history tracking
 
 4. **Communication Features**
-   - Basic DM system (free)
-   - Premium real-time chat (paid feature)
+   - ✅ Basic DM system (implemented)
+   - ⏳ Premium real-time chat (architecture ready, features pending)
 
-5. **Monetization**
-   - Premium chat features
-   - Additional daily recommendations
-   - Profile boost functionality
+5. **Dashboard & Navigation**
+   - ✅ Bottom navigation with 4 tabs
+   - ✅ Profile management and settings
+   - ✅ App settings and preferences
+
+🚧 **Pending Features:**
+- Home dashboard content
+- Premium chat features
+- Additional daily recommendations
+- Profile boost functionality
+- Admin dashboard UI
 
 ## Development Commands
 
@@ -87,11 +104,12 @@ Since this is a Flutter project, common development commands will include:
 
 ## Key Development Notes
 
-- Use Provider or Riverpod for state management
-- Follow the feature-based folder structure outlined in tech-spec.md
-- Implement Row Level Security (RLS) policies in Supabase
-- Use Supabase client for all backend interactions
-- Prioritize phone verification and admin approval systems
+- ✅ Using Provider for state management (implemented)
+- ✅ Following feature-based folder structure as outlined in tech-spec.md
+- ✅ Implemented Row Level Security (RLS) policies in Supabase
+- ✅ Using Supabase client for all backend interactions
+- ✅ Phone verification and admin approval systems completed
+- 🔄 Current state: Core MVP features implemented, focusing on remaining UI components
 
 ## Design Guidelines
 
