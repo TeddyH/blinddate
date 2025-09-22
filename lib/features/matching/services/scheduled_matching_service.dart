@@ -68,7 +68,7 @@ class ScheduledMatchingService extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  // Get recent matches for the current user (yesterday and today)
+  // Get today's matches for the current user
   Future<List<ScheduledMatch>> getTodaysMatches() async {
     try {
       _setLoading(true);
@@ -80,18 +80,17 @@ class ScheduledMatchingService extends ChangeNotifier {
       }
 
       final today = DateTime.now();
-      final yesterday = today.subtract(const Duration(days: 1));
-      final startOfYesterday = DateTime(yesterday.year, yesterday.month, yesterday.day);
-      final endOfToday = DateTime(today.year, today.month, today.day).add(const Duration(days: 1));
+      final startOfToday = DateTime(today.year, today.month, today.day);
+      final endOfToday = startOfToday.add(const Duration(days: 1));
 
-      debugPrint('Fetching matches for user $userId from ${startOfYesterday.toIso8601String()} to ${endOfToday.toIso8601String()}');
+      debugPrint('Fetching matches for user $userId from ${startOfToday.toIso8601String()} to ${endOfToday.toIso8601String()}');
 
-      // Get scheduled matches for yesterday and today
+      // Get scheduled matches for today only
       final response = await _supabaseService
           .from(TableNames.scheduledMatches)
           .select('*')
           .or('user1_id.eq.$userId,user2_id.eq.$userId')
-          .gte('match_date', startOfYesterday.toIso8601String().split('T')[0])
+          .gte('match_date', startOfToday.toIso8601String().split('T')[0])
           .lt('match_date', endOfToday.toIso8601String().split('T')[0])
           .order('created_at', ascending: false);
 
@@ -286,7 +285,19 @@ class ScheduledMatchingService extends ChangeNotifier {
     if (imageUrls == null) return [];
 
     if (imageUrls is List) {
-      return imageUrls.cast<String>();
+      final urls = imageUrls.cast<String>();
+      // Filter out known broken URLs
+      return urls.where((url) {
+        // Filter out the broken default avatar URL
+        if (url.contains('default-avatar.png')) {
+          return false;
+        }
+        // Filter out any obviously invalid URLs
+        if (url.isEmpty || !url.startsWith('http')) {
+          return false;
+        }
+        return true;
+      }).toList();
     }
 
     return [];

@@ -21,7 +21,7 @@ INSERT INTO blinddate_users (
     '안녕하세요! 새로운 인연을 찾고 있습니다. 😊',
     ARRAY['movies', 'travel'],
     'approved',
-    ARRAY['https://dsjzqccyzgyjtchbbruw.supabase.co/storage/v1/object/public/profile-images/default/default-avatar.png'],
+    ARRAY['https://via.placeholder.com/400x400/E8E8E8/AAAAAA?text=TestUser'],
     'female'
 )
 ON CONFLICT (id) DO UPDATE SET
