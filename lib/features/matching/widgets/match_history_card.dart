@@ -85,8 +85,8 @@ class MatchHistoryCard extends StatelessWidget {
               ),
             ),
 
-            // Match status
-            _buildMatchStatus(),
+            // Show status only for interactions (not pending)
+            if (match.status != 'pending') _buildMatchStatus(),
           ],
         ),
       ),
@@ -229,19 +229,7 @@ class MatchHistoryCard extends StatelessWidget {
           ),
         );
       default:
-        return Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.schedule,
-            size: 16,
-            color: AppColors.textSecondary,
-          ),
-        );
+        return const SizedBox.shrink();
     }
   }
 
@@ -254,7 +242,7 @@ class MatchHistoryCard extends StatelessWidget {
       case 'passed':
         return '넘김';
       default:
-        return '확인\n안함';
+        return '';
     }
   }
 
