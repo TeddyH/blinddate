@@ -62,6 +62,9 @@ class ScheduledMatchingService extends ChangeNotifier {
   List<ScheduledMatch> _todaysMatches = [];
   List<ScheduledMatch> get todaysMatches => _todaysMatches;
 
+  List<ScheduledMatch> _pastMatches = [];
+  List<ScheduledMatch> get pastMatches => _pastMatches;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -318,6 +321,86 @@ class ScheduledMatchingService extends ChangeNotifier {
       return age;
     } catch (e) {
       return 25; // Default age if parsing fails
+    }
+  }
+
+  // Get past matches for the current user (recent week only, excluding today)
+  Future<List<ScheduledMatch>> getPastMatches({int limit = 50}) async {
+    try {
+      _setLoading(true);
+      _clearError();
+
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final today = DateTime.now();
+      final startOfToday = DateTime(today.year, today.month, today.day);
+      final oneWeekAgo = startOfToday.subtract(const Duration(days: 7));
+
+      debugPrint('Fetching past matches for user $userId from ${oneWeekAgo.toIso8601String()} to ${startOfToday.toIso8601String()}');
+
+      // Get scheduled matches from last week up to today (excluding today)
+      final response = await _supabaseService
+          .from(TableNames.scheduledMatches)
+          .select('*')
+          .or('user1_id.eq.$userId,user2_id.eq.$userId')
+          .gte('match_date', oneWeekAgo.toIso8601String().split('T')[0])
+          .lt('match_date', startOfToday.toIso8601String().split('T')[0])
+          .order('match_date', ascending: false)
+          .limit(limit);
+
+      debugPrint('Past matches response: $response');
+
+      if ((response as List).isEmpty) {
+        _pastMatches = [];
+        notifyListeners();
+        return [];
+      }
+
+      // Fetch profile data for each match
+      final List<ScheduledMatch> matches = [];
+
+      for (final json in response as List) {
+        final user1Id = json['user1_id'];
+        final user2Id = json['user2_id'];
+
+        // Fetch user profiles
+        final user1Response = await _supabaseService
+            .from(TableNames.users)
+            .select()
+            .eq('id', user1Id)
+            .single();
+
+        final user2Response = await _supabaseService
+            .from(TableNames.users)
+            .select()
+            .eq('id', user2Id)
+            .single();
+
+        matches.add(ScheduledMatch(
+          id: json['id'],
+          user1Id: user1Id,
+          user2Id: user2Id,
+          matchDate: DateTime.parse(json['match_date']),
+          expiresAt: DateTime.parse(json['expires_at']),
+          status: json['status'],
+          user1Profile: user1Response,
+          user2Profile: user2Response,
+        ));
+      }
+
+      _pastMatches = matches;
+      notifyListeners();
+
+      return matches;
+    } catch (e) {
+      debugPrint('Error fetching past matches: $e');
+      _setError('최근 일주일 매칭 기록을 불러오는 중 오류가 발생했습니다: $e');
+      return [];
+    } finally {
+      _setLoading(false);
     }
   }
 }
