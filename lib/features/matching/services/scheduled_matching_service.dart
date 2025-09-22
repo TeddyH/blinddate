@@ -82,19 +82,23 @@ class ScheduledMatchingService extends ChangeNotifier {
         throw Exception('User not authenticated');
       }
 
-      final today = DateTime.now();
-      final startOfToday = DateTime(today.year, today.month, today.day);
-      final endOfToday = startOfToday.add(const Duration(days: 1));
+      final now = DateTime.now();
+      // If it's before noon, show yesterday's matches. If after noon, show today's matches.
+      final currentHour = now.hour;
+      final targetDate = currentHour < 12 ? now.subtract(const Duration(days: 1)) : now;
 
-      debugPrint('Fetching matches for user $userId from ${startOfToday.toIso8601String()} to ${endOfToday.toIso8601String()}');
+      final startOfTargetDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+      final endOfTargetDay = startOfTargetDay.add(const Duration(days: 1));
 
-      // Get scheduled matches for today only
+      debugPrint('Fetching matches for user $userId from ${startOfTargetDay.toIso8601String()} to ${endOfTargetDay.toIso8601String()}');
+
+      // Get scheduled matches for the target day
       final response = await _supabaseService
           .from(TableNames.scheduledMatches)
           .select('*')
           .or('user1_id.eq.$userId,user2_id.eq.$userId')
-          .gte('match_date', startOfToday.toIso8601String().split('T')[0])
-          .lt('match_date', endOfToday.toIso8601String().split('T')[0])
+          .gte('match_date', startOfTargetDay.toIso8601String().split('T')[0])
+          .lt('match_date', endOfTargetDay.toIso8601String().split('T')[0])
           .order('created_at', ascending: false);
 
       debugPrint('Scheduled matches response: $response');
@@ -335,19 +339,25 @@ class ScheduledMatchingService extends ChangeNotifier {
         throw Exception('User not authenticated');
       }
 
-      final today = DateTime.now();
-      final startOfToday = DateTime(today.year, today.month, today.day);
-      final oneWeekAgo = startOfToday.subtract(const Duration(days: 7));
+      final now = DateTime.now();
+      final currentHour = now.hour;
 
-      debugPrint('Fetching past matches for user $userId from ${oneWeekAgo.toIso8601String()} to ${startOfToday.toIso8601String()}');
+      // Apply same logic as getTodaysMatches: exclude current target date from history
+      // If it's before noon, target date is yesterday (exclude yesterday from history)
+      // If it's after noon, target date is today (exclude today from history)
+      final currentTargetDate = currentHour < 12 ? now.subtract(const Duration(days: 1)) : now;
+      final endOfHistory = DateTime(currentTargetDate.year, currentTargetDate.month, currentTargetDate.day);
+      final oneWeekAgo = endOfHistory.subtract(const Duration(days: 7));
 
-      // Get scheduled matches from last week up to today (excluding today)
+      debugPrint('Fetching past matches for user $userId from ${oneWeekAgo.toIso8601String()} to ${endOfHistory.toIso8601String()}');
+
+      // Get scheduled matches from last week up to the history cutoff (excluding current target date)
       final response = await _supabaseService
           .from(TableNames.scheduledMatches)
           .select('*')
           .or('user1_id.eq.$userId,user2_id.eq.$userId')
           .gte('match_date', oneWeekAgo.toIso8601String().split('T')[0])
-          .lt('match_date', startOfToday.toIso8601String().split('T')[0])
+          .lt('match_date', endOfHistory.toIso8601String().split('T')[0])
           .order('match_date', ascending: false)
           .limit(limit);
 
