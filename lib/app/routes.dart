@@ -10,6 +10,7 @@ import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/chat/screens/chat_list_screen.dart';
 import '../features/chat/screens/chat_screen.dart';
+import '../features/matching/screens/match_history_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -20,6 +21,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String recommendations = '/recommendations';
   static const String profile = '/profile';
+  static const String matchHistory = '/match-history';
   static const String chatList = '/chat-list';
   static const String chat = '/chat';
 
@@ -70,9 +72,9 @@ class AppRoutes {
             builder: (context, state) => const ScheduledHomeScreen(),
           ),
           GoRoute(
-            path: chatList,
-            name: 'chat-list',
-            builder: (context, state) => const ChatListScreen(),
+            path: matchHistory,
+            name: 'match-history',
+            builder: (context, state) => const MatchHistoryScreen(),
           ),
           GoRoute(
             path: profile,
@@ -123,7 +125,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         context.go(AppRoutes.recommendations);
         break;
       case 2:
-        context.go(AppRoutes.chatList);
+        context.go(AppRoutes.matchHistory);
         break;
       case 3:
         context.go(AppRoutes.profile);
@@ -137,7 +139,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final currentRoute = GoRouterState.of(context).fullPath;
     if (currentRoute == AppRoutes.home) _selectedIndex = 0;
     if (currentRoute == AppRoutes.recommendations) _selectedIndex = 1;
-    if (currentRoute == AppRoutes.chatList) _selectedIndex = 2;
+    if (currentRoute == AppRoutes.matchHistory) _selectedIndex = 2;
     if (currentRoute == AppRoutes.profile) _selectedIndex = 3;
 
     return Scaffold(
@@ -158,9 +160,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             label: '추천',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
-            label: '채팅',
+            icon: Icon(Icons.history),
+            activeIcon: Icon(Icons.history),
+            label: '기록',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
