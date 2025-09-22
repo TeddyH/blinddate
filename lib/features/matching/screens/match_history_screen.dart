@@ -244,7 +244,11 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
 
   String _formatDateHeader(DateTime date) {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final currentHour = now.hour;
+
+    // Apply same logic: if before noon, consider yesterday as "today"
+    final referenceDate = currentHour < 12 ? now.subtract(const Duration(days: 1)) : now;
+    final today = DateTime(referenceDate.year, referenceDate.month, referenceDate.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final matchDate = DateTime(date.year, date.month, date.day);
 
