@@ -32,25 +32,49 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          '최근 일주일 추천',
-          style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'Hearty',
+              style: AppTextStyles.h1.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                '지난 일주일',
+                style: AppTextStyles.body2.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPastMatches,
-          ),
-        ],
       ),
-      body: SafeArea(
-        child: Consumer<ScheduledMatchingService>(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.background,
+              AppColors.accent.withValues(alpha: 0.03),
+              AppColors.accent.withValues(alpha: 0.08),
+            ],
+            stops: const [0.0, 0.6, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Consumer<ScheduledMatchingService>(
           builder: (context, service, child) {
             if (service.isLoading) {
               return _buildLoadingState();
@@ -68,6 +92,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
 
             return _buildMatchesHistory(pastMatches);
           },
+        ),
         ),
       ),
     );

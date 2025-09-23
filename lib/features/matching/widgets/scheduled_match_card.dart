@@ -23,17 +23,17 @@ class ScheduledMatchCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isMutualLike ? AppColors.accent : AppColors.surfaceVariant,
+          color: isMutualLike ? AppColors.accent : AppColors.accent.withValues(alpha: 0.2),
           width: isMutualLike ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -109,6 +109,12 @@ class ScheduledMatchCard extends StatelessWidget {
 
                 // Action buttons (only show if not mutual like)
                 if (!isMutualLike) _buildActionButtons(),
+
+                // Selection deadline countdown (only show if not mutual like)
+                if (!isMutualLike) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _buildSelectionDeadline(),
+                ],
 
                 // Chat button (only show if mutual like)
                 if (isMutualLike) _buildChatButton(),
@@ -274,43 +280,19 @@ class ScheduledMatchCard extends StatelessWidget {
   }
 
   Widget _buildBio(String bio) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '자기소개',
-          style: AppTextStyles.body1.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          bio,
-          style: AppTextStyles.body2.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.4,
-          ),
-        ),
-      ],
+    return Text(
+      bio,
+      style: AppTextStyles.body2.copyWith(
+        color: AppColors.textPrimary,
+        height: 1.4,
+      ),
     );
   }
 
   Widget _buildInterests(List<dynamic> interests) {
     if (interests.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '관심사',
-          style: AppTextStyles.body1.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
+    return Wrap(
           spacing: 8,
           runSpacing: 8,
           children: interests.take(6).map((interest) {
@@ -335,8 +317,6 @@ class ScheduledMatchCard extends StatelessWidget {
               ),
             );
           }).toList(),
-        ),
-      ],
     );
   }
 
@@ -358,9 +338,9 @@ class ScheduledMatchCard extends StatelessWidget {
             onTap: onPass,
             label: 'PASS',
             icon: Icons.thumb_down_alt_outlined,
-            backgroundColor: Colors.white,
-            textColor: AppColors.textSecondary,
-            borderColor: AppColors.surfaceVariant,
+            backgroundColor: AppColors.textSecondary,
+            textColor: Colors.white,
+            borderColor: AppColors.textSecondary,
           ),
         ),
       ],
@@ -425,6 +405,62 @@ class ScheduledMatchCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionDeadline() {
+    final now = DateTime.now();
+    // Calculate next deadline (next day 12:00 PM)
+    final tomorrow = DateTime(now.year, now.month, now.day + 1, 12, 0, 0);
+    final timeUntilDeadline = tomorrow.difference(now);
+
+    // If current time is before 12:00 PM today, deadline is today 12:00 PM
+    final todayDeadline = DateTime(now.year, now.month, now.day, 12, 0, 0);
+    final actualDeadline = now.isBefore(todayDeadline) ? todayDeadline : tomorrow;
+    final actualTimeLeft = actualDeadline.difference(now);
+
+    if (actualTimeLeft.isNegative) return const SizedBox.shrink();
+
+    final hours = actualTimeLeft.inHours;
+    final minutes = actualTimeLeft.inMinutes.remainder(60);
+    final seconds = actualTimeLeft.inSeconds.remainder(60);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.schedule,
+            color: AppColors.accent,
+            size: 16,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            '선택 마감까지 ',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.accent,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.accent,
+              fontWeight: FontWeight.bold,
+              fontFeatures: [const FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
       ),
     );
   }

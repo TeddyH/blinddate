@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../core/constants/app_colors.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/email_auth_screen.dart';
 import '../features/auth/screens/profile_setup_screen.dart';
@@ -144,32 +145,109 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: '홈',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.primary.withValues(alpha: 0.95),
+              AppColors.accent.withValues(alpha: 0.85),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            activeIcon: Icon(Icons.favorite),
-            label: '추천',
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white.withValues(alpha: 0.6),
+          selectedFontSize: 12,
+          unselectedFontSize: 11,
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            activeIcon: Icon(Icons.history),
-            label: '기록',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: '프로필',
-          ),
-        ],
+          iconSize: 24,
+          items: [
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Icon(
+                  Icons.home_outlined,
+                  size: _selectedIndex == 0 ? 26 : 24,
+                ),
+              ),
+              activeIcon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: const Icon(
+                  Icons.home,
+                  size: 26,
+                ),
+              ),
+              label: '홈',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Icon(
+                  Icons.favorite_border,
+                  size: _selectedIndex == 1 ? 26 : 24,
+                ),
+              ),
+              activeIcon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: const Icon(
+                  Icons.favorite,
+                  size: 26,
+                ),
+              ),
+              label: '추천',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Icon(
+                  Icons.history,
+                  size: _selectedIndex == 2 ? 26 : 24,
+                ),
+              ),
+              activeIcon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: const Icon(
+                  Icons.history,
+                  size: 26,
+                ),
+              ),
+              label: '기록',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Icon(
+                  Icons.person_outline,
+                  size: _selectedIndex == 3 ? 26 : 24,
+                ),
+              ),
+              activeIcon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: const Icon(
+                  Icons.person,
+                  size: 26,
+                ),
+              ),
+              label: '프로필',
+            ),
+          ],
+        ),
       ),
     );
   }
