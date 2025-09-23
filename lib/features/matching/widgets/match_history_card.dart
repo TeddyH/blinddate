@@ -22,12 +22,13 @@ class MatchHistoryCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 4,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -49,7 +50,7 @@ class MatchHistoryCard extends StatelessWidget {
                     children: [
                       Text(
                         otherUser['nickname'] ?? '익명',
-                        style: AppTextStyles.body1.copyWith(
+                        style: AppTextStyles.h3.copyWith(
                           color: AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -57,7 +58,7 @@ class MatchHistoryCard extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Text(
                         '$age세',
-                        style: AppTextStyles.body2.copyWith(
+                        style: AppTextStyles.body1.copyWith(
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -69,8 +70,8 @@ class MatchHistoryCard extends StatelessWidget {
                   if (otherUser['bio'] != null && otherUser['bio'].toString().isNotEmpty)
                     Text(
                       otherUser['bio'],
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -159,7 +160,7 @@ class MatchHistoryCard extends StatelessWidget {
             interest,
             style: AppTextStyles.caption.copyWith(
               color: AppColors.primary,
-              fontSize: 10,
+              fontWeight: FontWeight.w500,
             ),
           ),
         );

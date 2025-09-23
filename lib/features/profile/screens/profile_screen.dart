@@ -38,57 +38,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          '프로필',
-          style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              'Hearty',
+              style: AppTextStyles.h1.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                '프로필',
+                style: AppTextStyles.body2.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileEditScreen(),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.edit,
-              color: AppColors.primary,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AppSettingsScreen(),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.settings_outlined,
-              color: AppColors.primary,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              _showLogoutDialog(context);
-            },
-            icon: Icon(
-              Icons.logout_outlined,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
       ),
-      body: Consumer<ProfileService>(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.background,
+              AppColors.accent.withValues(alpha: 0.03),
+              AppColors.accent.withValues(alpha: 0.08),
+            ],
+            stops: const [0.0, 0.6, 1.0],
+          ),
+        ),
+        child: Consumer<ProfileService>(
         builder: (context, profileService, child) {
           if (profileService.isLoading) {
             return const Center(
@@ -136,6 +127,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
+                // Profile action icons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileEditScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.edit,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AppSettingsScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.settings_outlined,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _showLogoutDialog(context);
+                      },
+                      icon: Icon(
+                        Icons.logout_outlined,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
                 ProfileImageWidget(profile: profile),
                 const SizedBox(height: AppSpacing.xl),
                 ProfileInfoSection(profile: profile),
@@ -145,6 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           );
         },
+        ),
       ),
     );
   }
