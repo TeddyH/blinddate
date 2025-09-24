@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../services/scheduled_matching_service.dart';
 
-class ScheduledMatchCard extends StatelessWidget {
+class ScheduledMatchCard extends StatefulWidget {
   final ScheduledMatch match;
   final VoidCallback onLike;
   final VoidCallback onPass;
@@ -17,9 +18,53 @@ class ScheduledMatchCard extends StatelessWidget {
   });
 
   @override
+  State<ScheduledMatchCard> createState() => _ScheduledMatchCardState();
+}
+
+class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
+  late PageController _photoPageController;
+  Timer? _photoTimer;
+  int _currentPhotoIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _photoPageController = PageController();
+    _startPhotoTimer();
+  }
+
+  @override
+  void dispose() {
+    _photoTimer?.cancel();
+    _photoPageController.dispose();
+    super.dispose();
+  }
+
+  void _startPhotoTimer() {
+    // Get photo count
+    final otherUser = widget.match.otherUserProfile;
+    final photos = otherUser['profile_image_urls'] as List<dynamic>? ??
+                   otherUser['photos'] as List<dynamic>? ?? [];
+
+    // Only start timer if there are multiple photos
+    if (photos.length > 1) {
+      _photoTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        if (mounted && _photoPageController.hasClients) {
+          _currentPhotoIndex = (_currentPhotoIndex + 1) % photos.length;
+          _photoPageController.animateToPage(
+            _currentPhotoIndex,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final otherUser = match.otherUserProfile;
-    final isMutualLike = match.status == 'mutual_like';
+    final otherUser = widget.match.otherUserProfile;
+    final isMutualLike = widget.match.status == 'mutual_like';
 
     return Container(
       decoration: BoxDecoration(
@@ -158,22 +203,55 @@ class ScheduledMatchCard extends StatelessWidget {
       );
     }
 
-    return Container(
-      height: 300,
-      child: PageView.builder(
-        itemCount: photos.length,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: NetworkImage(photos[index]),
-                fit: BoxFit.cover,
-              ),
+    return Stack(
+      children: [
+        SizedBox(
+          height: 300,
+          child: PageView.builder(
+            controller: _photoPageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPhotoIndex = index;
+              });
+            },
+            itemCount: photos.length,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  image: DecorationImage(
+                    image: NetworkImage(photos[index]),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        // Photo indicators (only show if multiple photos)
+        if (photos.length > 1)
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(photos.length, (index) {
+                return Container(
+                  margin: const EdgeInsets.only(left: 4),
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPhotoIndex == index
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.4),
+                  ),
+                );
+              }),
             ),
-          );
-        },
-      ),
+          ),
+      ],
     );
   }
 
@@ -325,7 +403,7 @@ class ScheduledMatchCard extends StatelessWidget {
       children: [
         Expanded(
           child: _buildActionButton(
-            onTap: onLike,
+            onTap: widget.onLike,
             label: '매칭하기',
             icon: Icons.favorite_outline,
             backgroundColor: AppColors.accent,
@@ -335,7 +413,7 @@ class ScheduledMatchCard extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: _buildActionButton(
-            onTap: onPass,
+            onTap: widget.onPass,
             label: 'PASS',
             icon: Icons.thumb_down_alt_outlined,
             backgroundColor: AppColors.textSecondary,
@@ -411,12 +489,9 @@ class ScheduledMatchCard extends StatelessWidget {
 
   Widget _buildSelectionDeadline() {
     final now = DateTime.now();
-    // Calculate next deadline (next day 12:00 PM)
-    final tomorrow = DateTime(now.year, now.month, now.day + 1, 12, 0, 0);
-    final timeUntilDeadline = tomorrow.difference(now);
-
     // If current time is before 12:00 PM today, deadline is today 12:00 PM
     final todayDeadline = DateTime(now.year, now.month, now.day, 12, 0, 0);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1, 12, 0, 0);
     final actualDeadline = now.isBefore(todayDeadline) ? todayDeadline : tomorrow;
     final actualTimeLeft = actualDeadline.difference(now);
 

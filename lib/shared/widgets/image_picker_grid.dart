@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../models/image_source.dart' as model;
+import '../utils/image_compression_utils.dart';
 
 class ImagePickerGrid extends StatefulWidget {
   final List<model.ProfileImageSource> images;
@@ -44,8 +45,7 @@ class _ImagePickerGridState extends State<ImagePickerGrid> {
       );
 
       if (image != null) {
-        final File imageFile = File(image.path);
-        widget.onImagesChanged([...widget.images, model.FileImageSource(imageFile)]);
+        await _processAndAddImage(File(image.path));
       }
     } catch (e) {
       if (mounted) {
@@ -114,14 +114,82 @@ class _ImagePickerGridState extends State<ImagePickerGrid> {
       );
 
       if (image != null) {
-        final File imageFile = File(image.path);
-        widget.onImagesChanged([...widget.images, model.FileImageSource(imageFile)]);
+        await _processAndAddImage(File(image.path));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('사진을 촬영하는 중 오류가 발생했습니다: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  /// 이미지 처리 및 압축 후 목록에 추가
+  Future<void> _processAndAddImage(File imageFile) async {
+    try {
+      // 로딩 표시
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Text('이미지 처리 중...'),
+              ],
+            ),
+            backgroundColor: AppColors.primary,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+
+      // 원본 파일 크기 확인
+      final double originalSizeKB = await ImageCompressionUtils.getFileSizeKB(imageFile);
+
+      // 압축 처리 (100KB 이하면 압축하지 않음)
+      final File processedImage = await ImageCompressionUtils.compressImageIfNeeded(imageFile);
+
+      // 처리된 파일 크기 확인
+      final double finalSizeKB = await ImageCompressionUtils.getFileSizeKB(processedImage);
+
+      // 이미지 목록에 추가
+      if (mounted) {
+        widget.onImagesChanged([...widget.images, model.FileImageSource(processedImage)]);
+
+        // 압축 결과 알림 (100KB를 넘었던 경우만)
+        if (originalSizeKB > 100) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '이미지가 압축되었습니다: ${originalSizeKB.toStringAsFixed(1)}KB → ${finalSizeKB.toStringAsFixed(1)}KB',
+              ),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 처리 중 오류가 발생했습니다: $e'),
             backgroundColor: AppColors.error,
           ),
         );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../core/constants/app_colors.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/email_auth_screen.dart';
+import '../features/auth/screens/email_confirmed_screen.dart';
 import '../features/auth/screens/profile_setup_screen.dart';
 import '../features/auth/screens/approval_waiting_screen.dart';
 import '../features/auth/screens/approval_rejected_screen.dart';
@@ -16,6 +17,7 @@ import '../features/matching/screens/match_history_screen.dart';
 class AppRoutes {
   static const String splash = '/';
   static const String emailAuth = '/email-auth';
+  static const String emailConfirmed = '/email-confirmed';
   static const String profileSetup = '/profile-setup';
   static const String approvalWaiting = '/approval-waiting';
   static const String approvalRejected = '/approval-rejected';
@@ -39,6 +41,11 @@ class AppRoutes {
         path: emailAuth,
         name: 'email-auth',
         builder: (context, state) => const EmailAuthScreen(),
+      ),
+      GoRoute(
+        path: emailConfirmed,
+        name: 'email-confirmed',
+        builder: (context, state) => const EmailConfirmedScreen(),
       ),
       GoRoute(
         path: profileSetup,
