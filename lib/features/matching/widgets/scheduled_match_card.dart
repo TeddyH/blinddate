@@ -242,7 +242,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
                 ],
 
                 // Chat button (only show if mutual like)
-                if (isMutualLike) _buildChatButton(),
+                if (isMutualLike) _buildMutualMatchSection(),
               ],
             ),
           ),
@@ -535,15 +535,39 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
     );
   }
 
+  Widget _buildMutualMatchSection() {
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            // TODO: Navigate to chat screen
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.accent,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            textStyle: AppTextStyles.body1.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          child: const Text('💬 채팅하기'),
+        ),
+      ),
+    );
+  }
+
   Widget _buildChatButton() {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton.icon(
+      child: ElevatedButton(
         onPressed: () {
           // TODO: Navigate to chat screen
         },
-        icon: const Icon(Icons.chat_bubble_outline),
-        label: const Text('대화 시작하기'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -552,6 +576,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
+        child: const Text('💬 대화 시작하기'),
       ),
     );
   }

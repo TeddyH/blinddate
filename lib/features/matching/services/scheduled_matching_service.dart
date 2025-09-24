@@ -198,18 +198,23 @@ class ScheduledMatchingService extends ChangeNotifier {
       final user2Id = matchResponse['user2_id'];
       final targetUserId = userId == user1Id ? user2Id : user1Id;
 
+      debugPrint('recordMatchInteraction: Recording $action from $userId to $targetUserId for match $matchId');
+
       await _supabaseService.from(TableNames.userActions).upsert({
         'user_id': userId,
         'target_user_id': targetUserId,
         'action': action,
       });
 
+      debugPrint('recordMatchInteraction: Successfully recorded $action');
+
       // If both users liked, update match status
       if (action == 'like') {
+        debugPrint('recordMatchInteraction: Like recorded, checking for mutual like...');
         await _checkForMutualLike(matchId);
       }
 
-      debugPrint('Recorded interaction: $action for match $matchId');
+      debugPrint('recordMatchInteraction: Interaction recording completed');
     } catch (e) {
       debugPrint('Error recording match interaction: $e');
       throw Exception('상호작용 기록 중 오류가 발생했습니다: $e');
@@ -219,6 +224,8 @@ class ScheduledMatchingService extends ChangeNotifier {
   // Check if both users liked each other
   Future<void> _checkForMutualLike(String matchId) async {
     try {
+      debugPrint('_checkForMutualLike: Checking mutual like for match $matchId');
+
       // Get the match details
       final matchResponse = await _supabaseService
           .from(TableNames.scheduledMatches)
@@ -228,6 +235,8 @@ class ScheduledMatchingService extends ChangeNotifier {
 
       final user1Id = matchResponse['user1_id'];
       final user2Id = matchResponse['user2_id'];
+
+      debugPrint('_checkForMutualLike: user1Id=$user1Id, user2Id=$user2Id');
 
       // Check if both users have liked each other
       final user1LikedUser2 = await _supabaseService
@@ -244,17 +253,34 @@ class ScheduledMatchingService extends ChangeNotifier {
           .eq('target_user_id', user1Id)
           .eq('action', 'like');
 
+      debugPrint('_checkForMutualLike: user1LikedUser2=${user1LikedUser2.length}, user2LikedUser1=${user2LikedUser1.length}');
+
       // If both users liked each other, update match status to mutual_like
       if ((user1LikedUser2 as List).isNotEmpty && (user2LikedUser1 as List).isNotEmpty) {
-        await _supabaseService
+        debugPrint('_checkForMutualLike: Mutual like detected! Updating match status to mutual_like');
+
+        final updateResult = await _supabaseService
             .from(TableNames.scheduledMatches)
             .update({'status': 'mutual_like'})
-            .eq('id', matchId);
+            .eq('id', matchId)
+            .select();
 
-        debugPrint('Mutual like detected for match $matchId');
+        debugPrint('_checkForMutualLike: Update result: $updateResult');
+
+        // Verify the update by fetching the specific match
+        final verifyResult = await _supabaseService
+            .from(TableNames.scheduledMatches)
+            .select('status')
+            .eq('id', matchId)
+            .single();
+
+        debugPrint('_checkForMutualLike: Verification result: $verifyResult');
 
         // Refresh local cache
         await getTodaysMatches();
+        debugPrint('_checkForMutualLike: Local cache refreshed');
+      } else {
+        debugPrint('_checkForMutualLike: No mutual like detected yet');
       }
     } catch (e) {
       debugPrint('Error checking for mutual like: $e');
