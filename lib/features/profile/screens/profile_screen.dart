@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'Hearty',
+              '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
                 color: AppColors.accent,
                 fontWeight: FontWeight.bold,

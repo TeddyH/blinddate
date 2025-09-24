@@ -90,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               AppBar(
                 title: Text(
-                  'Hearty',
+                  '💕 Hearty',
                   style: AppTextStyles.h1.copyWith(
                     color: AppColors.accent,
                     fontWeight: FontWeight.bold,

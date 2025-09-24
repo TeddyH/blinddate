@@ -37,7 +37,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              'Hearty',
+              '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
                 color: AppColors.accent,
                 fontWeight: FontWeight.bold,
