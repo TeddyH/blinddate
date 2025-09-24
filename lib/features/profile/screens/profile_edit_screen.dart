@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -20,6 +22,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   List<String> _selectedInterests = [];
   List<String> _profileImages = [];
+  List<File> _newImages = [];
   final List<String> _availableInterests = [
     '영화/드라마', '음악', '독서', '여행', '운동', '요리',
     '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
@@ -28,6 +31,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ];
 
   bool _isLoading = false;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -99,6 +103,141 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _showImagePickerOptions() async {
+    final totalImages = _profileImages.length + _newImages.length;
+    if (totalImages >= 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('최대 3장까지만 업로드 가능합니다'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              '사진 추가',
+              style: AppTextStyles.h3.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildImagePickerOption(
+                  icon: Icons.camera_alt,
+                  label: '카메라로 촬영',
+                  onTap: () => _pickImage(ImageSource.camera),
+                ),
+                _buildImagePickerOption(
+                  icon: Icons.photo_library,
+                  label: '갤러리에서 선택',
+                  onTap: () => _pickImage(ImageSource.gallery),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagePickerOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.surfaceVariant),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: AppColors.primary,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              label,
+              style: AppTextStyles.body2.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    Navigator.pop(context); // Close bottom sheet
+
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1080,
+        maxHeight: 1080,
+      );
+
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+        setState(() {
+          _newImages.add(file);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지를 선택하는 중 오류가 발생했습니다: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _removeImage(int index, bool isNew) {
+    setState(() {
+      if (isNew) {
+        _newImages.removeAt(index - _profileImages.length);
+      } else {
+        _profileImages.removeAt(index);
+      }
+    });
   }
 
   @override
@@ -173,7 +312,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
             itemCount: 3,
             itemBuilder: (context, index) {
-              final hasImage = index < _profileImages.length;
+              final totalImages = _profileImages.length + _newImages.length;
+              final hasOldImage = index < _profileImages.length;
+              final hasNewImage = !hasOldImage && (index - _profileImages.length) < _newImages.length;
+              final hasImage = hasOldImage || hasNewImage;
 
               return Container(
                 decoration: BoxDecoration(
@@ -185,41 +327,86 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ),
                 ),
                 child: InkWell(
-                  onTap: () {
-                    // TODO: Implement image picker
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('이미지 선택 기능은 추후 추가될 예정입니다'),
-                      ),
-                    );
-                  },
+                  onTap: hasImage ? null : _showImagePickerOptions,
                   borderRadius: BorderRadius.circular(12),
                   child: hasImage
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          _profileImages[index],
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.broken_image,
-                                  color: AppColors.textSecondary,
-                                  size: 24,
+                    ? Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: hasOldImage
+                              ? Image.network(
+                                  _profileImages[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image,
+                                          color: AppColors.textSecondary,
+                                          size: 24,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '이미지 오류',
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : Image.file(
+                                  _newImages[index - _profileImages.length],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image,
+                                          color: AppColors.textSecondary,
+                                          size: 24,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '이미지 오류',
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '이미지 오류',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () => _removeImage(index, !hasOldImage),
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
-                            );
-                          },
-                        ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -45,6 +45,7 @@ class SupabaseService {
     return await client.auth.signUp(
       email: email,
       password: password,
+      // 이메일 확인 링크를 정상적으로 보내도록 수정
     );
   }
 

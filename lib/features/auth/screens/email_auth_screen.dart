@@ -50,17 +50,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         if (mounted) {
           // 디버그: 회원가입 응답 확인
           debugPrint('Sign up response: ${response.user?.id}');
-          debugPrint('Is authenticated: ${authService.isAuthenticated}');
           debugPrint('Current user: ${authService.currentUser?.email}');
-
-          // 회원가입 성공 메시지
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('회원가입이 완료되었습니다! 환영합니다 🎉'),
-              backgroundColor: AppColors.success,
-              duration: Duration(seconds: 2),
-            ),
-          );
 
           // 회원가입 응답에서 사용자 정보가 있으면 가입 성공
           if (response.user != null) {
@@ -71,42 +61,166 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
             debugPrint('Email confirmed: $emailConfirmed');
 
             if (emailConfirmed) {
-              // 이메일 인증이 비활성화된 경우 - 즉시 진행
-              debugPrint('Email confirmation disabled - proceeding to profile setup');
-            } else {
-              // 이메일 인증이 활성화된 경우 - 강제로 로그인 처리
-              debugPrint('Email confirmation required - but forcing login for better UX');
+              // 이메일 인증이 완료된 경우 - 바로 프로필 설정으로
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('회원가입이 완료되었습니다! 환영합니다 🎉'),
+                  backgroundColor: AppColors.success,
+                  duration: Duration(seconds: 2),
+                ),
+              );
 
-              // 환영 이메일은 보내지만, 앱에서는 강제로 로그인 처리
-              try {
-                // 이메일 인증 상태를 무시하고 강제 로그인
-                await authService.signInWithEmailPassword(
-                  email: _emailController.text.trim(),
-                  password: _passwordController.text,
-                );
-                debugPrint('Forced login successful');
-              } catch (signInError) {
-                debugPrint('Forced login failed, but proceeding anyway: $signInError');
-                // 로그인 실패해도 계속 진행 (사용자 경험 우선)
+              await Future.delayed(const Duration(seconds: 1));
+              if (mounted) {
+                context.go(AppRoutes.profileSetup);
               }
+            } else {
+              // 이메일 인증이 필요한 경우 - 인증 안내 메시지
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '회원가입이 완료되었습니다! 🎉',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '이메일(${_emailController.text.trim()})로 전송된 인증 링크를 확인해주세요.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: AppColors.success,
+                  duration: Duration(seconds: 5),
+                ),
+              );
             }
-
-            // 이메일 상태와 관계없이 항상 프로필 설정으로 이동
-            await Future.delayed(const Duration(seconds: 1));
-            if (mounted) {
-              context.go(AppRoutes.profileSetup);
-            }
+          } else {
+            // 회원가입 실패
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('회원가입 중 오류가 발생했습니다.'),
+                backgroundColor: AppColors.error,
+              ),
+            );
           }
         }
       } else {
         // 로그인
-        await authService.signInWithEmailPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+        try {
+          await authService.signInWithEmailPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+        } catch (loginError) {
+          // 이메일 미인증 에러의 경우 사용자에게 명확한 안내
+          if (loginError.toString().contains('Email not confirmed') ||
+              (loginError is AuthEmailNotConfirmedException)) {
+            debugPrint('Email not confirmed error - showing guidance to user');
+
+            if (mounted) {
+              // 이메일 인증 필요 안내 다이얼로그
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: Row(
+                      children: [
+                        Icon(Icons.email_outlined, color: AppColors.primary, size: 28),
+                        SizedBox(width: 12),
+                        Text(
+                          '이메일 인증 필요',
+                          style: AppTextStyles.h3.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '아직 이메일 인증이 완료되지 않았습니다.',
+                          style: AppTextStyles.body1.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Container(
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.mail_outline, color: AppColors.primary, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _emailController.text.trim(),
+                                  style: AppTextStyles.body2.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          '위 이메일로 전송된 인증 링크를 확인하고 이메일 인증을 완료해주세요.',
+                          style: AppTextStyles.body2.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '💡 이메일이 오지 않았다면 스팸함을 확인해보세요.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          '확인',
+                          style: AppTextStyles.body1.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+              return; // 다이얼로그 표시 후 종료
+            }
+          }
+
+          // 다른 에러의 경우 다시 던짐
+          rethrow;
+        }
 
         if (mounted) {
-          // 프로필 확인 후 적절한 화면으로 이동
+          // 정상 로그인 성공 시 프로필 확인 후 적절한 화면으로 이동
           final profile = await authService.getUserProfile();
 
           if (profile == null) {
@@ -136,9 +250,14 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         if (e.toString().contains('Invalid login credentials')) {
           errorMessage = '이메일 또는 비밀번호가 올바르지 않습니다.';
         } else if (e.toString().contains('User already registered')) {
-          errorMessage = '이미 가입된 이메일입니다.';
-        } else if (e.toString().contains('Email not confirmed')) {
-          errorMessage = '이메일 인증을 완료해주세요.';
+          errorMessage = '이미 가입된 이메일입니다. 로그인을 시도해보세요.';
+        } else if (e.toString().contains('Email not confirmed') ||
+                   (e is AuthEmailNotConfirmedException)) {
+          errorMessage = '이메일 인증이 필요합니다. 이메일함을 확인해주세요.';
+        } else if (e.toString().contains('Invalid email')) {
+          errorMessage = '올바른 이메일 주소를 입력해주세요.';
+        } else if (e.toString().contains('Password should be at least 6 characters')) {
+          errorMessage = '비밀번호는 최소 6자리 이상이어야 합니다.';
         }
 
         ScaffoldMessenger.of(context).showSnackBar(

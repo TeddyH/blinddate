@@ -6,6 +6,15 @@ import '../../../core/services/storage_service.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/table_names.dart';
 
+// 커스텀 예외 클래스
+class AuthEmailNotConfirmedException implements Exception {
+  final String message;
+  AuthEmailNotConfirmedException(this.message);
+
+  @override
+  String toString() => 'AuthEmailNotConfirmedException: $message';
+}
+
 class AuthService with ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService.instance;
   final StorageService _storageService = StorageService.instance;
@@ -73,6 +82,24 @@ class AuthService with ChangeNotifier {
       return response;
     } catch (e) {
       debugPrint('Email password sign in error: $e');
+
+      // 이메일 미인증 에러의 경우 더 자세한 로깅
+      if (e is AuthApiException && e.code == 'email_not_confirmed') {
+        debugPrint('Email not confirmed error detected - bypassing for app UX');
+        debugPrint('Error details: $e');
+
+        // 앱에서는 이메일 인증을 요구하지 않으므로 성공으로 간주
+        // 하지만 실제로는 로그인되지 않은 상태이므로 특별한 처리가 필요
+        throw AuthEmailNotConfirmedException('이메일 미인증 상태입니다.');
+      }
+
+      // 문자열로도 체크 (fallback)
+      if (e.toString().contains('Email not confirmed')) {
+        debugPrint('Email not confirmed error detected (fallback) - bypassing for app UX');
+        debugPrint('Error details: $e');
+        throw AuthEmailNotConfirmedException('이메일 미인증 상태입니다.');
+      }
+
       rethrow;
     }
   }

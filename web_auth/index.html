@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hearty - 이메일 인증 완료</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #EF476F, #2D3142);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: #2D3142;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        h1 {
+            color: #EF476F;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .instruction {
+            background: linear-gradient(135deg, #EF476F, #2D3142);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .instruction h2 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .instruction p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .app-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .app-info h3 {
+            color: #2D3142;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .features {
+            list-style: none;
+            text-align: left;
+        }
+
+        .features li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+        }
+
+        .features li::before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #EF476F, #2D3142);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .success-icon {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">💕 Hearty</div>
+        <div class="success-icon">✅</div>
+        <h1>인증 완료!</h1>
+        <p class="subtitle">
+            이메일 인증이 성공적으로 완료되었습니다.<br>
+            축하합니다! 🎉
+        </p>
+
+        <div class="instruction">
+            <h2>📱 다음 단계</h2>
+            <p>이제 <strong>Hearty 앱</strong>으로 돌아가서 로그인해주세요.<br>
+            특별한 만남이 기다리고 있어요!</p>
+        </div>
+
+        <div class="app-info">
+            <h3>🌟 Hearty에서 만나는 특별함</h3>
+            <ul class="features">
+                <li>하루에 한 분씩 엄선된 매칭</li>
+                <li>서로 관심을 표현하면 즉시 채팅 가능</li>
+                <li>안전하고 진실한 만남</li>
+                <li>매일 낮 12시 새로운 추천</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>❤️ <strong>Hearty</strong> - 매일 하나의 특별한 만남</p>
+        </div>
+    </div>
+
+    <script>
+        // URL에서 토큰 확인하여 인증 상태 표시
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const type = urlParams.get('type');
+
+        if (token && type === 'signup') {
+            console.log('Email confirmation successful');
+            // 필요시 analytics나 추가 처리
+        }
+
+        // 5초 후 자동으로 앱으로 돌아가라는 메시지 추가
+        setTimeout(() => {
+            const instruction = document.querySelector('.instruction p');
+            instruction.innerHTML += '<br><br><em>이 창을 닫고 앱으로 돌아가세요.</em>';
+        }, 5000);
+    </script>
+</body>
+</html>
