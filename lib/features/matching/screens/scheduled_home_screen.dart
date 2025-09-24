@@ -369,8 +369,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           ),
           child: ScheduledMatchCard(
             match: match,
-            onLike: () => _handleMatchAction(match, 'liked'),
-            onPass: () => _handleMatchAction(match, 'passed'),
+            onLike: () => _handleMatchAction(match, 'like'),
+            onPass: () => _handleMatchAction(match, 'pass'),
           ),
         );
       },
@@ -445,11 +445,11 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
       );
 
       if (mounted) {
-        final message = action == 'liked' ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
+        final message = action == 'like' ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
-            backgroundColor: action == 'liked' ? AppColors.accent : AppColors.textSecondary,
+            backgroundColor: action == 'like' ? AppColors.accent : AppColors.textSecondary,
             duration: const Duration(seconds: 1),
           ),
         );
