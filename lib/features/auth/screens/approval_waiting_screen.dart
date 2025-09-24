@@ -120,94 +120,106 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            children: [
-              const Spacer(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height -
+                         MediaQuery.of(context).padding.top -
+                         MediaQuery.of(context).padding.bottom -
+                         kToolbarHeight - 32, // AppBar height + padding
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  const SizedBox(height: AppSpacing.xl),
 
-              // Icon
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.hourglass_empty_outlined,
-                  size: 60,
-                  color: AppColors.accent,
-                ),
+                  // Icon
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.hourglass_empty_outlined,
+                      size: 60,
+                      color: AppColors.accent,
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Title
+                  Text(
+                    '프로필 검토 중입니다',
+                    style: AppTextStyles.h1.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Description
+                  Text(
+                    '안전한 만남을 위해 모든 프로필을 검토하고 있습니다.\n승인이 완료되면 알림을 보내드릴게요!',
+                    style: AppTextStyles.body1.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Info cards
+                  _buildInfoCard(
+                    icon: Icons.security_outlined,
+                    title: '철저한 검증',
+                    description: '모든 프로필 사진과 정보를 꼼꼼히 확인합니다',
+                  ),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  _buildInfoCard(
+                    icon: Icons.schedule_outlined,
+                    title: '빠른 처리',
+                    description: '보통 24시간 이내에 검토가 완료됩니다',
+                  ),
+
+                  const SizedBox(height: AppSpacing.md),
+
+                  _buildInfoCard(
+                    icon: Icons.notifications_outlined,
+                    title: '즉시 알림',
+                    description: '승인 완료 시 앱과 이메일로 알려드립니다',
+                  ),
+
+                  const SizedBox(height: AppSpacing.xl),
+
+                  const Spacer(),
+
+                  // Refresh button
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _isChecking ? null : _checkApprovalStatus,
+                      icon: _isChecking
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                      label: Text(_isChecking ? '확인 중...' : '승인 상태 확인'),
+                    ),
+                  ),
+
+                  const SizedBox(height: AppSpacing.lg),
+                ],
               ),
-
-              const SizedBox(height: AppSpacing.xl),
-
-              // Title
-              Text(
-                '프로필 검토 중입니다',
-                style: AppTextStyles.h1.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              // Description
-              Text(
-                '안전한 만남을 위해 모든 프로필을 검토하고 있습니다.\n승인이 완료되면 알림을 보내드릴게요!',
-                style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: AppSpacing.xl),
-
-              // Info cards
-              _buildInfoCard(
-                icon: Icons.security_outlined,
-                title: '철저한 검증',
-                description: '모든 프로필 사진과 정보를 꼼꼼히 확인합니다',
-              ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              _buildInfoCard(
-                icon: Icons.schedule_outlined,
-                title: '빠른 처리',
-                description: '보통 24시간 이내에 검토가 완료됩니다',
-              ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              _buildInfoCard(
-                icon: Icons.notifications_outlined,
-                title: '즉시 알림',
-                description: '승인 완료 시 앱과 이메일로 알려드립니다',
-              ),
-
-              const Spacer(),
-
-              // Refresh button
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: _isChecking ? null : _checkApprovalStatus,
-                  icon: _isChecking
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh),
-                  label: Text(_isChecking ? '확인 중...' : '승인 상태 확인'),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.lg),
-            ],
+            ),
           ),
         ),
       ),

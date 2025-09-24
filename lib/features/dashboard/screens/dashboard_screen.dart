@@ -335,28 +335,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildNoMatchesCard() {
-    return Column(
-      children: [
-        Icon(
-          Icons.favorite_outline,
-          color: AppColors.textSecondary,
-          size: 48,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          '오늘의 추천을 기다려보세요',
-          style: AppTextStyles.body1.copyWith(
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite_outline,
             color: AppColors.textSecondary,
+            size: 48,
           ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          '매일 낮 12시에 새로운 인연이 찾아와요',
-          style: AppTextStyles.body2.copyWith(
-            color: AppColors.textSecondary,
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '오늘의 추천을 기다려보세요',
+            style: AppTextStyles.body1.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '매일 낮 12시에 새로운 인연이 찾아와요',
+            style: AppTextStyles.body2.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 

@@ -338,21 +338,54 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingData) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.background,
+                AppColors.accent.withValues(alpha: 0.03),
+                AppColors.accent.withValues(alpha: 0.08),
+              ],
+              stops: const [0.0, 0.6, 1.0],
+            ),
+          ),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          _isUpdating ? '프로필 수정' : '프로필 설정',
-          style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '💕 Hearty',
+              style: AppTextStyles.h1.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                _isUpdating ? '프로필 수정' : '프로필 설정',
+                style: AppTextStyles.body2.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -360,7 +393,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         actions: [
           // 로그아웃 버튼 (개발용)
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: Icon(
+              Icons.logout,
+              color: AppColors.accent,
+            ),
             onPressed: () async {
               final authService = context.read<AuthService>();
               await authService.signOut();
@@ -372,60 +408,98 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.background,
+              AppColors.accent.withValues(alpha: 0.03),
+              AppColors.accent.withValues(alpha: 0.08),
+            ],
+            stops: const [0.0, 0.6, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Page content
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Form(
+                    key: _formKey1,
+                    child: Column(
+                      children: [
+                        // Profile Images Section
+                        _buildProfileImagesSection(),
+                        const SizedBox(height: AppSpacing.lg),
 
-            // Page content
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Form(
-                  key: _formKey1,
-                  child: Column(
-                    children: [
-                      // Profile Images Section
-                      _buildProfileImagesSection(),
-                      const SizedBox(height: AppSpacing.lg),
+                        // Basic Info Section
+                        _buildBasicInfoSection(),
+                        const SizedBox(height: AppSpacing.lg),
 
-                      // Basic Info Section
-                      _buildBasicInfoSection(),
-                      const SizedBox(height: AppSpacing.lg),
-
-                      // Additional Info Section
-                      _buildAdditionalInfoSection(),
-                      const SizedBox(height: AppSpacing.xl),
-                    ],
+                        // Additional Info Section
+                        _buildAdditionalInfoSection(),
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Bottom navigation
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.lg).copyWith(
-                top: AppSpacing.md,
-                bottom: AppSpacing.lg,
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submitProfile,
-                      child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(_isUpdating ? '수정 완료' : '프로필 등록'),
+              // Bottom navigation
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.lg).copyWith(
+                  top: AppSpacing.md,
+                  bottom: AppSpacing.lg,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withValues(alpha: 0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      offset: const Offset(0, -2),
+                      blurRadius: 8,
                     ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submitProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          _isUpdating ? '수정 완료' : '프로필 등록',
+                          style: AppTextStyles.body1.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -639,8 +713,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         children: [
           // Interests
           Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               '영화/드라마', '음악', '독서', '여행', '운동', '요리',
               '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
@@ -648,26 +722,49 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               '커피', '디저트', '패션', '뷰티', '자동차', '바이크',
             ].map((interest) {
               final isSelected = _interests.contains(interest);
-              return FilterChip(
-                label: Text(interest),
-                selected: isSelected,
-                onSelected: (selected) {
+              return GestureDetector(
+                onTap: () {
                   setState(() {
-                    if (selected) {
+                    if (isSelected) {
+                      _interests.remove(interest);
+                      _interestError = null;
+                    } else {
                       if (_interests.length < 5) {
                         _interests.add(interest);
                         _interestError = null;
                       } else {
                         _interestError = '최대 5개까지 선택할 수 있습니다';
                       }
-                    } else {
-                      _interests.remove(interest);
-                      _interestError = null;
                     }
                   });
                 },
-                selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                checkmarkColor: AppColors.primary,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.1)
+                        : AppColors.surfaceVariant.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.3)
+                          : AppColors.surfaceVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Text(
+                    interest,
+                    style: AppTextStyles.caption.copyWith(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               );
             }).toList(),
           ),
