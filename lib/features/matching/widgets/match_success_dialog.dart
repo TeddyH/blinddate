@@ -57,6 +57,14 @@ class _MatchSuccessDialogState extends State<MatchSuccessDialog>
 
     _scaleController.forward();
     _fadeController.forward();
+
+    // 내 프로필이 로드되지 않았다면 로드하기
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profileService = Provider.of<ProfileService>(context, listen: false);
+      if (profileService.currentUserProfile == null) {
+        profileService.getCurrentUserProfile();
+      }
+    });
   }
 
   @override
@@ -70,19 +78,22 @@ class _MatchSuccessDialogState extends State<MatchSuccessDialog>
   Widget build(BuildContext context) {
     final otherUser = widget.match.otherUserProfile;
     final matchingService = Provider.of<ScheduledMatchingService>(context, listen: false);
-    final profileService = Provider.of<ProfileService>(context, listen: false);
 
     // 상대방 프로필 이미지 (matchingService의 getUserImages 함수 사용)
     final otherUserImages = matchingService.getUserImages(otherUser);
 
-    final myProfile = profileService.currentUserProfile;
-    final myImages = myProfile != null ? matchingService.getUserImages(myProfile) : <String>[];
-
     debugPrint('MatchSuccessDialog: otherUser keys: ${otherUser.keys}');
     debugPrint('MatchSuccessDialog: otherUserImages: $otherUserImages');
-    debugPrint('MatchSuccessDialog: myImages: $myImages');
 
-    return Dialog(
+    return Consumer<ProfileService>(
+      builder: (context, profileService, child) {
+        final myProfile = profileService.currentUserProfile;
+        final myImages = myProfile != null ? matchingService.getUserImages(myProfile) : <String>[];
+
+        debugPrint('MatchSuccessDialog: myProfile loaded: ${myProfile != null}');
+        debugPrint('MatchSuccessDialog: myImages: $myImages');
+
+        return Dialog(
       backgroundColor: Colors.transparent,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
@@ -310,6 +321,8 @@ class _MatchSuccessDialogState extends State<MatchSuccessDialog>
           );
         },
       ),
+        );
+      },
     );
   }
 }
