@@ -131,67 +131,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildNoticesSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary.withValues(alpha:0.1), AppColors.accent.withValues(alpha:0.1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withValues(alpha:0.2)),
+        border: Border.all(color: AppColors.surfaceVariant.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha:0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.campaign_outlined,
-                color: AppColors.primary,
-                size: 20,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                '새 소식',
-                style: AppTextStyles.h3.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              Row(
-                children: List.generate(_notices.length, (index) {
-                  return Container(
-                    margin: const EdgeInsets.only(left: 4),
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _currentNoticeIndex == index
-                          ? AppColors.primary
-                          : AppColors.primary.withValues(alpha:0.3),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
           Container(
-            height: 100,
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha:0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+              gradient: LinearGradient(
+                colors: [AppColors.surfaceVariant.withValues(alpha: 0.8), AppColors.surfaceVariant],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.campaign_outlined,
+                  color: AppColors.textPrimary,
+                  size: 18,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  '새 소식',
+                  style: AppTextStyles.body1.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Row(
+                  children: List.generate(_notices.length, (index) {
+                    return Container(
+                      margin: const EdgeInsets.only(left: 4),
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _currentNoticeIndex == index
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary.withValues(alpha:0.4),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
-            child: PageView.builder(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: SizedBox(
+              height: 100,
+              child: PageView.builder(
               controller: _noticePageController,
               onPageChanged: (index) {
                 setState(() {
@@ -201,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               itemCount: _notices.length,
               itemBuilder: (context, index) {
                 final notice = _notices[index];
-                return Container(
+                return Padding(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,6 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 );
               },
+              ),
             ),
           ),
         ],
@@ -336,31 +347,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildNoMatchesCard() {
     return SizedBox(
-      width: double.infinity,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      height: 60,
+      child: Row(
         children: [
-          Icon(
-            Icons.favorite_outline,
-            color: AppColors.textSecondary,
-            size: 48,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            '오늘의 추천을 기다려보세요',
-            style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.textSecondary.withValues(alpha: 0.1),
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            '매일 낮 12시에 새로운 인연이 찾아와요',
-            style: AppTextStyles.body2.copyWith(
+            child: Icon(
+              Icons.favorite_outline,
               color: AppColors.textSecondary,
+              size: 30,
             ),
-            textAlign: TextAlign.center,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '오늘의 추천을 기다려보세요',
+                  style: AppTextStyles.body1.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '매일 낮 12시에 새로운 인연이 찾아와요',
+                  style: AppTextStyles.body2.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -375,8 +399,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final matchingService = Provider.of<ScheduledMatchingService>(context, listen: false);
     final profileImages = matchingService.getUserImages(otherUser);
 
-    return Row(
-      children: [
+    return SizedBox(
+      height: 60,
+      child: Row(
+        children: [
         Container(
           width: 60,
           height: 60,
@@ -420,11 +446,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        Icon(
-          match.status == 'mutual_like' ? Icons.favorite : Icons.favorite_border,
-          color: match.status == 'mutual_like' ? AppColors.accent : AppColors.textSecondary,
-        ),
-      ],
+        ],
+      ),
     );
   }
 

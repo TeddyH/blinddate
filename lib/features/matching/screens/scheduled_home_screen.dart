@@ -255,35 +255,24 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // Countdown
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.md,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.surfaceVariant),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '다음 매칭까지',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+              Column(
+                children: [
+                  Text(
+                    '다음 매칭까지',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _formatCountdown(timeUntilReveal),
-                      style: AppTextStyles.h1.copyWith(
-                        color: Colors.pink,
-                        fontWeight: FontWeight.bold,
-                        fontFeatures: [const FontFeature.tabularFigures()],
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _formatCountdown(timeUntilReveal),
+                    style: AppTextStyles.h1.copyWith(
+                      color: Colors.pink,
+                      fontWeight: FontWeight.bold,
+                      fontFeatures: [const FontFeature.tabularFigures()],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ] else ...[
               Text(
@@ -295,12 +284,6 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
               ),
             ],
 
-            const SizedBox(height: AppSpacing.xl),
-
-            OutlinedButton(
-              onPressed: _loadTodaysMatches,
-              child: const Text('새로고침'),
-            ),
           ],
         ),
       ),

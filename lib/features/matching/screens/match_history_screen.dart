@@ -193,11 +193,6 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.xl),
-            OutlinedButton(
-              onPressed: _loadPastMatches,
-              child: const Text('새로고침'),
-            ),
           ],
         ),
       ),
