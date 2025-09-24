@@ -27,6 +27,12 @@ class AuthService with ChangeNotifier {
   // Auth state stream
   Stream<AuthState> get authStateStream => _supabaseService.authStateStream;
 
+  // Check if user's email is confirmed
+  bool get isEmailConfirmed {
+    if (currentUser == null) return false;
+    return currentUser!.emailConfirmedAt != null;
+  }
+
   // Email authentication
   Future<void> signInWithEmail(String email) async {
     try {
