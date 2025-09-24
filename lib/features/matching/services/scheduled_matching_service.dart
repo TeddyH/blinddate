@@ -12,6 +12,8 @@ class ScheduledMatch {
   final String status;
   final Map<String, dynamic> user1Profile;
   final Map<String, dynamic> user2Profile;
+  final bool receivedLike;
+  final bool sentLike;
 
   ScheduledMatch({
     required this.id,
@@ -22,9 +24,11 @@ class ScheduledMatch {
     required this.status,
     required this.user1Profile,
     required this.user2Profile,
+    this.receivedLike = false,
+    this.sentLike = false,
   });
 
-  factory ScheduledMatch.fromJson(Map<String, dynamic> json) {
+  factory ScheduledMatch.fromJson(Map<String, dynamic> json, {bool receivedLike = false, bool sentLike = false}) {
     return ScheduledMatch(
       id: json['id'],
       user1Id: json['user1_id'],
@@ -34,6 +38,8 @@ class ScheduledMatch {
       status: json['status'],
       user1Profile: json['user1_profile'] ?? {},
       user2Profile: json['user2_profile'] ?? {},
+      receivedLike: receivedLike,
+      sentLike: sentLike,
     );
   }
 
@@ -129,6 +135,11 @@ class ScheduledMatchingService extends ChangeNotifier {
             .eq('id', user2Id)
             .single();
 
+        // Check if the other user has liked me and if I have liked them
+        final otherUserId = userId == user1Id ? user2Id : user1Id;
+        final receivedLike = await hasReceivedLikeFromUser(otherUserId);
+        final sentLike = await hasSentLikeToUser(otherUserId);
+
         matches.add(ScheduledMatch(
           id: json['id'],
           user1Id: user1Id,
@@ -138,6 +149,8 @@ class ScheduledMatchingService extends ChangeNotifier {
           status: json['status'],
           user1Profile: user1Response,
           user2Profile: user2Response,
+          receivedLike: receivedLike,
+          sentLike: sentLike,
         ));
       }
 
@@ -166,7 +179,7 @@ class ScheduledMatchingService extends ChangeNotifier {
   // Record user interaction with a match
   Future<void> recordMatchInteraction({
     required String matchId,
-    required String action, // 'viewed', 'liked', 'passed', 'chatted'
+    required String action, // 'viewed', 'like', 'pass', 'chatted'
   }) async {
     try {
       final userId = _supabaseService.currentUser?.id;
@@ -174,14 +187,25 @@ class ScheduledMatchingService extends ChangeNotifier {
         throw Exception('User not authenticated');
       }
 
-      await _supabaseService.from(TableNames.matchInteractions).upsert({
-        'scheduled_match_id': matchId,
+      // Get match info to find target user
+      final matchResponse = await _supabaseService
+          .from(TableNames.scheduledMatches)
+          .select('user1_id, user2_id')
+          .eq('id', matchId)
+          .single();
+
+      final user1Id = matchResponse['user1_id'];
+      final user2Id = matchResponse['user2_id'];
+      final targetUserId = userId == user1Id ? user2Id : user1Id;
+
+      await _supabaseService.from(TableNames.userActions).upsert({
         'user_id': userId,
+        'target_user_id': targetUserId,
         'action': action,
       });
 
       // If both users liked, update match status
-      if (action == 'liked') {
+      if (action == 'like') {
         await _checkForMutualLike(matchId);
       }
 
@@ -205,19 +229,23 @@ class ScheduledMatchingService extends ChangeNotifier {
       final user1Id = matchResponse['user1_id'];
       final user2Id = matchResponse['user2_id'];
 
-      // Check if both users have liked
-      final interactionsResponse = await _supabaseService
-          .from(TableNames.matchInteractions)
-          .select('user_id')
-          .eq('scheduled_match_id', matchId)
-          .eq('action', 'liked');
+      // Check if both users have liked each other
+      final user1LikedUser2 = await _supabaseService
+          .from(TableNames.userActions)
+          .select('id')
+          .eq('user_id', user1Id)
+          .eq('target_user_id', user2Id)
+          .eq('action', 'like');
 
-      final likedUsers = (interactionsResponse as List)
-          .map((interaction) => interaction['user_id'] as String)
-          .toSet();
+      final user2LikedUser1 = await _supabaseService
+          .from(TableNames.userActions)
+          .select('id')
+          .eq('user_id', user2Id)
+          .eq('target_user_id', user1Id)
+          .eq('action', 'like');
 
-      // If both users liked, update match status
-      if (likedUsers.contains(user1Id) && likedUsers.contains(user2Id)) {
+      // If both users liked each other, update match status to mutual_like
+      if ((user1LikedUser2 as List).isNotEmpty && (user2LikedUser1 as List).isNotEmpty) {
         await _supabaseService
             .from(TableNames.scheduledMatches)
             .update({'status': 'mutual_like'})
@@ -411,6 +439,84 @@ class ScheduledMatchingService extends ChangeNotifier {
       return [];
     } finally {
       _setLoading(false);
+    }
+  }
+
+  // Check if current user has sent a like to target user
+  Future<bool> hasSentLikeToUser(String targetUserId) async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) {
+        return false;
+      }
+
+      try {
+        final response = await _supabaseService.client.rpc('check_sent_like', params: {
+          'current_user_id': userId,
+          'target_user_id': targetUserId,
+        });
+
+        return response == true;
+      } catch (e) {
+        // RPC가 없으면 직접 쿼리 시도
+        try {
+          final response = await _supabaseService
+              .from(TableNames.userActions)
+              .select('id')
+              .eq('user_id', userId)           // 내가
+              .eq('target_user_id', targetUserId)  // 상대방에게
+              .eq('action', 'like')            // 좋아요를 보냄
+              .maybeSingle();
+
+          return response != null;
+        } catch (e2) {
+          debugPrint('Error checking sent like: $e2');
+          return false;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking sent like: $e');
+      return false;
+    }
+  }
+
+  // Check if current user has received a like from target user
+  Future<bool> hasReceivedLikeFromUser(String targetUserId) async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) {
+        debugPrint('hasReceivedLikeFromUser: current user is null');
+        return false;
+      }
+
+      // RLS 정책 문제로 인해 직접 쿼리가 안 되므로, 함수나 RPC를 사용
+      try {
+        final response = await _supabaseService.client.rpc('check_received_like', params: {
+          'current_user_id': userId,
+          'target_user_id': targetUserId,
+        });
+
+        return response == true;
+      } catch (e) {
+        // RPC가 없으면 직접 쿼리 시도
+        try {
+          final response = await _supabaseService
+              .from(TableNames.userActions)
+              .select('id')
+              .eq('user_id', targetUserId)
+              .eq('target_user_id', userId)
+              .eq('action', 'like')
+              .maybeSingle();
+
+          return response != null;
+        } catch (e2) {
+          debugPrint('Error checking received like: $e2');
+          return false;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking received like: $e');
+      return false;
     }
   }
 }

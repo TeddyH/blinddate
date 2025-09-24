@@ -65,6 +65,8 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
   Widget build(BuildContext context) {
     final otherUser = widget.match.otherUserProfile;
     final isMutualLike = widget.match.status == 'mutual_like';
+    final receivedLike = widget.match.receivedLike;
+    final sentLike = widget.match.sentLike;
 
     return Container(
       decoration: BoxDecoration(
@@ -124,6 +126,84 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
               ),
             ),
 
+          // Received like banner
+          if (!isMutualLike && receivedLike)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.orange.withValues(alpha: 0.8), Colors.deepOrange.withValues(alpha: 0.9)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: isMutualLike ? BorderRadius.zero : const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    '이분이 당신에게 관심을 표현했어요! 💕',
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          // Sent like banner
+          if (!isMutualLike && !receivedLike && sentLike)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.purple.withValues(alpha: 0.8), Colors.deepPurple.withValues(alpha: 0.9)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.favorite_outline,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    '당신이 관심을 표현했어요! 💝',
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           // Profile content
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -153,7 +233,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
                 const SizedBox(height: AppSpacing.lg),
 
                 // Action buttons (only show if not mutual like)
-                if (!isMutualLike) _buildActionButtons(),
+                if (!isMutualLike) sentLike ? _buildSentLikeStatus() : _buildActionButtons(),
 
                 // Selection deadline countdown (only show if not mutual like)
                 if (!isMutualLike) ...[
@@ -422,6 +502,36 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSentLikeStatus() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.purple.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite,
+            color: Colors.purple,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '관심을 표현했어요',
+            style: AppTextStyles.body1.copyWith(
+              color: Colors.purple,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

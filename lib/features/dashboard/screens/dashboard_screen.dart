@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../app/routes.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -399,54 +401,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final matchingService = Provider.of<ScheduledMatchingService>(context, listen: false);
     final profileImages = matchingService.getUserImages(otherUser);
 
-    return SizedBox(
-      height: 60,
-      child: Row(
-        children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.accent.withValues(alpha:0.2),
-            image: profileImages.isNotEmpty
-                ? DecorationImage(
-                    image: NetworkImage(profileImages.first),
-                    fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        // 추천 탭으로 이동
+        context.go(AppRoutes.recommendations);
+      },
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.transparent,
+        ),
+        child: Row(
+          children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.accent.withValues(alpha:0.2),
+              image: profileImages.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(profileImages.first),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: profileImages.isEmpty
+                ? Icon(
+                    Icons.person,
+                    color: AppColors.accent,
+                    size: 30,
                   )
                 : null,
           ),
-          child: profileImages.isEmpty
-              ? Icon(
-                  Icons.person,
-                  color: AppColors.accent,
-                  size: 30,
-                )
-              : null,
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${otherUser['nickname'] ?? '알 수 없음'}, $age세',
-                style: AppTextStyles.body1.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${otherUser['nickname'] ?? '알 수 없음'}, $age세',
+                  style: AppTextStyles.body1.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                match.status == 'mutual_like' ? '서로 관심을 표현했어요! 💕' : '새로운 인연이 기다리고 있어요',
-                style: AppTextStyles.body2.copyWith(
-                  color: AppColors.textSecondary,
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  match.status == 'mutual_like'
+                    ? '서로 관심을 표현했어요! 💕'
+                    : match.receivedLike
+                      ? '당신에게 관심을 표현했어요 💕'
+                      : match.sentLike
+                        ? '당신이 관심을 표현했어요 💝'
+                        : '새로운 인연이 기다리고 있어요',
+                  style: AppTextStyles.body2.copyWith(
+                    color: (match.receivedLike || match.sentLike) ? AppColors.accent : AppColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          // 화살표 아이콘 추가
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: AppColors.textSecondary,
+          ),
+          ],
         ),
-        ],
       ),
     );
   }
