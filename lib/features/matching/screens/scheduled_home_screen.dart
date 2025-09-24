@@ -6,6 +6,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../services/scheduled_matching_service.dart';
 import '../widgets/scheduled_match_card.dart';
+import '../widgets/match_success_dialog.dart';
 
 class ScheduledHomeScreen extends StatefulWidget {
   const ScheduledHomeScreen({super.key});
@@ -39,6 +40,23 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
 
     // Check for newly revealed matches
     await service.checkForRevealedMatches();
+
+    // Check for mutual matches and show celebration dialog
+    _checkAndShowMutualMatchDialog();
+  }
+
+  void _checkAndShowMutualMatchDialog() {
+    final service = context.read<ScheduledMatchingService>();
+    final mutualMatches = service.todaysMatches.where((match) => match.status == 'mutual_like').toList();
+
+    if (mutualMatches.isNotEmpty && mounted) {
+      // Show dialog for the first mutual match (always show when entering the page)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showMatchSuccessDialog(mutualMatches.first);
+        }
+      });
+    }
   }
 
   void _startCountdownTimer() {
@@ -291,19 +309,20 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildMatchesView(List<ScheduledMatch> matches, bool isRevealTime, Duration timeUntilReveal) {
-    final revealedMatches = matches.where((m) => m.isRevealed).toList();
+    // revealed 또는 mutual_like 상태인 매치들을 표시 가능한 매치로 분류
+    final displayableMatches = matches.where((m) => m.isRevealed || m.status == 'mutual_like').toList();
     final pendingMatches = matches.where((m) => m.isPending).toList();
 
     return Column(
       children: [
         // Status header
-        if (!isRevealTime && pendingMatches.isNotEmpty)
+        if (!isRevealTime && pendingMatches.isNotEmpty && displayableMatches.isEmpty)
           _buildCountdownHeader(timeUntilReveal),
 
         // Matches list
         Expanded(
-          child: revealedMatches.isNotEmpty
-              ? _buildRevealedMatches(revealedMatches)
+          child: displayableMatches.isNotEmpty
+              ? _buildRevealedMatches(displayableMatches)
               : _buildPendingMatches(pendingMatches, isRevealTime),
         ),
       ],
@@ -439,23 +458,40 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   Future<void> _handleMatchAction(ScheduledMatch match, String action) async {
     try {
       final service = context.read<ScheduledMatchingService>();
+
+      // 액션 전 매치 상태 저장
+      final wasNotMutualLike = match.status != 'mutual_like';
+
       await service.recordMatchInteraction(
         matchId: match.id,
         action: action,
       );
 
       if (mounted) {
-        final message = action == 'like' ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: action == 'like' ? AppColors.accent : AppColors.textSecondary,
-            duration: const Duration(seconds: 1),
-          ),
+        // 매치 상태를 새로 확인
+        await _loadTodaysMatches();
+
+        // 매칭 성공 여부 확인
+        final updatedMatches = service.todaysMatches;
+        final updatedMatch = updatedMatches.firstWhere(
+          (m) => m.id == match.id,
+          orElse: () => match,
         );
 
-        // Refresh matches to get updated status
-        await _loadTodaysMatches();
+        // 좋아요를 보냈고, 상호 매칭이 완성된 경우
+        if (action == 'like' && wasNotMutualLike && updatedMatch.status == 'mutual_like') {
+          _showMatchSuccessDialog(updatedMatch);
+        } else {
+          // 일반적인 액션 피드백
+          final message = action == 'like' ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: action == 'like' ? AppColors.accent : AppColors.textSecondary,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -467,5 +503,27 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
         );
       }
     }
+  }
+
+  void _showMatchSuccessDialog(ScheduledMatch match) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return MatchSuccessDialog(
+          match: match,
+          onStartChat: () {
+            Navigator.of(context).pop();
+            // TODO: Navigate to chat screen
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('채팅 기능이 곧 추가될 예정입니다! 🚀'),
+                backgroundColor: AppColors.primary,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }
