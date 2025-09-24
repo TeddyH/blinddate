@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../app/routes.dart';
 import '../services/scheduled_matching_service.dart';
 
 class ScheduledMatchCard extends StatefulWidget {
@@ -542,7 +544,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            // TODO: Navigate to chat screen
+            context.go(AppRoutes.chatList);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.accent,

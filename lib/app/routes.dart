@@ -73,6 +73,11 @@ class AppRoutes {
             builder: (context, state) => const ScheduledHomeScreen(),
           ),
           GoRoute(
+            path: chatList,
+            name: 'chat-list',
+            builder: (context, state) => const ChatListScreen(),
+          ),
+          GoRoute(
             path: matchHistory,
             name: 'match-history',
             builder: (context, state) => const MatchHistoryScreen(),
@@ -126,9 +131,12 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         context.go(AppRoutes.recommendations);
         break;
       case 2:
-        context.go(AppRoutes.matchHistory);
+        context.go(AppRoutes.chatList);
         break;
       case 3:
+        context.go(AppRoutes.matchHistory);
+        break;
+      case 4:
         context.go(AppRoutes.profile);
         break;
     }
@@ -140,8 +148,9 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final currentRoute = GoRouterState.of(context).fullPath;
     if (currentRoute == AppRoutes.home) _selectedIndex = 0;
     if (currentRoute == AppRoutes.recommendations) _selectedIndex = 1;
-    if (currentRoute == AppRoutes.matchHistory) _selectedIndex = 2;
-    if (currentRoute == AppRoutes.profile) _selectedIndex = 3;
+    if (currentRoute == AppRoutes.chatList) _selectedIndex = 2;
+    if (currentRoute == AppRoutes.matchHistory) _selectedIndex = 3;
+    if (currentRoute == AppRoutes.profile) _selectedIndex = 4;
 
     return Scaffold(
       body: widget.child,
@@ -216,8 +225,25 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
               icon: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Icon(
-                  Icons.history,
+                  Icons.chat_bubble_outline,
                   size: _selectedIndex == 2 ? 26 : 24,
+                ),
+              ),
+              activeIcon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: const Icon(
+                  Icons.chat_bubble,
+                  size: 26,
+                ),
+              ),
+              label: '채팅',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Icon(
+                  Icons.history,
+                  size: _selectedIndex == 3 ? 26 : 24,
                 ),
               ),
               activeIcon: Padding(
@@ -234,7 +260,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Icon(
                   Icons.person_outline,
-                  size: _selectedIndex == 3 ? 26 : 24,
+                  size: _selectedIndex == 4 ? 26 : 24,
                 ),
               ),
               activeIcon: Padding(

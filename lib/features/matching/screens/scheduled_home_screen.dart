@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../app/routes.dart';
 import '../services/scheduled_matching_service.dart';
 import '../widgets/scheduled_match_card.dart';
 import '../widgets/match_success_dialog.dart';
@@ -514,13 +516,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           match: match,
           onStartChat: () {
             Navigator.of(context).pop();
-            // TODO: Navigate to chat screen
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('채팅 기능이 곧 추가될 예정입니다! 🚀'),
-                backgroundColor: AppColors.primary,
-              ),
-            );
+            // 채팅 탭으로 이동
+            context.go(AppRoutes.chatList);
           },
         );
       },
