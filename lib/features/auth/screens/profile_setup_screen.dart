@@ -9,8 +9,6 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../app/routes.dart';
-import '../../../shared/widgets/image_picker_grid.dart';
-import '../../../shared/widgets/interest_chip_input.dart';
 import '../../../shared/widgets/profile_section_card.dart';
 import '../../../shared/models/image_source.dart' as model;
 import '../services/auth_service.dart';

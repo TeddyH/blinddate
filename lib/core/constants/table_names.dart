@@ -12,6 +12,10 @@ class TableNames {
   static const String dailyMatchProcessing = '${prefix}daily_match_processing';
   static const String matchInteractions = '${prefix}match_interactions';
 
+  // Chat Tables
+  static const String chatRooms = '${prefix}chat_rooms';
+  static const String chatMessages = '${prefix}chat_messages';
+
   // Storage Buckets
   static const String profileImagesBucket = 'blinddate-profile-images';
 }
