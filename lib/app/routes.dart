@@ -92,11 +92,11 @@ class AppRoutes {
 
       // Chat Detail Route (outside of shell)
       GoRoute(
-        path: '$chat/:chatId',
+        path: '$chat/:chatRoomId',
         name: 'chat',
         builder: (context, state) {
-          final chatId = state.pathParameters['chatId']!;
-          return ChatScreen(chatId: chatId);
+          final chatRoomId = state.pathParameters['chatRoomId']!;
+          return ChatScreen(chatRoomId: chatRoomId);
         },
       ),
     ],

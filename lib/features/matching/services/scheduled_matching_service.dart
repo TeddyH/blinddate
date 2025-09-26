@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/constants/table_names.dart';
+import '../../chat/services/chat_service.dart';
 
 class ScheduledMatch {
   final String id;
@@ -275,6 +276,20 @@ class ScheduledMatchingService extends ChangeNotifier {
             .single();
 
         debugPrint('_checkForMutualLike: Verification result: $verifyResult');
+
+        // Create chat room for the matched users
+        try {
+          final chatService = ChatService();
+          final chatRoom = await chatService.createOrGetChatRoom(matchId, user1Id, user2Id);
+          if (chatRoom != null) {
+            debugPrint('_checkForMutualLike: Chat room created/found: ${chatRoom.id}');
+          } else {
+            debugPrint('_checkForMutualLike: Failed to create chat room');
+          }
+        } catch (chatError) {
+          debugPrint('_checkForMutualLike: Error creating chat room: $chatError');
+          // Don't throw error here as match is still successful
+        }
 
         // Refresh local cache
         await getTodaysMatches();
