@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/services/notification_service.dart';
+import '../../../core/services/unread_message_service.dart';
 import '../../../core/constants/table_names.dart';
 
 class ChatRoom {
@@ -427,6 +428,12 @@ class ChatService extends ChangeNotifier {
                 if (existingMessageIndex == -1) {
                   _messages.add(newMessage);
                   debugPrint('✅ New message added to list. Total messages: ${_messages.length}');
+
+                  // 내가 보낸 메시지가 아니고, 현재 채팅방에 있지 않다면 읽지 않은 메시지 수 증가
+                  if (newMessage.senderId != userId && _currentChatRoomId != newMessage.chatRoomId) {
+                    UnreadMessageService.instance.incrementUnreadCount();
+                  }
+
                   notifyListeners();
                 } else {
                   debugPrint('⚠️ Message already exists, skipping duplicate');

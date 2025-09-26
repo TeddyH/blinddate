@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
+import '../core/services/unread_message_service.dart';
+import '../core/widgets/badge_icon.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/email_auth_screen.dart';
 import '../features/auth/screens/profile_setup_screen.dart';
@@ -224,16 +227,30 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
             BottomNavigationBarItem(
               icon: Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Icon(
-                  Icons.chat_bubble_outline,
-                  size: _selectedIndex == 2 ? 26 : 24,
+                child: Consumer<UnreadMessageService>(
+                  builder: (context, unreadService, child) {
+                    return BadgeIcon(
+                      icon: Icon(
+                        Icons.chat_bubble_outline,
+                        size: _selectedIndex == 2 ? 26 : 24,
+                      ),
+                      badgeCount: unreadService.unreadCount,
+                    );
+                  },
                 ),
               ),
               activeIcon: Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: const Icon(
-                  Icons.chat_bubble,
-                  size: 26,
+                child: Consumer<UnreadMessageService>(
+                  builder: (context, unreadService, child) {
+                    return BadgeIcon(
+                      icon: const Icon(
+                        Icons.chat_bubble,
+                        size: 26,
+                      ),
+                      badgeCount: unreadService.unreadCount,
+                    );
+                  },
                 ),
               ),
               label: '채팅',
