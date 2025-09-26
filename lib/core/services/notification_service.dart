@@ -154,7 +154,7 @@ class NotificationService {
   // 로컬 알림 초기화
   Future<void> _initializeLocalNotifications() async {
     const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_stat_hearty');
 
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
       requestSoundPermission: true,
@@ -232,7 +232,7 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       color: Color(0xFFEF476F),
-      icon: '@mipmap/ic_launcher',
+      icon: '@drawable/ic_stat_hearty',
     );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(

@@ -126,7 +126,7 @@ serve(async (req) => {
         },
         android: {
           notification: {
-            icon: 'ic_launcher',
+            icon: 'ic_stat_hearty',
             sound: 'default',
             channel_id: 'chat_channel',
           },
