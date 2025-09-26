@@ -21,15 +21,15 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  late ChatService _chatService;
   ChatRoom? _chatRoom;
   Map<String, dynamic>? _otherUserProfile;
 
   @override
   void initState() {
     super.initState();
-    _chatService = ChatService();
-    _loadChatData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadChatData();
+    });
   }
 
   @override
@@ -41,16 +41,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _loadChatData() async {
     try {
+      final chatService = context.read<ChatService>();
+
       // Load messages
-      await _chatService.getMessages(widget.chatRoomId);
+      await chatService.getMessages(widget.chatRoomId);
 
       // Get chat room details to find other user
-      final response = await _chatService.getChatRoomWithMatchDetails(widget.chatRoomId);
+      final response = await chatService.getChatRoomWithMatchDetails(widget.chatRoomId);
 
       _chatRoom = ChatRoom.fromJson(response);
 
       // Get other user profile
-      final currentUserId = _chatService.userId;
+      final currentUserId = chatService.userId;
       final matchData = response['match_data'];
 
       if (matchData != null) {
@@ -102,7 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _messageController.clear();
 
-    final sentMessage = await _chatService.sendMessage(widget.chatRoomId, message);
+    final chatService = context.read<ChatService>();
+    final sentMessage = await chatService.sendMessage(widget.chatRoomId, message);
     if (sentMessage != null) {
       _scrollToBottom();
     }
@@ -200,17 +203,21 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessagesList(List<ChatMessage> messages) {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final message = messages[index];
-        final isMe = message.senderId == _chatService.userId;
-        final showTime = index == 0 ||
-          messages[index - 1].createdAt.difference(message.createdAt).inMinutes.abs() > 5;
+    return Consumer<ChatService>(
+      builder: (context, chatService, child) {
+        return ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            final message = messages[index];
+            final isMe = message.senderId == chatService.userId;
+            final showTime = index == 0 ||
+              messages[index - 1].createdAt.difference(message.createdAt).inMinutes.abs() > 5;
 
-        return _buildMessageBubble(message, isMe, showTime);
+            return _buildMessageBubble(message, isMe, showTime);
+          },
+        );
       },
     );
   }
