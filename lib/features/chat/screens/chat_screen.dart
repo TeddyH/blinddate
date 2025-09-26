@@ -51,6 +51,9 @@ class _ChatScreenState extends State<ChatScreen> {
       final unreadService = context.read<UnreadMessageService>();
       _chatService = chatService;
 
+      // 채팅방 진입
+      chatService.enterChatRoom(widget.chatRoomId);
+
       // Load messages
       await chatService.getMessages(widget.chatRoomId);
 
