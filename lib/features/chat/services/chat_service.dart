@@ -106,6 +106,7 @@ class ChatService extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   RealtimeChannel? _messagesSubscription;
+  String? _currentChatRoomId; // 현재 열려있는 채팅방 ID
 
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -116,6 +117,7 @@ class ChatService extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
   }
+
 
   void _setError(String error) {
     _errorMessage = error;
@@ -558,12 +560,14 @@ class ChatService extends ChangeNotifier {
 
   // 채팅방 진입 시 호출 (현재 채팅방 설정)
   void enterChatRoom(String chatRoomId) {
+    _currentChatRoomId = chatRoomId;
     _notificationService.setCurrentChatRoom(chatRoomId);
     debugPrint('🏠 채팅방 진입: $chatRoomId');
   }
 
   // 채팅방 나갈 때 호출
   void exitChatRoom() {
+    _currentChatRoomId = null;
     _notificationService.setCurrentChatRoom(null);
     debugPrint('🚪 채팅방 나감');
   }
