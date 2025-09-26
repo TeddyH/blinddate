@@ -5,6 +5,7 @@ import '../core/services/supabase_service.dart';
 import '../features/auth/services/auth_service.dart';
 import '../features/matching/services/scheduled_matching_service.dart';
 import '../features/profile/services/profile_service.dart';
+import '../features/chat/services/chat_service.dart';
 import 'routes.dart';
 
 class BlindDateApp extends StatelessWidget {
@@ -22,6 +23,9 @@ class BlindDateApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ProfileService(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChatService(),
         ),
         Provider<SupabaseService>(
           create: (context) => SupabaseService.instance,

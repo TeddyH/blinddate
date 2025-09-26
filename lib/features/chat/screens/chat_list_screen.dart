@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../app/routes.dart';
 import '../../matching/services/scheduled_matching_service.dart';
+import '../services/chat_service.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -247,14 +250,40 @@ class _ChatListScreenState extends State<ChatListScreen> {
               color: AppColors.textSecondary,
               size: 16,
             ),
-            onTap: () {
-              // TODO: Navigate to chat screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('채팅 기능이 곧 추가될 예정입니다! 🚀'),
-                  backgroundColor: AppColors.primary,
-                ),
-              );
+            onTap: () async {
+              try {
+                final chatService = ChatService();
+                final chatRoom = await chatService.getChatRoomByMatchId(match.id);
+
+                if (chatRoom != null) {
+                  context.push('${AppRoutes.chat}/${chatRoom.id}');
+                } else {
+                  // 채팅방이 없으면 생성
+                  final newChatRoom = await chatService.createOrGetChatRoom(
+                    match.id,
+                    match.user1Id,
+                    match.user2Id
+                  );
+
+                  if (newChatRoom != null) {
+                    context.push('${AppRoutes.chat}/${newChatRoom.id}');
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('채팅방을 생성하는 중 오류가 발생했습니다.'),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('채팅을 시작하는 중 오류가 발생했습니다: $e'),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
             },
           ),
         );
