@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/table_names.dart';
 
@@ -18,6 +19,7 @@ class AuthEmailNotConfirmedException implements Exception {
 class AuthService with ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService.instance;
   final StorageService _storageService = StorageService.instance;
+  final NotificationService _notificationService = NotificationService.instance;
 
   User? get currentUser => _supabaseService.currentUser;
   bool get isAuthenticated => _supabaseService.isAuthenticated;
@@ -114,6 +116,12 @@ class AuthService with ChangeNotifier {
         email: email,
         token: token,
       );
+
+      // 로그인 성공 시 FCM 토큰 저장
+      if (response.user != null) {
+        await _notificationService.onUserLogin();
+      }
+
       notifyListeners();
       return response;
     } catch (e) {
@@ -125,6 +133,9 @@ class AuthService with ChangeNotifier {
   // Sign out
   Future<void> signOut() async {
     try {
+      // FCM 토큰 제거
+      await _notificationService.onUserLogout();
+
       await _supabaseService.signOut();
       notifyListeners();
     } catch (e) {

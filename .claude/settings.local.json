@@ -33,7 +33,12 @@
       "Bash(~/Library/Android/sdk/platform-tools/adb devices)",
       "Bash(~/Library/Android/sdk/emulator/emulator -avd Player2_Emulator -no-snapshot -cold-boot)",
       "Bash(~/Library/Android/sdk/emulator/emulator -avd Player2_Emulator -no-snapshot)",
-      "Bash(./deploy_auth_page.sh:*)"
+      "Bash(./deploy_auth_page.sh:*)",
+      "Bash(firebase --version)",
+      "Bash(npm install:*)",
+      "Bash(dart pub global activate:*)",
+      "Bash(export PATH=\"$PATH\":\"$HOME/.pub-cache/bin\")",
+      "WebFetch(domain:velog.io)"
     ],
     "deny": [],
     "ask": []

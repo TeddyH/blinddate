@@ -30,3 +30,9 @@ doc/api/
 
 # Environment variables
 .env
+
+# Firebase credentials
+**/google-services.json
+**/*firebase-adminsdk*.json
+android/app/google-services.json
+android/app/*firebase-adminsdk*.json
