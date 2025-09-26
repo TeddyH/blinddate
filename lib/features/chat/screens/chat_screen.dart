@@ -23,6 +23,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   ChatRoom? _chatRoom;
   Map<String, dynamic>? _otherUserProfile;
+  int _previousMessageCount = 0;
+  ChatService? _chatService;
 
   @override
   void initState() {
@@ -36,12 +38,15 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    // 실시간 구독 해제
+    _chatService?.unsubscribeFromMessages();
     super.dispose();
   }
 
   Future<void> _loadChatData() async {
     try {
       final chatService = context.read<ChatService>();
+      _chatService = chatService;
 
       // Load messages
       await chatService.getMessages(widget.chatRoomId);
@@ -52,12 +57,10 @@ class _ChatScreenState extends State<ChatScreen> {
       _chatRoom = ChatRoom.fromJson(response);
 
       // Get other user profile
-      final currentUserId = chatService.userId;
       final matchData = response['match_data'];
 
       if (matchData != null) {
-        // ScheduledMatchingService를 사용해서 상대방 프로필 가져오기
-        final matchingService = context.read<ScheduledMatchingService>();
+        // ScheduledMatch 객체 생성하여 상대방 프로필 가져오기
         final scheduledMatch = ScheduledMatch(
           id: matchData['id'],
           user1Id: matchData['user1_id'],
@@ -74,6 +77,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
       setState(() {});
       _scrollToBottom();
+
+      // 실시간 메시지 구독 시작
+      debugPrint('=== Starting realtime subscription ===');
+      debugPrint('Chat room ID: ${widget.chatRoomId}');
+      debugPrint('Current user ID: ${_chatService?.userId}');
+      await _chatService?.subscribeToMessages(widget.chatRoomId);
+      debugPrint('=== Subscription setup completed ===');
 
     } catch (e) {
       debugPrint('Error loading chat data: $e');
@@ -136,6 +146,14 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Consumer<ChatService>(
               builder: (context, chatService, child) {
+                // 새 메시지가 추가되었을 때 자동 스크롤
+                if (chatService.messages.length > _previousMessageCount) {
+                  _previousMessageCount = chatService.messages.length;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _scrollToBottom();
+                  });
+                }
+
                 if (chatService.isLoading && chatService.messages.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(
@@ -212,34 +230,46 @@ class _ChatScreenState extends State<ChatScreen> {
           itemBuilder: (context, index) {
             final message = messages[index];
             final isMe = message.senderId == chatService.userId;
+
+            // 시간 표시 조건 (5분 이상 차이)
             final showTime = index == 0 ||
               messages[index - 1].createdAt.difference(message.createdAt).inMinutes.abs() > 5;
 
-            return _buildMessageBubble(message, isMe, showTime);
+            // 날짜 변경 확인
+            final showDateSeparator = index == 0 || _isDifferentDay(
+              messages[index - 1].createdAt,
+              message.createdAt
+            );
+
+            return Column(
+              children: [
+                if (showDateSeparator) _buildDateSeparator(message.createdAt),
+                ..._buildMessageBubbleWithTime(message, isMe, showTime),
+              ],
+            );
           },
         );
       },
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message, bool isMe, bool showTime) {
-    return Column(
-      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      children: [
-        if (showTime) ...[
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Text(
-                _formatTime(message.createdAt),
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+  List<Widget> _buildMessageBubbleWithTime(ChatMessage message, bool isMe, bool showTime) {
+    return [
+      if (showTime)
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            child: Text(
+              _formatTime(message.createdAt),
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
           ),
-        ],
-        Container(
+        ),
+      Align(
+        alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
           margin: EdgeInsets.only(
             left: isMe ? 50 : 0,
             right: isMe ? 0 : 50,
@@ -270,8 +300,8 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ];
   }
 
   Widget _buildMessageInput() {
@@ -345,14 +375,110 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
+  // 두 날짜가 다른 날인지 확인 (한국 시간 기준)
+  bool _isDifferentDay(DateTime date1, DateTime date2) {
+    final korean1 = date1.toUtc().add(const Duration(hours: 9));
+    final korean2 = date2.toUtc().add(const Duration(hours: 9));
 
-    if (diff.inDays > 0) {
-      return '${dateTime.month}월 ${dateTime.day}일 ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    return korean1.year != korean2.year ||
+           korean1.month != korean2.month ||
+           korean1.day != korean2.day;
+  }
+
+  // 날짜 구분선 위젯
+  Widget _buildDateSeparator(DateTime dateTime) {
+    final koreanTime = dateTime.toUtc().add(const Duration(hours: 9));
+    final now = DateTime.now().toUtc().add(const Duration(hours: 9));
+
+    final messageDate = DateTime(koreanTime.year, koreanTime.month, koreanTime.day);
+    final todayDate = DateTime(now.year, now.month, now.day);
+    final diffDays = todayDate.difference(messageDate).inDays;
+
+    String dateText;
+    if (diffDays == 0) {
+      dateText = '오늘';
+    } else if (diffDays == 1) {
+      dateText = '어제';
+    } else if (diffDays < 7) {
+      final weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      final weekday = weekdays[koreanTime.weekday % 7];
+      dateText = '$weekday요일';
+    } else if (koreanTime.year == now.year) {
+      dateText = '${koreanTime.month}월 ${koreanTime.day}일';
     } else {
-      return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+      dateText = '${koreanTime.year}년 ${koreanTime.month}월 ${koreanTime.day}일';
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 1,
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                dateText,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 1,
+              color: Colors.grey.withValues(alpha: 0.3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    // UTC를 한국 시간(GMT+9)으로 변환
+    final koreanTime = dateTime.toUtc().add(const Duration(hours: 9));
+    final now = DateTime.now().toUtc().add(const Duration(hours: 9));
+
+    // 날짜 차이 계산
+    final messageDate = DateTime(koreanTime.year, koreanTime.month, koreanTime.day);
+    final todayDate = DateTime(now.year, now.month, now.day);
+    final diffDays = todayDate.difference(messageDate).inDays;
+
+    final timeStr = '${koreanTime.hour}:${koreanTime.minute.toString().padLeft(2, '0')}';
+
+    if (diffDays == 0) {
+      // 오늘 - 시간만 표시
+      return timeStr;
+    } else if (diffDays == 1) {
+      // 어제 - "어제 시간" 형태
+      return '어제 $timeStr';
+    } else if (diffDays < 7) {
+      // 일주일 이내 - "요일 시간" 형태
+      final weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      final weekday = weekdays[koreanTime.weekday % 7];
+      return '$weekday요일 $timeStr';
+    } else if (koreanTime.year == now.year) {
+      // 올해 - "월일 시간" 형태
+      return '${koreanTime.month}월 ${koreanTime.day}일 $timeStr';
+    } else {
+      // 작년 이전 - "년월일 시간" 형태
+      return '${koreanTime.year}년 ${koreanTime.month}월 ${koreanTime.day}일 $timeStr';
     }
   }
 }

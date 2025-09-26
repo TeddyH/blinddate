@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/constants/table_names.dart';
 
@@ -101,6 +102,8 @@ class ChatService extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  RealtimeChannel? _messagesSubscription;
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -126,7 +129,7 @@ class ChatService extends ChangeNotifier {
 
       // 기존 채팅방 확인
       final existingRoom = await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .select()
           .eq('match_id', matchId)
           .maybeSingle();
@@ -138,7 +141,7 @@ class ChatService extends ChangeNotifier {
 
       // 새 채팅방 생성
       final response = await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .insert({
             'match_id': matchId,
             'user1_id': user1Id,
@@ -171,7 +174,7 @@ class ChatService extends ChangeNotifier {
       }
 
       final response = await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .select()
           .or('user1_id.eq.$currentUserId,user2_id.eq.$currentUserId')
           .order('updated_at', ascending: false);
@@ -197,7 +200,7 @@ class ChatService extends ChangeNotifier {
       _clearError();
 
       final response = await _supabaseService.client
-          .from('chat_messages')
+          .from(TableNames.chatMessages)
           .select()
           .eq('chat_room_id', chatRoomId)
           .order('created_at', ascending: true);
@@ -228,9 +231,11 @@ class ChatService extends ChangeNotifier {
         throw Exception('Message cannot be empty');
       }
 
-      // 메시지 생성
+      debugPrint('Sending message: $message');
+
+      // 메시지 생성 (실시간 구독에서 자동으로 받아질 것이므로 여기서는 로컬에 추가하지 않음)
       final response = await _supabaseService.client
-          .from('chat_messages')
+          .from(TableNames.chatMessages)
           .insert({
             'chat_room_id': chatRoomId,
             'sender_id': currentUserId,
@@ -241,11 +246,16 @@ class ChatService extends ChangeNotifier {
           .single();
 
       final newMessage = ChatMessage.fromJson(response);
+      debugPrint('Message sent with ID: ${newMessage.id}');
+
+      // 메시지를 즉시 로컬 리스트에 추가 (UX 향상)
+      // 실시간 구독에서 중복 체크로 방지됨
       _messages.add(newMessage);
+      notifyListeners();
 
       // 채팅방의 last_message 업데이트
       await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .update({
             'last_message': message.trim(),
             'last_message_at': DateTime.now().toIso8601String(),
@@ -253,8 +263,6 @@ class ChatService extends ChangeNotifier {
           })
           .eq('id', chatRoomId);
 
-      debugPrint('Message sent: ${newMessage.id}');
-      notifyListeners();
       return newMessage;
 
     } catch (e) {
@@ -268,7 +276,7 @@ class ChatService extends ChangeNotifier {
   Future<ChatRoom?> getChatRoomByMatchId(String matchId) async {
     try {
       final response = await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .select()
           .eq('match_id', matchId)
           .maybeSingle();
@@ -288,7 +296,7 @@ class ChatService extends ChangeNotifier {
   Future<void> markMessageAsRead(String messageId) async {
     try {
       await _supabaseService.client
-          .from('chat_messages')
+          .from(TableNames.chatMessages)
           .update({'read_at': DateTime.now().toIso8601String()})
           .eq('id', messageId);
 
@@ -318,7 +326,7 @@ class ChatService extends ChangeNotifier {
     try {
       // 먼저 채팅방 정보만 조회
       final chatRoomResponse = await _supabaseService.client
-          .from('chat_rooms')
+          .from(TableNames.chatRooms)
           .select('*')
           .eq('id', chatRoomId)
           .single();
@@ -328,7 +336,7 @@ class ChatService extends ChangeNotifier {
       // 매치 ID로 매치 정보 조회
       if (chatRoomResponse['match_id'] != null) {
         final matchResponse = await _supabaseService.client
-            .from('blinddate_scheduled_matches')
+            .from(TableNames.scheduledMatches)
             .select('*')
             .eq('id', chatRoomResponse['match_id'])
             .single();
@@ -372,12 +380,106 @@ class ChatService extends ChangeNotifier {
     }
   }
 
+  // 특정 채팅방의 실시간 메시지 구독 시작
+  Future<void> subscribeToMessages(String chatRoomId) async {
+    try {
+      // 기존 구독이 있다면 해제
+      await unsubscribeFromMessages();
+
+      debugPrint('Starting message subscription for room: $chatRoomId');
+
+      // 실시간 구독을 위한 더 간단한 채널명 사용
+      final channelName = 'messages_$chatRoomId';
+      debugPrint('Creating channel: $channelName');
+
+      _messagesSubscription = _supabaseService.client
+          .channel(channelName)
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'blinddate_chat_messages',  // 실제 테이블명 사용
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'chat_room_id',
+              value: chatRoomId,
+            ),
+            callback: (payload) {
+              debugPrint('=== Realtime Message Received ===');
+              debugPrint('Event: ${payload.eventType}');
+              debugPrint('Table: ${payload.table}');
+              debugPrint('Schema: ${payload.schema}');
+              debugPrint('Payload: ${payload.newRecord}');
+
+              try {
+                final newMessage = ChatMessage.fromJson(payload.newRecord);
+                debugPrint('Parsed message ID: ${newMessage.id}');
+                debugPrint('Sender ID: ${newMessage.senderId}');
+                debugPrint('Current user ID: $userId');
+                debugPrint('Message text: ${newMessage.message}');
+
+                // 중복 메시지 확인 (이미 존재하는 메시지인지 체크)
+                final existingMessageIndex = _messages.indexWhere((msg) => msg.id == newMessage.id);
+                if (existingMessageIndex == -1) {
+                  _messages.add(newMessage);
+                  debugPrint('✅ New message added to list. Total messages: ${_messages.length}');
+                  notifyListeners();
+                } else {
+                  debugPrint('⚠️ Message already exists, skipping duplicate');
+                }
+              } catch (e, stackTrace) {
+                debugPrint('❌ Error processing new message: $e');
+                debugPrint('Stack trace: $stackTrace');
+              }
+            },
+          );
+
+      // 구독 시작
+      _messagesSubscription!.subscribe((status, error) {
+        debugPrint('✅ Subscription status: $status');
+        if (status == RealtimeSubscribeStatus.subscribed) {
+          debugPrint('✅ Successfully subscribed to channel: $channelName');
+          debugPrint('✅ Listening for INSERT events on blinddate_chat_messages table');
+        } else if (status == RealtimeSubscribeStatus.channelError) {
+          debugPrint('❌ Subscription error: $error');
+        } else if (status == RealtimeSubscribeStatus.closed) {
+          debugPrint('⚠️ Subscription closed');
+        }
+      });
+
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error starting message subscription: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
+  }
+
+  // 실시간 메시지 구독 해제
+  Future<void> unsubscribeFromMessages() async {
+    try {
+      if (_messagesSubscription != null) {
+        debugPrint('Unsubscribing from messages');
+        await _supabaseService.client.removeChannel(_messagesSubscription!);
+        _messagesSubscription = null;
+        debugPrint('Message subscription removed successfully');
+      }
+    } catch (e) {
+      debugPrint('Error unsubscribing from messages: $e');
+    }
+  }
+
   // 모든 상태 초기화
   void clearAll() {
     _chatRooms.clear();
     _messages.clear();
     _errorMessage = null;
     _isLoading = false;
+    // 구독 해제도 함께 처리
+    unsubscribeFromMessages();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    unsubscribeFromMessages();
+    super.dispose();
   }
 }
