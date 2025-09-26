@@ -219,8 +219,8 @@ class NotificationService {
         return;
       }
 
-      // 읽지 않은 메시지 수 증가
-      UnreadMessageService.instance.incrementUnreadCount();
+      // 읽지 않은 메시지 수 다시 계산 (정확한 수 보장)
+      UnreadMessageService.instance.fetchUnreadCount();
 
       // 다른 채팅방이거나 채팅방이 아닌 화면에 있을 때 알림 표시
       _showLocalNotification(message);

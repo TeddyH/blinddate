@@ -268,8 +268,7 @@ class ChatService extends ChangeNotifier {
           })
           .eq('id', chatRoomId);
 
-      // 알림 전송 (백그라운드에서 실행)
-      _sendNotificationAsync(chatRoomId, currentUserId, message.trim());
+      // 알림은 데이터베이스 트리거에서 자동으로 처리됩니다
 
       return newMessage;
 
@@ -431,9 +430,9 @@ class ChatService extends ChangeNotifier {
                   _messages.add(newMessage);
                   debugPrint('✅ New message added to list. Total messages: ${_messages.length}');
 
-                  // 내가 보낸 메시지가 아니고, 현재 채팅방에 있지 않다면 읽지 않은 메시지 수 증가
+                  // 내가 보낸 메시지가 아니고, 현재 채팅방에 있지 않다면 읽지 않은 메시지 수 업데이트
                   if (newMessage.senderId != userId && _currentChatRoomId != newMessage.chatRoomId) {
-                    UnreadMessageService.instance.incrementUnreadCount();
+                    UnreadMessageService.instance.fetchUnreadCount();
                   }
 
                   notifyListeners();
@@ -491,7 +490,8 @@ class ChatService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 알림 전송 (비동기)
+  // 알림 전송 (비동기) - 현재 사용 안함, 데이터베이스 트리거에서 처리
+  /*
   void _sendNotificationAsync(String chatRoomId, String senderId, String message) {
     // 백그라운드에서 실행하여 메시지 전송 속도에 영향 없음
     Future(() async {
@@ -557,6 +557,7 @@ class ChatService extends ChangeNotifier {
       }
     });
   }
+  */
 
   // 채팅방 진입 시 호출 (현재 채팅방 설정)
   void enterChatRoom(String chatRoomId) {
