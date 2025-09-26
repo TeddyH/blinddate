@@ -121,6 +121,16 @@ class MainNavigationWrapper extends StatefulWidget {
 class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // UnreadMessageService 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final unreadService = context.read<UnreadMessageService>();
+      unreadService.fetchUnreadCount();
+    });
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

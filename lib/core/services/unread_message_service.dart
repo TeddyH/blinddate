@@ -12,6 +12,9 @@ class UnreadMessageService extends ChangeNotifier {
 
   int get unreadCount => _unreadCount;
 
+  Map<String, int> _unreadCountPerRoom = {};
+  Map<String, int> get unreadCountPerRoom => _unreadCountPerRoom;
+
   // 읽지 않은 메시지 수 가져오기
   Future<void> fetchUnreadCount() async {
     try {
@@ -21,40 +24,32 @@ class UnreadMessageService extends ChangeNotifier {
         return;
       }
 
-      // 채팅방 목록에서 읽지 않은 메시지 수 계산
-      final chatRooms = await _supabaseService.client
-          .from('blinddate_chat_rooms')
-          .select('''
-            id,
-            last_message_at,
-            blinddate_chat_messages!inner(
-              id,
-              read_at,
-              sender_id,
-              created_at
-            )
-          ''')
-          .or('user1_id.eq.$userId,user2_id.eq.$userId')
-          .order('last_message_at', ascending: false);
+      // 채팅방별 읽지 않은 메시지 수 계산
+      final result = await _supabaseService.client
+          .rpc('get_chat_rooms_with_unread', params: {'user_id': userId});
 
       int totalUnreadCount = 0;
+      Map<String, int> newUnreadCountPerRoom = {};
 
-      for (final room in chatRooms) {
-        final messages = room['blinddate_chat_messages'] as List;
+      for (final row in result) {
+        final chatRoomId = row['chat_room_id'].toString();
+        final unreadCount = row['unread_count'] as int? ?? 0;
 
-        // 내가 보내지 않은 메시지 중 읽지 않은 메시지 수 계산
-        final unreadInRoom = messages.where((message) {
-          return message['sender_id'] != userId && message['read_at'] == null;
-        }).length;
-
-        totalUnreadCount += unreadInRoom;
+        newUnreadCountPerRoom[chatRoomId] = unreadCount;
+        totalUnreadCount += unreadCount;
       }
 
+      _unreadCountPerRoom = newUnreadCountPerRoom;
       _updateUnreadCount(totalUnreadCount);
     } catch (e) {
       debugPrint('❌ 읽지 않은 메시지 수 조회 오류: $e');
       _updateUnreadCount(0);
     }
+  }
+
+  // 특정 채팅방의 읽지 않은 메시지 수 조회
+  int getUnreadCountForRoom(String chatRoomId) {
+    return _unreadCountPerRoom[chatRoomId] ?? 0;
   }
 
   // 특정 채팅방의 메시지 읽음 처리

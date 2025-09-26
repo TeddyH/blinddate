@@ -17,12 +17,15 @@ class ChatListScreen extends StatefulWidget {
 }
 
 class _ChatListScreenState extends State<ChatListScreen> {
+  Map<String, Map<String, dynamic>> _chatRoomProfiles = {};
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadMutualMatches();
       _loadUnreadCount();
+      _loadChatRooms();
     });
   }
 
@@ -35,6 +38,45 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Future<void> _loadUnreadCount() async {
     final unreadService = context.read<UnreadMessageService>();
     await unreadService.fetchUnreadCount();
+  }
+
+  Future<void> _loadChatRooms() async {
+    final chatService = context.read<ChatService>();
+    await chatService.getChatRooms();
+    await _loadChatRoomProfiles();
+  }
+
+  Future<void> _loadChatRoomProfiles() async {
+    final chatService = context.read<ChatService>();
+
+    for (final chatRoom in chatService.chatRooms) {
+      try {
+        if (chatRoom.matchId != null) {
+          final matchDetails = await chatService.getChatRoomWithMatchDetails(chatRoom.id);
+          final matchData = matchDetails['match_data'];
+
+          if (matchData != null) {
+            final currentUserId = chatService.userId;
+            final otherUserId = chatRoom.getOtherUserId(currentUserId);
+
+            Map<String, dynamic> otherUserProfile;
+            if (otherUserId == matchData['user1_id']) {
+              otherUserProfile = matchData['user1_profile'] ?? {};
+            } else {
+              otherUserProfile = matchData['user2_profile'] ?? {};
+            }
+
+            _chatRoomProfiles[chatRoom.id] = otherUserProfile;
+          }
+        }
+      } catch (e) {
+        debugPrint('프로필 로딩 오류: $e');
+      }
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -85,23 +127,19 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ),
         child: SafeArea(
-          child: Consumer<ScheduledMatchingService>(
-            builder: (context, service, child) {
-          if (service.isLoading) {
+          child: Consumer2<ChatService, UnreadMessageService>(
+            builder: (context, chatService, unreadService, child) {
+          if (chatService.isLoading) {
             return _buildLoadingState();
           }
 
-          // 모든 매치에서 mutual_like 상태인 것들만 필터링
-          final allMatches = [...service.todaysMatches, ...service.pastMatches];
-          final mutualMatches = allMatches
-              .where((match) => match.status == 'mutual_like')
-              .toList();
+          final chatRooms = chatService.chatRooms;
 
-          if (mutualMatches.isEmpty) {
+          if (chatRooms.isEmpty) {
             return _buildEmptyState();
           }
 
-          return _buildChatList(mutualMatches);
+          return _buildChatRoomList(chatRooms, unreadService);
             },
           ),
         ),
@@ -179,6 +217,121 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildChatRoomList(List<ChatRoom> chatRooms, UnreadMessageService unreadService) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await _loadChatRooms();
+        await _loadUnreadCount();
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        itemCount: chatRooms.length,
+        itemBuilder: (context, index) {
+        final chatRoom = chatRooms[index];
+        final unreadCount = unreadService.getUnreadCountForRoom(chatRoom.id);
+        final otherUserProfile = _chatRoomProfiles[chatRoom.id] ?? {};
+        final otherUserName = otherUserProfile['nickname'] ?? '채팅 상대';
+        final matchingService = context.read<ScheduledMatchingService>();
+        final profileImages = matchingService.getUserImages(otherUserProfile);
+
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: index < chatRooms.length - 1 ? AppSpacing.md : 0,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(AppSpacing.md),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withValues(alpha: 0.1),
+              ),
+              child: profileImages.isNotEmpty
+                  ? ClipOval(
+                      child: Image.network(
+                        profileImages.first,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.person,
+                            color: AppColors.primary,
+                            size: 25,
+                          );
+                        },
+                      ),
+                    )
+                  : Icon(
+                      Icons.person,
+                      color: AppColors.primary,
+                      size: 25,
+                    ),
+            ),
+            title: Text(
+              otherUserName,
+              style: AppTextStyles.body1.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              chatRoom.lastMessage ?? '대화를 시작해보세요!',
+              style: AppTextStyles.body2.copyWith(
+                color: unreadCount > 0 ? AppColors.textPrimary : AppColors.textSecondary,
+                fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (unreadCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.error,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      unreadCount > 99 ? '99+' : unreadCount.toString(),
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.textSecondary,
+                  size: 16,
+                ),
+              ],
+            ),
+            onTap: () {
+              context.push('${AppRoutes.chat}/${chatRoom.id}');
+            },
+          ),
+        );
+      },
       ),
     );
   }
