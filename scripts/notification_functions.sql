@@ -20,21 +20,52 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 2. 메시지 전송 시 자동으로 알림 발송하는 트리거
 CREATE OR REPLACE FUNCTION notify_new_message()
 RETURNS TRIGGER AS $$
+DECLARE
+    recipient_id UUID;
+    recipient_token TEXT;
+    sender_nickname TEXT;
+    chat_room_data RECORD;
 BEGIN
-    -- Supabase Edge Function 호출 (pg_net extension 필요)
-    SELECT
-        net.http_post(
-            url := 'https://your-project.supabase.co/functions/v1/send-chat-notification',
-            headers := jsonb_build_object(
-                'Content-Type', 'application/json',
-                'Authorization', 'Bearer ' || 'your-service-role-key'
-            ),
-            body := jsonb_build_object(
-                'chatRoomId', NEW.chat_room_id,
-                'senderId', NEW.sender_id,
-                'message', NEW.message
-            )
-        ) as request_id;
+    -- 채팅방 정보 가져오기
+    SELECT user1_id, user2_id INTO chat_room_data
+    FROM blinddate_chat_rooms
+    WHERE id = NEW.chat_room_id;
+
+    -- 수신자 ID 결정
+    IF chat_room_data.user1_id = NEW.sender_id THEN
+        recipient_id := chat_room_data.user2_id;
+    ELSE
+        recipient_id := chat_room_data.user1_id;
+    END IF;
+
+    -- 수신자의 FCM 토큰과 발신자 닉네임 가져오기
+    SELECT fcm_token INTO recipient_token
+    FROM blinddate_users
+    WHERE id = recipient_id;
+
+    SELECT nickname INTO sender_nickname
+    FROM blinddate_users
+    WHERE id = NEW.sender_id;
+
+    -- FCM 토큰이 있을 때만 알림 발송
+    IF recipient_token IS NOT NULL THEN
+        -- Supabase Edge Function 호출 (실제 프로젝트 URL로 변경 필요)
+        PERFORM
+            net.http_post(
+                url := 'https://dsjzqccyzgyjtchbbruw.supabase.co/functions/v1/send-chat-notification',
+                headers := jsonb_build_object(
+                    'Content-Type', 'application/json',
+                    'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+                ),
+                body := jsonb_build_object(
+                    'chatRoomId', NEW.chat_room_id::text,
+                    'senderId', NEW.sender_id::text,
+                    'senderName', COALESCE(sender_nickname, '알 수 없는 사용자'),
+                    'recipientToken', recipient_token,
+                    'message', NEW.message
+                )
+            );
+    END IF;
 
     RETURN NEW;
 END;
