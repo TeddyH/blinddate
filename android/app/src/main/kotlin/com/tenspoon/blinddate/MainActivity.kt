@@ -1,4 +1,4 @@
-package com.example.blinddate
+package com.tenspoon.blinddate
 
 import io.flutter.embedding.android.FlutterActivity
 

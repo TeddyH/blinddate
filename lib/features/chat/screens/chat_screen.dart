@@ -38,7 +38,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    // 실시간 구독 해제
+    // 채팅방 나가기 및 실시간 구독 해제
+    _chatService?.exitChatRoom();
     _chatService?.unsubscribeFromMessages();
     super.dispose();
   }
@@ -78,11 +79,20 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {});
       _scrollToBottom();
 
-      // 실시간 메시지 구독 시작
+      // 채팅방 진입 및 실시간 메시지 구독 시작
       debugPrint('=== Starting realtime subscription ===');
       debugPrint('Chat room ID: ${widget.chatRoomId}');
       debugPrint('Current user ID: ${_chatService?.userId}');
+
+      // 현재 채팅방 설정 (알림 중복 방지용)
+      _chatService?.enterChatRoom(widget.chatRoomId);
+
+      // 실시간 구독 시작
       await _chatService?.subscribeToMessages(widget.chatRoomId);
+
+      // 메시지 읽음 처리
+      await _chatService?.markMessagesAsRead(widget.chatRoomId);
+
       debugPrint('=== Subscription setup completed ===');
 
     } catch (e) {

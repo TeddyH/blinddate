@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/supabase_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/constants/table_names.dart';
 
 class ChatRoom {
@@ -89,6 +90,7 @@ class ChatMessage {
 
 class ChatService extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService.instance;
+  final NotificationService _notificationService = NotificationService.instance;
 
   List<ChatRoom> _chatRooms = [];
   List<ChatRoom> get chatRooms => _chatRooms;
@@ -262,6 +264,9 @@ class ChatService extends ChangeNotifier {
             'updated_at': DateTime.now().toIso8601String(),
           })
           .eq('id', chatRoomId);
+
+      // 알림 전송 (백그라운드에서 실행)
+      _sendNotificationAsync(chatRoomId, currentUserId, message.trim());
 
       return newMessage;
 
@@ -475,6 +480,106 @@ class ChatService extends ChangeNotifier {
     // 구독 해제도 함께 처리
     unsubscribeFromMessages();
     notifyListeners();
+  }
+
+  // 알림 전송 (비동기)
+  void _sendNotificationAsync(String chatRoomId, String senderId, String message) {
+    // 백그라운드에서 실행하여 메시지 전송 속도에 영향 없음
+    Future(() async {
+      try {
+        debugPrint('📨 알림 전송 시작');
+
+        // 채팅방 정보와 상대방 정보 가져오기
+        final chatRoomData = await getChatRoomWithMatchDetails(chatRoomId);
+        final matchData = chatRoomData['match_data'];
+
+        if (matchData == null) {
+          debugPrint('❌ 매치 정보를 찾을 수 없습니다');
+          return;
+        }
+
+        // 상대방 ID 찾기
+        final user1Id = matchData['user1_id'] as String;
+        final user2Id = matchData['user2_id'] as String;
+        final recipientId = senderId == user1Id ? user2Id : user1Id;
+
+        // 발신자 정보 가져오기
+        final senderProfile = senderId == user1Id
+            ? matchData['user1_profile']
+            : matchData['user2_profile'];
+
+        final senderName = senderProfile?['nickname'] ?? '알 수 없는 사용자';
+
+        debugPrint('👤 발신자: $senderName, 수신자: $recipientId');
+
+        // 상대방의 FCM 토큰 가져오기
+        final recipientData = await _supabaseService.client
+            .from(TableNames.users)
+            .select('fcm_token, nickname')
+            .eq('id', recipientId)
+            .maybeSingle();
+
+        if (recipientData == null || recipientData['fcm_token'] == null) {
+          debugPrint('❌ 상대방의 FCM 토큰을 찾을 수 없습니다');
+          return;
+        }
+
+        // Supabase Edge Function으로 알림 전송
+        final response = await _supabaseService.client.functions.invoke(
+          'send-chat-notification',
+          body: {
+            'chatRoomId': chatRoomId,
+            'senderId': senderId,
+            'senderName': senderName,
+            'recipientId': recipientId,
+            'recipientToken': recipientData['fcm_token'],
+            'message': message,
+          },
+        );
+
+        if (response.status == 200) {
+          debugPrint('✅ 알림 전송 성공');
+        } else {
+          debugPrint('❌ 알림 전송 실패: ${response.status} - ${response.data}');
+        }
+
+      } catch (e) {
+        debugPrint('❌ 알림 전송 오류: $e');
+      }
+    });
+  }
+
+  // 채팅방 진입 시 호출 (현재 채팅방 설정)
+  void enterChatRoom(String chatRoomId) {
+    _notificationService.setCurrentChatRoom(chatRoomId);
+    debugPrint('🏠 채팅방 진입: $chatRoomId');
+  }
+
+  // 채팅방 나갈 때 호출
+  void exitChatRoom() {
+    _notificationService.setCurrentChatRoom(null);
+    debugPrint('🚪 채팅방 나감');
+  }
+
+  // 메시지 읽음 처리 및 알림 제거
+  Future<void> markMessagesAsRead(String chatRoomId) async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) return;
+
+      // 해당 채팅방의 읽지 않은 메시지들을 읽음 처리
+      await _supabaseService.client
+          .from(TableNames.chatMessages)
+          .update({'read_at': DateTime.now().toIso8601String()})
+          .eq('chat_room_id', chatRoomId)
+          .neq('sender_id', userId)
+          .isFilter('read_at', null);
+
+      debugPrint('✅ 메시지 읽음 처리 완료: $chatRoomId');
+
+    } catch (e) {
+      debugPrint('❌ 메시지 읽음 처리 오류: $e');
+    }
   }
 
   @override
