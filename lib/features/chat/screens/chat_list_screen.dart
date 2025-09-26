@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/services/unread_message_service.dart';
 import '../../../app/routes.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 import '../services/chat_service.dart';
@@ -21,6 +22,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadMutualMatches();
+      _loadUnreadCount();
     });
   }
 
@@ -28,6 +30,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
     final service = context.read<ScheduledMatchingService>();
     await service.getTodaysMatches();
     await service.getPastMatches();
+  }
+
+  Future<void> _loadUnreadCount() async {
+    final unreadService = context.read<UnreadMessageService>();
+    await unreadService.fetchUnreadCount();
   }
 
   @override

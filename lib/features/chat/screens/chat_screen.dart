@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/services/unread_message_service.dart';
 import '../services/chat_service.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 
@@ -47,10 +48,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _loadChatData() async {
     try {
       final chatService = context.read<ChatService>();
+      final unreadService = context.read<UnreadMessageService>();
       _chatService = chatService;
 
       // Load messages
       await chatService.getMessages(widget.chatRoomId);
+
+      // Mark this chat room as read
+      await unreadService.markChatAsRead(widget.chatRoomId);
 
       // Get chat room details to find other user
       final response = await chatService.getChatRoomWithMatchDetails(widget.chatRoomId);

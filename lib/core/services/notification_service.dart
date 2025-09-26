@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'supabase_service.dart';
+import 'unread_message_service.dart';
 
 // 백그라운드 메시지 핸들러 (최상위 함수여야 함)
 @pragma('vm:entry-point')
@@ -217,6 +218,9 @@ class NotificationService {
         debugPrint('🔇 현재 열려있는 채팅방의 메시지 - 알림 표시 안함');
         return;
       }
+
+      // 읽지 않은 메시지 수 증가
+      UnreadMessageService.instance.incrementUnreadCount();
 
       // 다른 채팅방이거나 채팅방이 아닌 화면에 있을 때 알림 표시
       _showLocalNotification(message);
