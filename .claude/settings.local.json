@@ -38,7 +38,11 @@
       "Bash(npm install:*)",
       "Bash(dart pub global activate:*)",
       "Bash(export PATH=\"$PATH\":\"$HOME/.pub-cache/bin\")",
-      "WebFetch(domain:velog.io)"
+      "WebFetch(domain:velog.io)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
