@@ -486,7 +486,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
         Expanded(
           child: _buildActionButton(
             onTap: widget.onLike,
-            label: '매칭하기',
+            label: 'LIKE',
             icon: Icons.favorite_outline,
             backgroundColor: AppColors.accent,
             textColor: Colors.white,

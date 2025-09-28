@@ -52,7 +52,10 @@
       "Bash(export:*)",
       "Bash(jarsigner:*)",
       "Bash(convert:*)",
-      "Bash(magick:*)"
+      "Bash(magick:*)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb kill-server:*)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb start-server)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone_API_36.0 -no-snapshot -wipe-data)"
     ],
     "deny": [],
     "ask": []

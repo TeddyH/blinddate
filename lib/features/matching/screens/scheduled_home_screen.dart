@@ -20,6 +20,9 @@ class ScheduledHomeScreen extends StatefulWidget {
 class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   Timer? _countdownTimer;
 
+  // 이미 표시된 매칭 성공 다이얼로그 ID 저장 (중복 방지)
+  final Set<String> _shownMatchDialogs = {};
+
   @override
   void initState() {
     super.initState();
@@ -454,6 +457,15 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   void _showMatchSuccessDialog(ScheduledMatch match) {
+    // 중복 다이얼로그 방지
+    if (_shownMatchDialogs.contains(match.id)) {
+      debugPrint('⚠️ 이미 표시된 매칭 성공 다이얼로그: ${match.id}');
+      return;
+    }
+
+    debugPrint('✅ 매칭 성공 다이얼로그 표시: ${match.id}');
+    _shownMatchDialogs.add(match.id);
+
     showDialog(
       context: context,
       barrierDismissible: true,

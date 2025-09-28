@@ -21,7 +21,7 @@ class ActionButtons extends StatelessWidget {
         Expanded(
           child: _buildActionButton(
             onTap: onLike,
-            label: '매칭하기',
+            label: 'LIKE',
             icon: Icons.favorite_outline,
             color: Colors.white,
             backgroundColor: AppColors.accent,

@@ -82,6 +82,12 @@ class ScheduledMatchingService extends ChangeNotifier {
   // 알림 전송한 매칭 ID들 저장 (중복 방지)
   final Set<String> _notifiedMatchIds = {};
 
+  // 중복 LIKE 알림 방지
+  final Set<String> _sentLikeNotifications = {};
+
+  // 중복 상호 매칭 알림 방지
+  final Set<String> _sentMutualMatchNotifications = {};
+
   // Get today's matches for the current user
   Future<List<ScheduledMatch>> getTodaysMatches() async {
     try {
@@ -217,6 +223,9 @@ class ScheduledMatchingService extends ChangeNotifier {
       if (action == 'like') {
         debugPrint('recordMatchInteraction: Like recorded, checking for mutual like...');
         await _checkForMutualLike(matchId);
+
+        // 상대방에게 LIKE 받았다는 알림 보내기
+        await _sendLikeNotificationToTargetUser(targetUserId, userId);
       }
 
       debugPrint('recordMatchInteraction: Interaction recording completed');
@@ -282,10 +291,12 @@ class ScheduledMatchingService extends ChangeNotifier {
         debugPrint('_checkForMutualLike: Verification result: $verifyResult');
 
         // Create chat room for the matched users
+        String? chatRoomId;
         try {
           final chatService = ChatService();
           final chatRoom = await chatService.createOrGetChatRoom(matchId, user1Id, user2Id);
           if (chatRoom != null) {
+            chatRoomId = chatRoom.id;
             debugPrint('_checkForMutualLike: Chat room created/found: ${chatRoom.id}');
           } else {
             debugPrint('_checkForMutualLike: Failed to create chat room');
@@ -294,6 +305,9 @@ class ScheduledMatchingService extends ChangeNotifier {
           debugPrint('_checkForMutualLike: Error creating chat room: $chatError');
           // Don't throw error here as match is still successful
         }
+
+        // 상호 매칭 성공 알림 보내기
+        await _sendMutualMatchNotification(user1Id, user2Id, chatRoomId);
 
         // Refresh local cache
         await getTodaysMatches();
@@ -683,6 +697,185 @@ class ScheduledMatchingService extends ChangeNotifier {
       debugPrint('✅ 매칭 ${match.id} 로컬 알림 전송 완료 (Fallback)');
     } catch (e) {
       debugPrint('❌ 로컬 매칭 알림 전송 실패: $e');
+    }
+  }
+
+  // 상대방에게 LIKE 받았다는 알림 보내기
+  Future<void> _sendLikeNotificationToTargetUser(String targetUserId, String senderUserId) async {
+    try {
+      // 중복 알림 방지
+      final notificationKey = '${senderUserId}_$targetUserId';
+      if (_sentLikeNotifications.contains(notificationKey)) {
+        debugPrint('⚠️ 이미 전송한 LIKE 알림: $notificationKey');
+        return;
+      }
+
+      debugPrint('💕 LIKE 알림 전송 시작: $senderUserId -> $targetUserId');
+
+      // 발신자 프로필 조회
+      final senderProfile = await _supabaseService
+          .from(TableNames.users)
+          .select('nickname')
+          .eq('id', senderUserId)
+          .maybeSingle();
+
+      final senderName = senderProfile?['nickname'] ?? '누군가';
+
+      // 수신자 프로필 조회 (FCM 토큰 확인)
+      final targetProfile = await _supabaseService
+          .from(TableNames.users)
+          .select('fcm_token, nickname')
+          .eq('id', targetUserId)
+          .maybeSingle();
+
+      if (targetProfile == null || targetProfile['fcm_token'] == null) {
+        debugPrint('❌ 수신자의 FCM 토큰을 찾을 수 없음: $targetUserId');
+        return;
+      }
+
+      // Supabase Edge Function으로 푸시 알림 전송
+      try {
+        await _supabaseService.client.functions.invoke(
+          'send-like-notification',
+          body: {
+            'targetUserId': targetUserId,
+            'targetToken': targetProfile['fcm_token'],
+            'senderUserId': senderUserId,
+            'senderName': senderName,
+          },
+        );
+        debugPrint('✅ LIKE 푸시 알림 전송 성공 (Edge Function)');
+
+        // 성공적으로 전송했으므로 키 추가
+        _sentLikeNotifications.add(notificationKey);
+
+        // Set 크기 제한 (메모리 누수 방지)
+        if (_sentLikeNotifications.length > 50) {
+          final firstKey = _sentLikeNotifications.first;
+          _sentLikeNotifications.remove(firstKey);
+        }
+      } catch (e) {
+        debugPrint('❌ LIKE 푸시 알림 전송 실패: $e');
+
+        // Fallback: 로컬 알림 (현재 사용자가 수신자인 경우에만)
+        final currentUserId = _supabaseService.currentUser?.id;
+        if (currentUserId == targetUserId) {
+          final notificationService = NotificationService.instance;
+          await notificationService.showReceivedLikeNotification(
+            senderName: senderName,
+          );
+          debugPrint('✅ LIKE 로컬 알림 전송 완료 (Fallback)');
+        } else {
+          debugPrint('⚠️ 현재 사용자($currentUserId)는 수신자($targetUserId)가 아니므로 로컬 알림 생략');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ LIKE 알림 전송 오류: $e');
+    }
+  }
+
+  // 상호 매칭 성공 알림 보내기
+  Future<void> _sendMutualMatchNotification(String user1Id, String user2Id, String? chatRoomId) async {
+    try {
+      // 중복 알림 방지 (user ID 정렬해서 순서 상관없이 동일한 키 생성)
+      final List<String> sortedUserIds = [user1Id, user2Id]..sort();
+      final notificationKey = '${sortedUserIds[0]}_${sortedUserIds[1]}';
+      if (_sentMutualMatchNotifications.contains(notificationKey)) {
+        debugPrint('⚠️ 이미 전송한 상호 매칭 알림: $notificationKey');
+        return;
+      }
+
+      debugPrint('🎉 상호 매칭 알림 전송 시작: $user1Id <-> $user2Id');
+
+      // 두 사용자의 프로필 조회
+      final user1Profile = await _supabaseService
+          .from(TableNames.users)
+          .select('fcm_token, nickname')
+          .eq('id', user1Id)
+          .maybeSingle();
+
+      final user2Profile = await _supabaseService
+          .from(TableNames.users)
+          .select('fcm_token, nickname')
+          .eq('id', user2Id)
+          .maybeSingle();
+
+      final user1Name = user1Profile?['nickname'] ?? '상대방';
+      final user2Name = user2Profile?['nickname'] ?? '상대방';
+
+      // user1에게 알림 보내기
+      if (user1Profile != null && user1Profile['fcm_token'] != null) {
+        try {
+          await _supabaseService.client.functions.invoke(
+            'send-mutual-match-notification',
+            body: {
+              'targetUserId': user1Id,
+              'targetToken': user1Profile['fcm_token'],
+              'matchedUserId': user2Id,
+              'matchedUserName': user2Name,
+              'chatRoomId': chatRoomId,
+            },
+          );
+          debugPrint('✅ user1 상호 매칭 푸시 알림 전송 성공');
+        } catch (e) {
+          debugPrint('❌ user1 상호 매칭 푸시 알림 전송 실패: $e');
+
+          // Fallback: 로컬 알림 (현재 사용자가 user1인 경우에만)
+          final currentUserId = _supabaseService.currentUser?.id;
+          if (currentUserId == user1Id) {
+            final notificationService = NotificationService.instance;
+            await notificationService.showMutualMatchNotification(
+              matchedUserName: user2Name,
+              chatRoomId: chatRoomId,
+            );
+            debugPrint('✅ user1 상호 매칭 로컬 알림 전송 완료 (Fallback)');
+          }
+        }
+      }
+
+      // user2에게 알림 보내기
+      if (user2Profile != null && user2Profile['fcm_token'] != null) {
+        try {
+          await _supabaseService.client.functions.invoke(
+            'send-mutual-match-notification',
+            body: {
+              'targetUserId': user2Id,
+              'targetToken': user2Profile['fcm_token'],
+              'matchedUserId': user1Id,
+              'matchedUserName': user1Name,
+              'chatRoomId': chatRoomId,
+            },
+          );
+          debugPrint('✅ user2 상호 매칭 푸시 알림 전송 성공');
+        } catch (e) {
+          debugPrint('❌ user2 상호 매칭 푸시 알림 전송 실패: $e');
+
+          // Fallback: 로컬 알림 (현재 사용자가 user2인 경우에만)
+          final currentUserId = _supabaseService.currentUser?.id;
+          if (currentUserId == user2Id) {
+            final notificationService = NotificationService.instance;
+            await notificationService.showMutualMatchNotification(
+              matchedUserName: user1Name,
+              chatRoomId: chatRoomId,
+            );
+            debugPrint('✅ user2 상호 매칭 로컬 알림 전송 완료 (Fallback)');
+          }
+        }
+      }
+
+      // 성공적으로 처리했으므로 키 추가 (중복 방지)
+      _sentMutualMatchNotifications.add(notificationKey);
+
+      // Set 크기 제한 (메모리 누수 방지)
+      if (_sentMutualMatchNotifications.length > 50) {
+        final firstKey = _sentMutualMatchNotifications.first;
+        _sentMutualMatchNotifications.remove(firstKey);
+      }
+
+      debugPrint('✅ 상호 매칭 알림 전송 완료 및 중복 방지 키 저장: $notificationKey');
+
+    } catch (e) {
+      debugPrint('❌ 상호 매칭 알림 전송 오류: $e');
     }
   }
 }
