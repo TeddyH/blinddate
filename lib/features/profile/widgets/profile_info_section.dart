@@ -23,7 +23,7 @@ class ProfileInfoSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

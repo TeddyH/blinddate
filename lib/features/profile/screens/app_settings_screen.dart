@@ -22,28 +22,61 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          '앱 설정',
-          style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '💕 Hearty',
+              style: AppTextStyles.h1.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                '설정',
+                style: AppTextStyles.body2.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          children: [
-            // Notification Settings
-            _buildNotificationSettings(),
-            const SizedBox(height: AppSpacing.lg),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.background,
+              AppColors.accent.withValues(alpha: 0.02),
+              AppColors.accent.withValues(alpha: 0.05),
+            ],
+            stops: const [0.0, 0.7, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              children: [
+                // Notification Settings
+                _buildNotificationSettings(),
+                const SizedBox(height: AppSpacing.lg),
 
-            // App Information
-            _buildAppInformation(),
-          ],
+                // App Information
+                _buildAppInformation(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -53,7 +86,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -124,7 +157,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -157,12 +190,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           // Contact
           _buildTappableTile(
             title: '문의하기',
-            subtitle: 'support@hearty.app',
+            subtitle: 'edgein00@gmail.com',
             onTap: () {
               // TODO: Open email app
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('이메일 앱을 열어 문의해주세요: support@hearty.app'),
+                  content: Text('이메일 앱을 열어 문의해주세요: edgein00@gmail.com'),
                 ),
               );
             },

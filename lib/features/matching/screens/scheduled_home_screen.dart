@@ -217,93 +217,60 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
 
   Widget _buildNoMatchesState(bool isRevealTime, Duration timeUntilReveal) {
     return Center(
-      child: Container(
-        margin: const EdgeInsets.all(AppSpacing.lg),
+      child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Clock icon
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.pink.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isRevealTime ? Icons.favorite_border : Icons.schedule,
-                size: 60,
-                color: Colors.pink,
-              ),
+            Icon(
+              Icons.schedule,
+              size: 80,
+              color: Colors.pink,
             ),
 
             const SizedBox(height: AppSpacing.xl),
 
             Text(
-              isRevealTime ? '오늘은 새로운 인연이 없어요' : '곧 새로운 인연을 만날 수 있어요!',
+              '오늘은 새로운 인연이 없어요',
               style: AppTextStyles.h2.copyWith(
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
 
-
             const SizedBox(height: AppSpacing.md),
 
-            if (!isRevealTime) ...[
-              Text(
-                '매일 낮 12시에 새로운 매칭이 공개됩니다',
-                style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
+            Text(
+              '내일 새로운 분을 소개해드릴게요!\n매일 낮 12시에 새로운 매칭이 공개됩니다.',
+              style: AppTextStyles.body1.copyWith(
+                color: AppColors.textSecondary,
               ),
+              textAlign: TextAlign.center,
+            ),
 
-              const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.lg),
 
-              // Countdown
-              Column(
-                children: [
-                  Text(
-                    '다음 매칭까지',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+            // Countdown - 항상 표시
+            Column(
+              children: [
+                Text(
+                  '다음 매칭까지',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatCountdown(timeUntilReveal),
-                    style: AppTextStyles.h1.copyWith(
-                      color: Colors.pink,
-                      fontWeight: FontWeight.bold,
-                      fontFeatures: [const FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
-              Text(
-                '내일 새로운 분을 소개해드릴게요!',
-                style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textSecondary,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-
+                const SizedBox(height: 4),
+                Text(
+                  _formatCountdown(timeUntilReveal),
+                  style: AppTextStyles.h1.copyWith(
+                    color: Colors.pink,
+                    fontWeight: FontWeight.bold,
+                    fontFeatures: [const FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -400,36 +367,15 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
 
   Widget _buildPendingMatches(List<ScheduledMatch> matches, bool isRevealTime) {
     return Center(
-      child: Container(
-        margin: const EdgeInsets.all(AppSpacing.lg),
+      child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.pink.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.lock_clock,
-                size: 60,
-                color: Colors.pink,
-              ),
+            Icon(
+              Icons.lock_clock,
+              size: 80,
+              color: Colors.pink,
             ),
 
             const SizedBox(height: AppSpacing.xl),

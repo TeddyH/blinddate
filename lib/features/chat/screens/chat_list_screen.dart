@@ -169,45 +169,25 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   Widget _buildEmptyState() {
     return Center(
-      child: Container(
-        margin: const EdgeInsets.all(AppSpacing.lg),
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.chat_bubble_outline,
-                size: 40,
-                color: AppColors.primary,
-              ),
+            Icon(
+              Icons.chat_bubble_outline,
+              size: 80,
+              color: Colors.pink,
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.xl),
             Text(
               '아직 채팅할 상대가 없어요',
-              style: AppTextStyles.h3.copyWith(
+              style: AppTextStyles.h2.copyWith(
                 color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.md),
             Text(
               '추천받은 상대와 서로 좋아요를 누르면\n채팅을 시작할 수 있어요!',
               style: AppTextStyles.body1.copyWith(

@@ -42,7 +42,17 @@
       "Bash(git reset:*)",
       "Bash(git restore:*)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(nc localhost 57687)",
+      "Bash(aapt dump permissions:*)",
+      "Bash(~/Library/Android/sdk/build-tools/36.0.0/aapt dump permissions build/app/outputs/flutter-apk/app-release.apk)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(keytool:*)",
+      "Bash(java:*)",
+      "Bash(export:*)",
+      "Bash(jarsigner:*)",
+      "Bash(convert:*)",
+      "Bash(magick:*)"
     ],
     "deny": [],
     "ask": []

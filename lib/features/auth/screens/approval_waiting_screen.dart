@@ -111,11 +111,22 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('승인 대기'),
+        title: const Text(
+          '승인 대기',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: AppColors.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           TextButton(
             onPressed: _signOut,
-            child: const Text('로그아웃'),
+            child: const Text(
+              '로그아웃',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

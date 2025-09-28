@@ -259,14 +259,37 @@ class ChatService extends ChangeNotifier {
       notifyListeners();
 
       // 채팅방의 last_message 업데이트
+      final now = DateTime.now();
       await _supabaseService.client
           .from(TableNames.chatRooms)
           .update({
             'last_message': message.trim(),
-            'last_message_at': DateTime.now().toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
+            'last_message_at': now.toIso8601String(),
+            'updated_at': now.toIso8601String(),
           })
           .eq('id', chatRoomId);
+
+      // 로컬 채팅방 리스트도 업데이트
+      final chatRoomIndex = _chatRooms.indexWhere((room) => room.id == chatRoomId);
+      if (chatRoomIndex != -1) {
+        final updatedChatRoom = ChatRoom(
+          id: _chatRooms[chatRoomIndex].id,
+          matchId: _chatRooms[chatRoomIndex].matchId,
+          user1Id: _chatRooms[chatRoomIndex].user1Id,
+          user2Id: _chatRooms[chatRoomIndex].user2Id,
+          lastMessage: message.trim(),
+          lastMessageAt: now,
+          createdAt: _chatRooms[chatRoomIndex].createdAt,
+          updatedAt: now,
+        );
+        _chatRooms[chatRoomIndex] = updatedChatRoom;
+
+        // 채팅방을 맨 위로 이동 (최근 메시지 순서대로)
+        _chatRooms.removeAt(chatRoomIndex);
+        _chatRooms.insert(0, updatedChatRoom);
+
+        notifyListeners();
+      }
 
       // 알림은 데이터베이스 트리거에서 자동으로 처리됩니다
 
@@ -563,6 +586,7 @@ class ChatService extends ChangeNotifier {
   void enterChatRoom(String chatRoomId) {
     _currentChatRoomId = chatRoomId;
     _notificationService.setCurrentChatRoom(chatRoomId);
+    UnreadMessageService.instance.setCurrentChatRoom(chatRoomId);
     debugPrint('🏠 채팅방 진입: $chatRoomId');
   }
 
@@ -570,6 +594,7 @@ class ChatService extends ChangeNotifier {
   void exitChatRoom() {
     _currentChatRoomId = null;
     _notificationService.setCurrentChatRoom(null);
+    UnreadMessageService.instance.setCurrentChatRoom(null);
     debugPrint('🚪 채팅방 나감');
   }
 

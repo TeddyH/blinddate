@@ -22,6 +22,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<Map<String, String>> _notices = [
     {
+      'title': '🎁 얼리어댑터 특별 혜택!',
+      'description': '2025년까지 무제한 채팅을 무료로 이용하세요! 초기 사용자만을 위한 특별한 혜택입니다.'
+    },
+    {
       'title': '환영합니다! 🎉',
       'description': '매일 낮 12시에 새로운 인연을 만나보세요. 서로에게 관심이 있다면 채팅을 시작할 수 있어요!'
     },
@@ -69,6 +73,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final matchingService = Provider.of<ScheduledMatchingService>(context, listen: false);
     matchingService.getTodaysMatches();
     matchingService.getPastMatches();
+
+    // 매칭 알림은 이제 Edge Function에서 자동으로 처리됨
   }
 
   @override
@@ -200,7 +206,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: SizedBox(
               height: 100,
               child: PageView.builder(
@@ -214,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               itemBuilder: (context, index) {
                 final notice = _notices[index];
                 return Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.all(AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,

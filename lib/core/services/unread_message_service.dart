@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 
 class UnreadMessageService extends ChangeNotifier {
@@ -15,6 +16,9 @@ class UnreadMessageService extends ChangeNotifier {
   Map<String, int> _unreadCountPerRoom = {};
   Map<String, int> get unreadCountPerRoom => _unreadCountPerRoom;
 
+  RealtimeChannel? _globalMessageSubscription;
+  String? _currentChatRoomId; // 현재 열려있는 채팅방 ID
+
   // 읽지 않은 메시지 수 가져오기
   Future<void> fetchUnreadCount() async {
     try {
@@ -24,23 +28,35 @@ class UnreadMessageService extends ChangeNotifier {
         return;
       }
 
-      // 채팅방별 읽지 않은 메시지 수 계산
-      final result = await _supabaseService.client
-          .rpc('get_chat_rooms_with_unread', params: {'user_id': userId});
+      // 사용자의 채팅방 목록 먼저 가져오기
+      final chatRooms = await _supabaseService.client
+          .from('blinddate_chat_rooms')
+          .select('id')
+          .or('user1_id.eq.$userId,user2_id.eq.$userId');
 
       int totalUnreadCount = 0;
       Map<String, int> newUnreadCountPerRoom = {};
 
-      for (final row in result) {
-        final chatRoomId = row['chat_room_id'].toString();
-        final unreadCount = row['unread_count'] as int? ?? 0;
+      // 각 채팅방별로 읽지 않은 메시지 수 계산
+      for (final chatRoom in chatRooms) {
+        final chatRoomId = chatRoom['id'] as String;
 
+        final unreadMessages = await _supabaseService.client
+            .from('blinddate_chat_messages')
+            .select('id')
+            .eq('chat_room_id', chatRoomId)
+            .neq('sender_id', userId)
+            .isFilter('read_at', null);
+
+        final unreadCount = unreadMessages.length;
         newUnreadCountPerRoom[chatRoomId] = unreadCount;
         totalUnreadCount += unreadCount;
       }
 
       _unreadCountPerRoom = newUnreadCountPerRoom;
       _updateUnreadCount(totalUnreadCount);
+
+      debugPrint('📊 읽지 않은 메시지 수 업데이트: $totalUnreadCount');
     } catch (e) {
       debugPrint('❌ 읽지 않은 메시지 수 조회 오류: $e');
       _updateUnreadCount(0);
@@ -76,6 +92,12 @@ class UnreadMessageService extends ChangeNotifier {
   // 새 메시지가 도착했을 때 카운트 증가
   void incrementUnreadCount() {
     _updateUnreadCount(_unreadCount + 1);
+  }
+
+  // 현재 채팅방 설정
+  void setCurrentChatRoom(String? chatRoomId) {
+    _currentChatRoomId = chatRoomId;
+    debugPrint('📍 UnreadMessageService - 현재 채팅방 설정: $_currentChatRoomId');
   }
 
   // 현재 채팅방에 있을 때는 카운트 증가하지 않음

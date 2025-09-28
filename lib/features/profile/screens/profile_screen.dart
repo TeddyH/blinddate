@@ -207,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final success = await profileService.signOut();
 
                 if (success && context.mounted) {
-                  // Navigate to login screen
+                  // Navigate to login screen and clear all navigation history
                   context.go(AppRoutes.emailAuth);
                 } else if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

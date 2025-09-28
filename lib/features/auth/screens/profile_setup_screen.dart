@@ -26,10 +26,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final _formKey1 = GlobalKey<FormState>();
   List<model.ProfileImageSource> _images = [];
   List<String> _interests = [];
-  String? _selectedGender;
+  String? _selectedGender = 'male'; // Default to male
+  int? _selectedBirthYear = 2000; // Default to 2000
   bool _isLoading = false;
   bool _isLoadingData = true;
   bool _isUpdating = false; // Track if this is an update vs create
+  String? _currentApprovalStatus;
   final ImagePicker _imagePicker = ImagePicker();
 
   // Error messages
@@ -69,13 +71,27 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         debugPrint('Bio: ${profile['bio']}');
         debugPrint('Interests: ${profile['interests']}');
         debugPrint('Gender: ${profile['gender']}');
+        debugPrint('Birth date: ${profile['birth_date']}');
+
+        // Extract birth year from birth_date
+        int? birthYear;
+        if (profile['birth_date'] != null) {
+          try {
+            final birthDate = DateTime.parse(profile['birth_date']);
+            birthYear = birthDate.year;
+          } catch (e) {
+            debugPrint('Error parsing birth_date: $e');
+          }
+        }
 
         setState(() {
           _isUpdating = true;
           _nicknameController.text = profile['nickname'] ?? '';
           _bioController.text = profile['bio'] ?? '';
+          _selectedBirthYear = birthYear;
           _interests = List<String>.from(profile['interests'] ?? []);
           _selectedGender = profile['gender'];
+          _currentApprovalStatus = profile['approval_status'] ?? AppConstants.approvalPending;
           _images = imageSources;
         });
       } else {
@@ -191,9 +207,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: source,
-        imageQuality: 80,
-        maxWidth: 1080,
-        maxHeight: 1080,
+        imageQuality: 85,
+        maxWidth: 800,
+        maxHeight: 800,
+        preferredCameraDevice: CameraDevice.rear,
       );
 
       if (pickedFile != null) {
@@ -235,16 +252,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       isValid = false;
     }
 
-    // Validate gender
-    if (_selectedGender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('성별을 선택해주세요.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      isValid = false;
-    }
 
     // Validate interests
     if (_interests.isEmpty) {
@@ -269,14 +276,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       final authService = context.read<AuthService>();
 
       if (_isUpdating) {
+        // Calculate birth date from birth year (using July 1st as default date)
+        final birthDate = DateTime(_selectedBirthYear!, 7, 1);
+
+        // Determine approval status based on current status
+        String newApprovalStatus;
+        if (_currentApprovalStatus == AppConstants.approvalApproved) {
+          // Keep approved status for already approved users
+          newApprovalStatus = AppConstants.approvalApproved;
+        } else {
+          // Set to pending for new users or rejected users
+          newApprovalStatus = AppConstants.approvalPending;
+        }
+
         // Update existing profile with all image sources
         await authService.updateUserProfile({
           'nickname': _nicknameController.text.trim(),
           'bio': _bioController.text.trim(),
+          'birth_date': birthDate.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
           'interests': _interests,
           'gender': _selectedGender,
-          'approval_status': AppConstants.approvalPending, // Reset to pending for re-review
-          'rejection_reason': null, // Clear previous rejection reason
+          'approval_status': newApprovalStatus,
+          'rejection_reason': _currentApprovalStatus == AppConstants.approvalApproved ? null : null, // Clear rejection reason
         }, imageSources: _images.isNotEmpty ? _images : null);
       } else {
         // Extract File images for new profile creation
@@ -286,8 +307,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             .toList();
 
         // Create new profile
-        // Default birth date for age 25
-        final birthDate = DateTime.now().subtract(const Duration(days: 365 * 25));
+        // Calculate birth date from birth year (using July 1st as default date)
+        final birthDate = DateTime(_selectedBirthYear!, 7, 1);
 
         await authService.createUserProfile(
           nickname: _nicknameController.text.trim(),
@@ -301,18 +322,31 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       }
 
       if (mounted) {
-        // Show success message
+        // Show success message based on approval status
+        String successMessage;
+        if (_isUpdating && _currentApprovalStatus == AppConstants.approvalApproved) {
+          successMessage = '프로필이 성공적으로 수정되었습니다.';
+        } else if (_isUpdating) {
+          successMessage = '프로필이 성공적으로 수정되었습니다. 관리자 재검토를 기다려주세요.';
+        } else {
+          successMessage = '프로필이 성공적으로 생성되었습니다. 관리자 승인을 기다려주세요.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isUpdating
-              ? '프로필이 성공적으로 수정되었습니다. 관리자 재검토를 기다려주세요.'
-              : '프로필이 성공적으로 생성되었습니다. 관리자 승인을 기다려주세요.'),
+            content: Text(successMessage),
             backgroundColor: AppColors.success,
           ),
         );
 
-        // Navigate to approval waiting screen
-        context.go(AppRoutes.approvalWaiting);
+        // Navigate appropriately based on approval status
+        if (_isUpdating && _currentApprovalStatus == AppConstants.approvalApproved) {
+          // For already approved users, go back to previous screen
+          Navigator.of(context).pop();
+        } else {
+          // For new users or pending/rejected users, go to approval waiting screen
+          context.go(AppRoutes.approvalWaiting);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -413,10 +447,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             end: Alignment.bottomCenter,
             colors: [
               AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
+              AppColors.accent.withValues(alpha: 0.02),
+              AppColors.accent.withValues(alpha: 0.05),
             ],
-            stops: const [0.0, 0.6, 1.0],
+            stops: const [0.0, 0.7, 1.0],
           ),
         ),
         child: SafeArea(
@@ -540,7 +574,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: _buildImageWidget(_images[index]),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: _buildImageWidget(_images[index]),
+                            ),
                           ),
                           Positioned(
                             top: 4,
@@ -619,8 +657,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             decoration: InputDecoration(
               labelText: '닉네임',
               hintText: '다른 사람들에게 보여질 이름을 입력하세요',
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
             ),
             validator: (value) {
@@ -643,8 +701,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             decoration: InputDecoration(
               labelText: '자기소개',
               hintText: '자신을 매력적으로 소개해보세요 (최소 100자)',
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
             ),
             validator: (value) {
@@ -659,41 +737,145 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Gender
-          Text(
-            '성별',
-            style: AppTextStyles.body1.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
+          // Gender and Birth Year Row
           Row(
             children: [
+              // Gender (smaller width)
               Expanded(
-                child: RadioListTile<String>(
-                  title: const Text('남성'),
-                  value: 'male',
-                  groupValue: _selectedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGender = value;
-                    });
-                  },
-                  contentPadding: EdgeInsets.zero,
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '성별',
+                      style: AppTextStyles.body1.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<String>(
+                      value: _selectedGender,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.5),
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'male',
+                          child: Text('남성'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'female',
+                          child: Text('여성'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedGender = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '성별을 선택해주세요';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: AppSpacing.md),
+              // Birth Year (larger width)
               Expanded(
-                child: RadioListTile<String>(
-                  title: const Text('여성'),
-                  value: 'female',
-                  groupValue: _selectedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGender = value;
-                    });
-                  },
-                  contentPadding: EdgeInsets.zero,
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '생년월일',
+                      style: AppTextStyles.body1.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<int>(
+                      value: _selectedBirthYear,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.5),
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                      ),
+                      items: _generateBirthYearItems(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBirthYear = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return '생년월일을 선택해주세요';
+                        }
+                        final currentYear = DateTime.now().year;
+                        final age = currentYear - value;
+                        if (age < 18 || age > 80) {
+                          return '18세~80세만 가입 가능합니다';
+                        }
+                        return null;
+                      },
+                      isExpanded: true, // Prevent overflow
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -744,13 +926,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.1)
-                        : AppColors.surfaceVariant.withValues(alpha: 0.1),
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : AppColors.surface.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.3)
-                          : AppColors.surfaceVariant.withValues(alpha: 0.4),
+                          ? AppColors.primary.withValues(alpha: 0.4)
+                          : AppColors.surfaceVariant.withValues(alpha: 0.3),
+                      width: isSelected ? 1.5 : 1,
                     ),
                   ),
                   child: Text(
@@ -796,7 +979,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     if (imageSource is model.NetworkImageSource) {
       return Image.network(
         imageSource.url,
+        width: double.infinity,
+        height: double.infinity,
         fit: BoxFit.cover,
+        alignment: Alignment.center,
         errorBuilder: (context, error, stackTrace) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -820,7 +1006,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     } else if (imageSource is model.FileImageSource) {
       return Image.file(
         imageSource.file,
+        width: double.infinity,
+        height: double.infinity,
         fit: BoxFit.cover,
+        alignment: Alignment.center,
         errorBuilder: (context, error, stackTrace) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -862,42 +1051,25 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
   }
 
-  Widget _buildGenderOption(String value, String label, IconData icon) {
-    final isSelected = _selectedGender == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedGender = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(12),
+  List<DropdownMenuItem<int>> _generateBirthYearItems() {
+    final currentYear = DateTime.now().year;
+    final minYear = currentYear - 80; // 최대 80세
+    final maxYear = currentYear - 18; // 최소 18세
+
+    List<DropdownMenuItem<int>> items = [];
+
+    // 년도를 내림차순으로 정렬 (최근 년도부터)
+    for (int year = maxYear; year >= minYear; year--) {
+      final age = currentYear - year;
+      items.add(
+        DropdownMenuItem<int>(
+          value: year,
+          child: Text('$year년 (${age}세)'),
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              label,
-              style: AppTextStyles.body1.copyWith(
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    }
+
+    return items;
   }
+
 }

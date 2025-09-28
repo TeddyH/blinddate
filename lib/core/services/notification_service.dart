@@ -1,15 +1,103 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'supabase_service.dart';
 import 'unread_message_service.dart';
 
+// 처리된 메시지 ID 저장 (중복 방지)
+final Set<String> _processedMessageIds = <String>{};
+
 // 백그라운드 메시지 핸들러 (최상위 함수여야 함)
 @pragma('vm:entry-point')
 Future<void> _handleBackgroundMessage(RemoteMessage message) async {
   debugPrint('백그라운드 메시지 수신: ${message.messageId}');
+
+  // 중복 메시지 방지 - 강화된 로직
+  final messageId = message.messageId ?? '';
+  debugPrint('🔍 메시지 ID 체크: $messageId (이미 처리된 수: ${_processedMessageIds.length})');
+
+  if (messageId.isNotEmpty) {
+    if (_processedMessageIds.contains(messageId)) {
+      debugPrint('⚠️ 이미 처리된 메시지 ID: $messageId - 스킵');
+      return;
+    }
+    _processedMessageIds.add(messageId);
+    debugPrint('✅ 새로운 메시지 ID 추가: $messageId');
+  } else {
+    debugPrint('⚠️ 메시지 ID가 비어있음 - 처리 진행');
+  }
+
+  // Set 크기 제한 (메모리 누수 방지)
+  if (_processedMessageIds.length > 100) {
+    _processedMessageIds.clear();
+  }
+
+  final data = message.data;
+  final notificationType = data['type'];
+
+  debugPrint('📨 백그라운드 메시지 데이터: $data');
+
+  if (notificationType == 'daily_match') {
+    // Android data-only 메시지이므로 로컬 알림 표시
+    await _showBackgroundMatchNotification(data);
+  }
+}
+
+// 백그라운드에서 매칭 알림 표시
+Future<void> _showBackgroundMatchNotification(Map<String, dynamic> data) async {
+  final FlutterLocalNotificationsPlugin localNotifications = FlutterLocalNotificationsPlugin();
+
+  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    'match_channel',
+    '매칭 알림',
+    channelDescription: '새로운 매칭 알림',
+    importance: Importance.high,
+    priority: Priority.high,
+    color: Color(0xFFEF476F),
+    icon: '@drawable/ic_stat_hearty',
+  );
+
+  const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true,
+  );
+
+  const NotificationDetails details = NotificationDetails(
+    android: androidDetails,
+    iOS: iosDetails,
+  );
+
+  // FCM data에서 null 문자열 처리
+  String getValidString(String? value) {
+    if (value == null || value == 'null' || value.isEmpty) {
+      return '';
+    }
+    return value;
+  }
+
+  final titleFromData = getValidString(data['title']);
+  final bodyFromData = getValidString(data['body']);
+
+  final title = titleFromData.isNotEmpty ? titleFromData : '💕 새로운 인연이 도착했어요!';
+  final body = bodyFromData.isNotEmpty ? bodyFromData : '오늘의 추천을 확인해보세요';
+
+  debugPrint('🔍 백그라운드 알림 데이터 확인:');
+  debugPrint('  - Raw data: $data');
+  debugPrint('  - title: "${data['title']}" -> "$title"');
+  debugPrint('  - body: "${data['body']}" -> "$body"');
+  debugPrint('  - type: "${data['type']}"');
+
+  await localNotifications.show(
+    DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    title,
+    body,
+    details,
+    payload: 'daily_match',
+  );
+
+  debugPrint('💕 백그라운드 매칭 알림 표시됨: $title');
 }
 
 class NotificationService {
@@ -21,6 +109,9 @@ class NotificationService {
   FirebaseMessaging? _firebaseMessaging;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   final SupabaseService _supabaseService = SupabaseService.instance;
+
+  // 포그라운드에서 처리된 메시지 ID 저장 (중복 방지)
+  final Set<String> _foregroundProcessedMessageIds = <String>{};
 
   // Firebase Messaging 인스턴스 (lazy 초기화)
   FirebaseMessaging? get _messaging {
@@ -174,16 +265,25 @@ class NotificationService {
     );
 
     // Android 채널 생성
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    const AndroidNotificationChannel chatChannel = AndroidNotificationChannel(
       'chat_channel',
       '채팅 알림',
       description: '새 채팅 메시지 알림',
       importance: Importance.high,
     );
 
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    const AndroidNotificationChannel matchChannel = AndroidNotificationChannel(
+      'match_channel',
+      '매칭 알림',
+      description: '새로운 매칭 알림',
+      importance: Importance.high,
+    );
+
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+
+    await androidPlugin?.createNotificationChannel(chatChannel);
+    await androidPlugin?.createNotificationChannel(matchChannel);
 
     debugPrint('📱 로컬 알림 초기화 완료');
   }
@@ -207,10 +307,26 @@ class NotificationService {
 
   // 포그라운드에서 메시지 수신 처리
   void _handleForegroundMessage(RemoteMessage message) {
-    debugPrint('📨 포그라운드 메시지 수신: ${message.notification?.title}');
+    debugPrint('📨 포그라운드 메시지 수신: ${message.messageId}');
+
+    // 중복 메시지 방지
+    if (_foregroundProcessedMessageIds.contains(message.messageId)) {
+      debugPrint('⚠️ 이미 처리된 포그라운드 메시지 ID: ${message.messageId}');
+      return;
+    }
+    _foregroundProcessedMessageIds.add(message.messageId ?? '');
+
+    // Set 크기 제한 (메모리 누수 방지)
+    if (_foregroundProcessedMessageIds.length > 100) {
+      _foregroundProcessedMessageIds.clear();
+    }
 
     final data = message.data;
-    if (data['type'] == 'chat_message') {
+    final notificationType = data['type'];
+
+    debugPrint('📨 포그라운드 메시지 데이터: $data');
+
+    if (notificationType == 'chat_message') {
       final messageChatRoomId = data['chatRoomId'];
 
       // 현재 열려있는 채팅방과 같은 방의 메시지라면 알림 표시 안함
@@ -224,6 +340,10 @@ class NotificationService {
 
       // 다른 채팅방이거나 채팅방이 아닌 화면에 있을 때 알림 표시
       _showLocalNotification(message);
+    } else if (notificationType == 'daily_match') {
+      // 매칭 알림은 항상 표시 (data-only 메시지 처리)
+      debugPrint('📨 포그라운드에서 매칭 알림 데이터 처리: $data');
+      _showMatchNotificationFromData(data);
     }
   }
 
@@ -261,13 +381,66 @@ class NotificationService {
     debugPrint('📱 로컬 알림 표시됨: ${message.notification?.title}');
   }
 
+  // data-only 매칭 알림 표시
+  Future<void> _showMatchNotificationFromData(Map<String, dynamic> data) async {
+    // FCM data에서 null 문자열 처리
+    String getValidString(String? value) {
+      if (value == null || value == 'null' || value.isEmpty) {
+        return '';
+      }
+      return value;
+    }
+
+    final titleFromData = getValidString(data['title']);
+    final bodyFromData = getValidString(data['body']);
+
+    final title = titleFromData.isNotEmpty ? titleFromData : '💕 새로운 인연이 도착했어요!';
+    final body = bodyFromData.isNotEmpty ? bodyFromData : '오늘의 추천을 확인해보세요';
+
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'match_channel',
+      '매칭 알림',
+      channelDescription: '새로운 매칭 알림',
+      importance: Importance.high,
+      priority: Priority.high,
+      color: Color(0xFFEF476F),
+      icon: '@drawable/ic_stat_hearty',
+    );
+
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title,
+      body,
+      details,
+      payload: 'daily_match',
+    );
+
+    debugPrint('💕 포그라운드 매칭 알림 표시됨: $title');
+  }
+
+
   // 알림 탭 처리 (FCM)
   void _handleNotificationTap(RemoteMessage message) {
     debugPrint('👆 FCM 알림 탭됨: ${message.data}');
 
     final data = message.data;
-    if (data['type'] == 'chat_message' && data['chatRoomId'] != null) {
+    final notificationType = data['type'];
+
+    if (notificationType == 'chat_message' && data['chatRoomId'] != null) {
       _navigateToChatRoom(data['chatRoomId']);
+    } else if (notificationType == 'daily_match') {
+      _navigateToRecommendations();
     }
   }
 
@@ -275,7 +448,11 @@ class NotificationService {
   void _handleLocalNotificationTap(NotificationResponse response) {
     debugPrint('👆 로컬 알림 탭됨: ${response.payload}');
     if (response.payload != null) {
-      _navigateToChatRoom(response.payload!);
+      if (response.payload == 'daily_match') {
+        _navigateToRecommendations();
+      } else {
+        _navigateToChatRoom(response.payload!);
+      }
     }
   }
 
@@ -284,6 +461,13 @@ class NotificationService {
     debugPrint('🚀 채팅방으로 이동 요청: $chatRoomId');
     // TODO: GoRouter를 사용하여 채팅방으로 이동
     // NavigationService.instance.navigateTo('/chat/$chatRoomId');
+  }
+
+  // 추천 페이지로 이동
+  void _navigateToRecommendations() {
+    debugPrint('💕 추천 페이지로 이동 요청');
+    // TODO: GoRouter를 사용하여 추천 페이지로 이동
+    // NavigationService.instance.navigateTo('/recommendations');
   }
 
   // 알림 권한 상태 확인
@@ -321,5 +505,48 @@ class NotificationService {
       debugPrint('❌ 읽지 않은 메시지 수 조회 오류: $e');
       return 0;
     }
+  }
+
+  // Public method to show match notification
+  Future<void> showMatchNotificationDirect({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    if (!isFirebaseAvailable) {
+      debugPrint('⚠️ Firebase가 사용 불가능하여 알림을 표시할 수 없음');
+      return;
+    }
+
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'match_channel',
+      '매칭 알림',
+      channelDescription: '새로운 매칭 알림',
+      importance: Importance.high,
+      priority: Priority.high,
+      color: Color(0xFFEF476F),
+      icon: '@drawable/ic_stat_hearty',
+    );
+
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _localNotifications.show(
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title,
+      body,
+      details,
+      payload: payload ?? 'daily_match',
+    );
+
+    debugPrint('💕 매칭 알림 직접 표시됨: $title');
   }
 }

@@ -5,8 +5,11 @@ import 'dart:io';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../shared/widgets/profile_section_card.dart';
+import '../../../shared/models/image_source.dart' as model;
 import '../services/profile_service.dart';
+import '../../auth/services/auth_service.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -23,6 +26,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   List<String> _selectedInterests = [];
   List<String> _profileImages = [];
   List<File> _newImages = [];
+  String? _selectedGender = 'male';
+  int? _selectedBirthYear = 2000;
+  String? _currentApprovalStatus;
   final List<String> _availableInterests = [
     '영화/드라마', '음악', '독서', '여행', '운동', '요리',
     '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
@@ -54,7 +60,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _nicknameController.text = profile['nickname'] ?? '';
       _bioController.text = profile['bio'] ?? '';
 
-
       final interests = profile['interests'];
       if (interests is List) {
         _selectedInterests = List<String>.from(interests);
@@ -63,6 +68,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       final imageUrls = profile['profile_image_urls'];
       if (imageUrls is List) {
         _profileImages = List<String>.from(imageUrls);
+      }
+
+      // Load gender
+      _selectedGender = profile['gender'] ?? 'male';
+
+      // Load current approval status
+      _currentApprovalStatus = profile['approval_status'] ?? AppConstants.approvalPending;
+
+      // Load birth year from birth_date
+      if (profile['birth_date'] != null) {
+        try {
+          final birthDate = DateTime.parse(profile['birth_date']);
+          _selectedBirthYear = birthDate.year;
+        } catch (e) {
+          debugPrint('Error parsing birth_date: $e');
+        }
       }
 
       setState(() {});
@@ -78,30 +99,68 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       _isLoading = true;
     });
 
-    final profileService = context.read<ProfileService>();
-    final success = await profileService.updateUserProfile(
-      nickname: _nicknameController.text.trim(),
-      bio: _bioController.text.trim(),
-      interests: _selectedInterests,
-    );
+    try {
+      final authService = context.read<AuthService>();
 
-    setState(() {
-      _isLoading = false;
-    });
+      // Convert birth year to birth date (using July 1st as default date)
+      final birthDate = DateTime(_selectedBirthYear!, 7, 1);
 
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('프로필이 성공적으로 업데이트되었습니다'),
-        ),
-      );
-      Navigator.of(context).pop();
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(profileService.errorMessage ?? '프로필 업데이트에 실패했습니다'),
-        ),
-      );
+      // Convert File images to ImageSource models
+      final imageSources = _newImages.map((file) => model.FileImageSource(file)).toList();
+      final allImageSources = [
+        ..._profileImages.map((url) => model.NetworkImageSource(url)),
+        ...imageSources,
+      ];
+
+      // Determine approval status based on current status
+      String newApprovalStatus;
+      String successMessage;
+
+      if (_currentApprovalStatus == AppConstants.approvalApproved) {
+        // Keep approved status for already approved users
+        newApprovalStatus = AppConstants.approvalApproved;
+        successMessage = '프로필이 성공적으로 수정되었습니다.';
+      } else {
+        // Set to pending for new users or rejected users
+        newApprovalStatus = AppConstants.approvalPending;
+        successMessage = '프로필이 성공적으로 수정되었습니다. 관리자 재검토를 기다려주세요.';
+      }
+
+      // Update existing profile with all image sources
+      await authService.updateUserProfile({
+        'nickname': _nicknameController.text.trim(),
+        'bio': _bioController.text.trim(),
+        'birth_date': birthDate.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
+        'interests': _selectedInterests,
+        'gender': _selectedGender,
+        'approval_status': newApprovalStatus,
+        'rejection_reason': _currentApprovalStatus == AppConstants.approvalApproved ? null : null, // Clear rejection reason only if not approved
+      }, imageSources: allImageSources.isNotEmpty ? allImageSources : null);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(successMessage),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('프로필 수정 중 오류가 발생했습니다: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -207,9 +266,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: source,
-        imageQuality: 80,
-        maxWidth: 1080,
-        maxHeight: 1080,
+        imageQuality: 85,
+        maxWidth: 800,
+        maxHeight: 800,
+        preferredCameraDevice: CameraDevice.rear,
       );
 
       if (pickedFile != null) {
@@ -245,47 +305,124 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          '프로필 편집',
-          style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              '💕 Hearty',
+              style: AppTextStyles.h1.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                '프로필 편집',
+                style: AppTextStyles.body2.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          TextButton(
-            onPressed: _isLoading ? null : _saveProfile,
-            child: Text(
-              '저장',
-              style: TextStyle(
-                color: _isLoading ? AppColors.textSecondary : AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Form(
-          key: _formKey,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.background,
+              AppColors.accent.withValues(alpha: 0.02),
+              AppColors.accent.withValues(alpha: 0.05),
+            ],
+            stops: const [0.0, 0.7, 1.0],
+          ),
+        ),
+        child: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Images Section
-              _buildProfileImagesSection(),
-              const SizedBox(height: AppSpacing.xl),
+              // Page content
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Profile Images Section
+                        _buildProfileImagesSection(),
+                        const SizedBox(height: AppSpacing.lg),
 
-              // Basic Info Section
-              _buildBasicInfoSection(),
-              const SizedBox(height: AppSpacing.xl),
+                        // Basic Info Section
+                        _buildBasicInfoSection(),
+                        const SizedBox(height: AppSpacing.lg),
 
-              // Interests Section
-              _buildInterestsSection(),
-              const SizedBox(height: AppSpacing.xl),
+                        // Additional Info Section
+                        _buildAdditionalInfoSection(),
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom save button
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.lg).copyWith(
+                  top: AppSpacing.md,
+                  bottom: AppSpacing.lg,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.surface.withValues(alpha: 0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      offset: const Offset(0, -2),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _saveProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          '수정 완료',
+                          style: AppTextStyles.body1.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -340,6 +477,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
+                                  alignment: Alignment.center,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
@@ -365,6 +503,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: double.infinity,
+                                  alignment: Alignment.center,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
@@ -453,9 +592,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             controller: _nicknameController,
             decoration: InputDecoration(
               labelText: '닉네임',
-              hintText: '다른 사용자에게 보여질 이름을 입력하세요',
+              hintText: '다른 사람들에게 보여질 이름을 입력하세요',
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
             ),
             validator: (value) {
@@ -476,8 +635,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: InputDecoration(
               labelText: '자기소개',
               hintText: '자신을 매력적으로 소개해보세요 (최소 100자)',
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
             ),
             maxLines: 8,
@@ -492,60 +671,254 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               return null;
             },
           ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Gender and Birth Year Row
+          Row(
+            children: [
+              // Gender (smaller width)
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '성별',
+                      style: AppTextStyles.body1.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<String>(
+                      value: _selectedGender,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.5),
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'male',
+                          child: Text('남성'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'female',
+                          child: Text('여성'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedGender = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '성별을 선택해주세요';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              // Birth Year (larger width)
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '생년월일',
+                      style: AppTextStyles.body1.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    DropdownButtonFormField<int>(
+                      value: _selectedBirthYear,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.5),
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                      ),
+                      items: _generateBirthYearItems(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBirthYear = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return '생년월일을 선택해주세요';
+                        }
+                        final currentYear = DateTime.now().year;
+                        final age = currentYear - value;
+                        if (age < 18 || age > 80) {
+                          return '18세~80세만 가입 가능합니다';
+                        }
+                        return null;
+                      },
+                      isExpanded: true, // Prevent overflow
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInterestsSection() {
+  List<DropdownMenuItem<int>> _generateBirthYearItems() {
+    final currentYear = DateTime.now().year;
+    final minYear = currentYear - 80; // 최대 80세
+    final maxYear = currentYear - 18; // 최소 18세
+
+    List<DropdownMenuItem<int>> items = [];
+
+    // 년도를 내림차순으로 정렬 (최근 년도부터)
+    for (int year = maxYear; year >= minYear; year--) {
+      final age = currentYear - year;
+      items.add(
+        DropdownMenuItem<int>(
+          value: year,
+          child: Text('$year년 (${age}세)'),
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  Widget _buildAdditionalInfoSection() {
     return ProfileSectionCard(
       title: '관심사',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '최대 5개까지 선택 가능합니다',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
+          // Interests
           Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: _availableInterests.map((interest) {
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              '영화/드라마', '음악', '독서', '여행', '운동', '요리',
+              '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
+              '콘서트', '스포츠', '등산', '바다', '반려동물', '술',
+              '커피', '디저트', '패션', '뷰티', '자동차', '바이크',
+            ].map((interest) {
               final isSelected = _selectedInterests.contains(interest);
-              return FilterChip(
-                label: Text(interest),
-                selected: isSelected,
-                onSelected: (selected) {
+              return GestureDetector(
+                onTap: () {
                   setState(() {
-                    if (selected) {
+                    if (isSelected) {
+                      _selectedInterests.remove(interest);
+                    } else {
                       if (_selectedInterests.length < 5) {
                         _selectedInterests.add(interest);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('최대 5개까지만 선택할 수 있습니다'),
+                            content: Text('최대 5개까지 선택할 수 있습니다'),
+                            backgroundColor: Colors.orange,
                           ),
                         );
                       }
-                    } else {
-                      _selectedInterests.remove(interest);
                     }
                   });
                 },
-                backgroundColor: Colors.grey[100],
-                selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                checkmarkColor: AppColors.primary,
-                labelStyle: TextStyle(
-                  color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withValues(alpha: 0.15)
+                        : AppColors.surface.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.4)
+                          : AppColors.surfaceVariant.withValues(alpha: 0.3),
+                      width: isSelected ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Text(
+                    interest,
+                    style: AppTextStyles.caption.copyWith(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
               );
             }).toList(),
           ),
+
+          if (_selectedInterests.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              '선택된 관심사: ${_selectedInterests.length}/5개',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
         ],
       ),
     );

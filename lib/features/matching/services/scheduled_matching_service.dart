@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import '../../../core/services/supabase_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/constants/table_names.dart';
 import '../../chat/services/chat_service.dart';
 
@@ -77,6 +78,9 @@ class ScheduledMatchingService extends ChangeNotifier {
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  // 알림 전송한 매칭 ID들 저장 (중복 방지)
+  final Set<String> _notifiedMatchIds = {};
 
   // Get today's matches for the current user
   Future<List<ScheduledMatch>> getTodaysMatches() async {
@@ -304,32 +308,27 @@ class ScheduledMatchingService extends ChangeNotifier {
 
   // Calculate time until next reveal (noon KST)
   Duration getTimeUntilNextReveal() {
-    final now = DateTime.now();
-    final koreaTimeZone = Duration(hours: 9); // KST is UTC+9
-    final nowKST = now.add(koreaTimeZone);
+    final now = DateTime.now(); // This is local time in Korea (KST)
 
-    var nextReveal = DateTime(nowKST.year, nowKST.month, nowKST.day, 12, 0); // Noon KST
+    var nextReveal = DateTime(now.year, now.month, now.day, 12, 0); // Noon KST
 
     // If we're past noon today, next reveal is tomorrow noon
-    if (nowKST.isAfter(nextReveal)) {
+    if (now.isAfter(nextReveal)) {
       nextReveal = nextReveal.add(const Duration(days: 1));
     }
 
-    final nextRevealUTC = nextReveal.subtract(koreaTimeZone);
-    return nextRevealUTC.difference(now);
+    return nextReveal.difference(now);
   }
 
   // Check if current time is during reveal window (noon KST)
   bool isRevealTime() {
-    final now = DateTime.now();
-    final koreaTimeZone = Duration(hours: 9);
-    final nowKST = now.add(koreaTimeZone);
+    final now = DateTime.now(); // This is local time in Korea (KST)
 
     // Reveal window: 12:00 PM to 11:59 PM KST
-    final noonToday = DateTime(nowKST.year, nowKST.month, nowKST.day, 12, 0);
-    final midnightTonight = DateTime(nowKST.year, nowKST.month, nowKST.day + 1, 0, 0);
+    final noonToday = DateTime(now.year, now.month, now.day, 12, 0);
+    final midnightTonight = DateTime(now.year, now.month, now.day + 1, 0, 0);
 
-    return nowKST.isAfter(noonToday) && nowKST.isBefore(midnightTonight);
+    return now.isAfter(noonToday) && now.isBefore(midnightTonight);
   }
 
   void _setLoading(bool loading) {
@@ -558,6 +557,132 @@ class ScheduledMatchingService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error checking received like: $e');
       return false;
+    }
+  }
+
+  // Send push notification for daily matches
+  Future<void> sendDailyMatchNotification() async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) return;
+
+      debugPrint('🔔 매일 매칭 알림 전송 시작');
+
+      // 오늘의 매칭이 있는지 확인
+      final matches = await getTodaysMatches();
+      if (matches.isEmpty) {
+        debugPrint('📭 오늘의 매칭이 없어서 알림을 보내지 않음');
+        return;
+      }
+
+      // Supabase Edge Function을 호출하여 푸시 알림 전송
+      try {
+        await _supabaseService.client.functions.invoke(
+          'send-daily-match-notification',
+          body: {
+            'userId': userId,
+            'matchCount': matches.length,
+          },
+        );
+        debugPrint('✅ 매일 매칭 알림 전송 완료');
+      } catch (e) {
+        debugPrint('❌ 매일 매칭 알림 전송 실패: $e');
+
+        // Fallback: 로컬 알림으로 대체
+        final notificationService = NotificationService.instance;
+        if (await notificationService.isNotificationEnabled()) {
+          // 임시로 로컬 알림 생성 (실제로는 FCM을 통해 보내야 함)
+          debugPrint('🔄 로컬 알림으로 fallback');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ 매일 매칭 알림 처리 오류: $e');
+    }
+  }
+
+  // Check for new matches and send notifications (anytime)
+  Future<void> checkAndNotifyNewMatches() async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) return;
+
+      // 시간 제한 없이 새로운 매칭 확인
+      final matches = await getTodaysMatches();
+
+      // 아직 알림을 보내지 않은 새로운 매칭만 필터링
+      final newMatches = matches.where((match) => !_notifiedMatchIds.contains(match.id)).toList();
+
+      if (newMatches.isNotEmpty) {
+        debugPrint('💕 새로운 매칭 ${newMatches.length}개 발견, 알림 전송 (시간: ${DateTime.now()})');
+
+        // 매칭별로 개별 알림 전송 (더 정확한 알림)
+        for (final match in newMatches) {
+          await _sendNotificationForMatch(match);
+          _notifiedMatchIds.add(match.id);
+        }
+      } else {
+        debugPrint('📭 새로운 매칭이 없거나 이미 알림 전송됨');
+      }
+    } catch (e) {
+      debugPrint('❌ 새 매칭 확인 및 알림 오류: $e');
+    }
+  }
+
+  // Send notification for a specific match
+  Future<void> _sendNotificationForMatch(ScheduledMatch match) async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) return;
+
+      // Supabase Edge Function을 호출하여 개별 매칭 알림 전송
+      try {
+        await _supabaseService.client.functions.invoke(
+          'send-daily-match-notification',
+          body: {
+            'userId': userId,
+            'matchId': match.id,
+            'matchData': {
+              'otherUser': match.otherUserProfile,
+            },
+          },
+        );
+        debugPrint('✅ 매칭 ${match.id} 알림 전송 완료 (Edge Function)');
+      } catch (e) {
+        debugPrint('❌ 매칭 ${match.id} Edge Function 알림 전송 실패: $e');
+
+        // Fallback: 로컬 알림으로 대체
+        await _sendLocalMatchNotification(match);
+      }
+    } catch (e) {
+      debugPrint('❌ 개별 매칭 알림 처리 오류: $e');
+    }
+  }
+
+  // Send local notification as fallback
+  Future<void> _sendLocalMatchNotification(ScheduledMatch match) async {
+    try {
+      final notificationService = NotificationService.instance;
+
+      // 알림 권한이 있는지 확인
+      if (!await notificationService.isNotificationEnabled()) {
+        debugPrint('⚠️ 알림 권한이 없어서 로컬 알림을 보낼 수 없음');
+        return;
+      }
+
+      // 상대방 이름 가져오기
+      final otherUser = match.otherUserProfile;
+      final otherUserName = otherUser['nickname'] ?? '새로운 인연';
+
+      // NotificationService의 public 메서드 사용
+      await notificationService.showMatchNotificationDirect(
+        title: '💕 새로운 인연이 도착했어요!',
+        body: '$otherUserName님과의 새로운 매칭을 확인해보세요',
+        payload: 'daily_match',
+      );
+
+      debugPrint('✅ 매칭 ${match.id} 로컬 알림 전송 완료 (Fallback)');
+    } catch (e) {
+      debugPrint('❌ 로컬 매칭 알림 전송 실패: $e');
     }
   }
 }

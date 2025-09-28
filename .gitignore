@@ -36,3 +36,6 @@ doc/api/
 **/*firebase-adminsdk*.json
 android/app/google-services.json
 android/app/*firebase-adminsdk*.json
+
+# Supabase Edge Functions (contains sensitive keys)
+supabase/functions/

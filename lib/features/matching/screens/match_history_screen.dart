@@ -164,18 +164,10 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.history,
-                size: 60,
-                color: AppColors.primary,
-              ),
+            Icon(
+              Icons.history,
+              size: 80,
+              color: Colors.pink,
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(
