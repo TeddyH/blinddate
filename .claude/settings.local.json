@@ -55,7 +55,11 @@
       "Bash(magick:*)",
       "Bash(~/Library/Android/sdk/platform-tools/adb kill-server:*)",
       "Bash(~/Library/Android/sdk/platform-tools/adb start-server)",
-      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone_API_36.0 -no-snapshot -wipe-data)"
+      "Bash(~/Library/Android/sdk/emulator/emulator -avd Medium_Phone_API_36.0 -no-snapshot -wipe-data)",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\\d users\")",
+      "Bash(python3:*)",
+      "Bash(/usr/libexec/java_home:*)",
+      "Bash(~/Library/Android/sdk/jbr/Contents/Home/bin/keytool -genkey -v -keystore android/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload -storepass blinddate123 -keypass blinddate123 -dname \"CN=Blinddate, OU=Development, O=TenSpoon, L=Seoul, ST=Seoul, C=KR\")"
     ],
     "deny": [],
     "ask": []

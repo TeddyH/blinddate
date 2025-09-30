@@ -363,75 +363,82 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
 
     final nickname = user['nickname'] ?? '특별한 인연';
     final age = user['age']?.toString() ?? '';
-    final city = user['city'] ?? '';
-    final job = user['job'] ?? '';
+    final mbti = user['mbti'];
+    final location = user['location'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              nickname,
-              style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (age.isNotEmpty) ...[
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                age,
-                style: AppTextStyles.h3.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ],
+        // Nickname
+        Text(
+          nickname,
+          style: AppTextStyles.h2.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
 
-        if (city.isNotEmpty || job.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Row(
+        // Additional info (age, mbti, location)
+        if (age.isNotEmpty || mbti != null || location != null) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.md,
+            runSpacing: AppSpacing.sm,
             children: [
-              if (city.isNotEmpty) ...[
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 16,
-                  color: AppColors.textSecondary,
+              if (age.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.cake,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${age}세',
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  city,
-                  style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              if (mbti != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.psychology,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      mbti,
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-              if (city.isNotEmpty && job.isNotEmpty) ...[
-                const SizedBox(width: AppSpacing.md),
-                Text(
-                  '•',
-                  style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              if (location != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      location,
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: AppSpacing.md),
-              ],
-              if (job.isNotEmpty) ...[
-                Icon(
-                  Icons.work_outline,
-                  size: 16,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  job,
-                  style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
             ],
           ),
         ],

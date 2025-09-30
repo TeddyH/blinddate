@@ -196,6 +196,8 @@ class AuthService with ChangeNotifier {
     required List<String> interests,
     required String gender,
     List<File>? profileImages,
+    String? mbti,
+    String? location,
   }) async {
     if (!isAuthenticated) throw Exception('User not authenticated');
 
@@ -218,6 +220,8 @@ class AuthService with ChangeNotifier {
         'bio': bio,
         'interests': interests,
         'gender': gender,
+        'mbti': mbti,
+        'location': location,
         'profile_image_urls': imageUrls,
         'approval_status': AppConstants.approvalPending,
       });

@@ -28,6 +28,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   List<String> _interests = [];
   String? _selectedGender = 'male'; // Default to male
   int? _selectedBirthYear = 2000; // Default to 2000
+  String? _selectedMbti;
+  String? _selectedLocation;
   bool _isLoading = false;
   bool _isLoadingData = true;
   bool _isUpdating = false; // Track if this is an update vs create
@@ -72,6 +74,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         debugPrint('Interests: ${profile['interests']}');
         debugPrint('Gender: ${profile['gender']}');
         debugPrint('Birth date: ${profile['birth_date']}');
+        debugPrint('MBTI: ${profile['mbti']}');
+        debugPrint('Location: ${profile['location']}');
 
         // Extract birth year from birth_date
         int? birthYear;
@@ -91,6 +95,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           _selectedBirthYear = birthYear;
           _interests = List<String>.from(profile['interests'] ?? []);
           _selectedGender = profile['gender'];
+          _selectedMbti = profile['mbti'];
+          _selectedLocation = profile['location'];
           _currentApprovalStatus = profile['approval_status'] ?? AppConstants.approvalPending;
           _images = imageSources;
         });
@@ -296,6 +302,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           'birth_date': birthDate.toIso8601String().split('T')[0], // Format as YYYY-MM-DD
           'interests': _interests,
           'gender': _selectedGender,
+          'mbti': _selectedMbti,
+          'location': _selectedLocation,
           'approval_status': newApprovalStatus,
           'rejection_reason': _currentApprovalStatus == AppConstants.approvalApproved ? null : null, // Clear rejection reason
         }, imageSources: _images.isNotEmpty ? _images : null);
@@ -318,6 +326,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
           interests: _interests,
           gender: _selectedGender!,
           profileImages: files.isNotEmpty ? files : null,
+          mbti: _selectedMbti,
+          location: _selectedLocation,
         );
       }
 
@@ -473,8 +483,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         _buildBasicInfoSection(),
                         const SizedBox(height: AppSpacing.lg),
 
-                        // Additional Info Section
+                        // Additional Info Section (Interests)
                         _buildAdditionalInfoSection(),
+                        const SizedBox(height: AppSpacing.lg),
+
+                        // Physical & Personal Info Section
+                        _buildPhysicalPersonalInfoSection(),
                         const SizedBox(height: AppSpacing.xl),
                       ],
                     ),
@@ -651,45 +665,103 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Nickname
-          TextFormField(
-            controller: _nicknameController,
-            decoration: InputDecoration(
-              labelText: '닉네임',
-              hintText: '다른 사람들에게 보여질 이름을 입력하세요',
-              filled: true,
-              fillColor: AppColors.surface.withValues(alpha: 0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                  width: 1,
+          // Nickname and MBTI Row
+          Row(
+            children: [
+              // Nickname
+              Expanded(
+                flex: 3,
+                child: TextFormField(
+                  controller: _nicknameController,
+                  decoration: InputDecoration(
+                    labelText: '닉네임',
+                    hintText: '닉네임을 입력하세요',
+                    filled: true,
+                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return '닉네임을 입력해주세요';
+                    }
+                    if (value.trim().length < 2) {
+                      return '닉네임은 2글자 이상이어야 합니다';
+                    }
+                    return null;
+                  },
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                  width: 1,
+              const SizedBox(width: AppSpacing.md),
+              // MBTI
+              Expanded(
+                flex: 2,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedMbti,
+                  decoration: InputDecoration(
+                    labelText: 'MBTI',
+                    hintText: '선택',
+                    filled: true,
+                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                  ),
+                  items: _generateMbtiItems(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedMbti = value;
+                    });
+                  },
+                  isExpanded: true,
                 ),
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: AppColors.primary.withValues(alpha: 0.5),
-                  width: 2,
-                ),
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return '닉네임을 입력해주세요';
-              }
-              if (value.trim().length < 2) {
-                return '닉네임은 2글자 이상이어야 합니다';
-              }
-              return null;
-            },
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -1070,6 +1142,111 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     }
 
     return items;
+  }
+
+  Widget _buildPhysicalPersonalInfoSection() {
+    return ProfileSectionCard(
+      title: '추가 정보',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Location
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '거주지역',
+                style: AppTextStyles.body1.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              DropdownButtonFormField<String>(
+                value: _selectedLocation,
+                decoration: InputDecoration(
+                  hintText: '지역 선택 (선택사항)',
+                  filled: true,
+                  fillColor: AppColors.surface.withValues(alpha: 0.5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
+                  ),
+                ),
+                items: _generateLocationItems(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedLocation = value;
+                  });
+                },
+                isExpanded: true,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> _generateMbtiItems() {
+    const mbtiTypes = [
+      'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+      'ISTP', 'ISFP', 'INFP', 'INTP',
+      'ESTP', 'ESFP', 'ENFP', 'ENTP',
+      'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ',
+    ];
+
+    return mbtiTypes.map((mbti) {
+      return DropdownMenuItem<String>(
+        value: mbti,
+        child: Text(mbti),
+      );
+    }).toList();
+  }
+
+  List<DropdownMenuItem<String>> _generateLocationItems() {
+    const locations = [
+      '서울',
+      '인천',
+      '경기 남부',
+      '경기 북부',
+      '강원',
+      '충북',
+      '충남',
+      '경북',
+      '경남',
+      '전북',
+      '전남',
+      '제주',
+    ];
+
+    return locations.map((location) {
+      return DropdownMenuItem<String>(
+        value: location,
+        child: Text(location),
+      );
+    }).toList();
   }
 
 }

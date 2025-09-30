@@ -33,6 +33,6 @@ class AppConstants {
   static const String approvalRejected = 'rejected';
 
   // Match Actions
-  static const String actionLike = 'like';
-  static const String actionPass = 'pass';
+  static const String actionLike = 'liked';
+  static const String actionPass = 'passed';
 }

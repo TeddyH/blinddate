@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../core/constants/table_names.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../chat/services/chat_service.dart';
 
 class ScheduledMatch {
@@ -190,7 +191,7 @@ class ScheduledMatchingService extends ChangeNotifier {
   // Record user interaction with a match
   Future<void> recordMatchInteraction({
     required String matchId,
-    required String action, // 'viewed', 'like', 'pass', 'chatted'
+    required String action, // 'viewed', 'liked', 'passed', 'chatted'
   }) async {
     try {
       final userId = _supabaseService.currentUser?.id;
@@ -220,7 +221,7 @@ class ScheduledMatchingService extends ChangeNotifier {
       debugPrint('recordMatchInteraction: Successfully recorded $action');
 
       // If both users liked, update match status
-      if (action == 'like') {
+      if (action == AppConstants.actionLike) {
         debugPrint('recordMatchInteraction: Like recorded, checking for mutual like...');
         await _checkForMutualLike(matchId);
 
@@ -258,14 +259,14 @@ class ScheduledMatchingService extends ChangeNotifier {
           .select('id')
           .eq('user_id', user1Id)
           .eq('target_user_id', user2Id)
-          .eq('action', 'like');
+          .eq('action', AppConstants.actionLike);
 
       final user2LikedUser1 = await _supabaseService
           .from(TableNames.userActions)
           .select('id')
           .eq('user_id', user2Id)
           .eq('target_user_id', user1Id)
-          .eq('action', 'like');
+          .eq('action', AppConstants.actionLike);
 
       debugPrint('_checkForMutualLike: user1LikedUser2=${user1LikedUser2.length}, user2LikedUser1=${user2LikedUser1.length}');
 
@@ -519,7 +520,7 @@ class ScheduledMatchingService extends ChangeNotifier {
               .select('id')
               .eq('user_id', userId)           // 내가
               .eq('target_user_id', targetUserId)  // 상대방에게
-              .eq('action', 'like')            // 좋아요를 보냄
+              .eq('action', AppConstants.actionLike)            // 좋아요를 보냄
               .maybeSingle();
 
           return response != null;
@@ -559,7 +560,7 @@ class ScheduledMatchingService extends ChangeNotifier {
               .select('id')
               .eq('user_id', targetUserId)
               .eq('target_user_id', userId)
-              .eq('action', 'like')
+              .eq('action', AppConstants.actionLike)
               .maybeSingle();
 
           return response != null;

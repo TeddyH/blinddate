@@ -87,12 +87,22 @@ class ProfileInfoSection extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Height
-          if (profile['height'] != null) ...[
+          // MBTI
+          if (profile['mbti'] != null && profile['mbti'].toString().isNotEmpty) ...[
             _buildInfoRow(
-              icon: Icons.height_outlined,
-              label: '키',
-              value: '${profile['height']}cm',
+              icon: Icons.psychology_outlined,
+              label: 'MBTI',
+              value: profile['mbti'],
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Location
+          if (profile['location'] != null && profile['location'].toString().isNotEmpty) ...[
+            _buildInfoRow(
+              icon: Icons.location_on_outlined,
+              label: '거주지역',
+              value: profile['location'],
             ),
             const SizedBox(height: AppSpacing.md),
           ],

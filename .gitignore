@@ -39,3 +39,6 @@ android/app/*firebase-adminsdk*.json
 
 # Supabase Edge Functions (contains sensitive keys)
 supabase/functions/
+
+# Scripts directory (development tools)
+scripts/

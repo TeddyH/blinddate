@@ -5,6 +5,7 @@ import 'dart:async';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../app/routes.dart';
 import '../services/scheduled_matching_service.dart';
 import '../widgets/scheduled_match_card.dart';
@@ -360,8 +361,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           ),
           child: ScheduledMatchCard(
             match: match,
-            onLike: () => _handleMatchAction(match, 'like'),
-            onPass: () => _handleMatchAction(match, 'pass'),
+            onLike: () => _handleMatchAction(match, AppConstants.actionLike),
+            onPass: () => _handleMatchAction(match, AppConstants.actionPass),
           ),
         );
       },
@@ -430,15 +431,15 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
         );
 
         // 좋아요를 보냈고, 상호 매칭이 완성된 경우
-        if (action == 'like' && wasNotMutualLike && updatedMatch.status == 'mutual_like') {
+        if (action == AppConstants.actionLike && wasNotMutualLike && updatedMatch.status == 'mutual_like') {
           _showMatchSuccessDialog(updatedMatch);
         } else {
           // 일반적인 액션 피드백
-          final message = action == 'like' ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
+          final message = action == AppConstants.actionLike ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(message),
-              backgroundColor: action == 'like' ? AppColors.accent : AppColors.textSecondary,
+              backgroundColor: action == AppConstants.actionLike ? AppColors.accent : AppColors.textSecondary,
               duration: const Duration(seconds: 1),
             ),
           );
