@@ -169,14 +169,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
       body: widget.child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.primary.withValues(alpha: 0.95),
-              AppColors.accent.withValues(alpha: 0.85),
-            ],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),

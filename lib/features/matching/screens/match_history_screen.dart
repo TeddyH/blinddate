@@ -30,7 +30,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -39,7 +39,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -49,7 +49,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
               child: Text(
                 '지난 일주일',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -58,20 +58,12 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Consumer<ScheduledMatchingService>(
@@ -104,13 +96,13 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFf093fb)),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
             '최근 일주일 추천 기록을 불러오고 있어요...',
             style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -134,7 +126,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Text(
               '기록을 불러오는 중 오류가 발생했습니다',
               style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -142,7 +134,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Text(
               error,
               style: AppTextStyles.body2.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -167,13 +159,13 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Icon(
               Icons.history,
               size: 80,
-              color: Colors.pink,
+              color: Color(0xFFf093fb),
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(
               '최근 일주일 추천이 없어요',
               style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -181,7 +173,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
             Text(
               '매일 새로운 인연을 만나보세요!\n최근 7일간의 추천 기록을 여기서 확인할 수 있어요.',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -226,7 +218,7 @@ class _MatchHistoryScreenState extends State<MatchHistoryScreen> {
               child: Text(
                 _formatDateHeader(dayMatches.first.matchDate),
                 style: AppTextStyles.h3.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Colors.white.withOpacity(0.95),
                   fontWeight: FontWeight.w600,
                 ),
               ),

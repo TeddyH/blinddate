@@ -72,17 +72,17 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: Color(0xFF252836),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isMutualLike ? AppColors.accent : AppColors.accent.withValues(alpha: 0.2),
-          width: isMutualLike ? 2 : 1,
-        ),
+        border: isMutualLike ? Border.all(
+          color: AppColors.accent,
+          width: 2,
+        ) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -373,7 +373,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
         Text(
           nickname,
           style: AppTextStyles.h2.copyWith(
-            color: AppColors.textPrimary,
+            color: Colors.white.withOpacity(0.95),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -398,7 +398,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
                     Text(
                       '${age}세',
                       style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Colors.grey[400],
                       ),
                     ),
                   ],
@@ -416,7 +416,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
                     Text(
                       mbti,
                       style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Colors.grey[400],
                       ),
                     ),
                   ],
@@ -434,7 +434,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
                     Text(
                       location,
                       style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Colors.grey[400],
                       ),
                     ),
                   ],
@@ -450,7 +450,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
     return Text(
       bio,
       style: AppTextStyles.body2.copyWith(
-        color: AppColors.textPrimary,
+        color: Colors.white.withOpacity(0.9),
         height: 1.4,
       ),
     );
@@ -460,25 +460,22 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
     if (interests.isEmpty) return const SizedBox.shrink();
 
     return Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: AppSpacing.xs,
+          runSpacing: 4,
           children: interests.take(6).map((interest) {
             return Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
+                horizontal: 6,
+                vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                ),
+                color: Color(0xFFf093fb).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 interest.toString(),
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.primary,
+                  color: Color(0xFFf093fb),
                   fontWeight: FontWeight.w500,
                 ),
               ),

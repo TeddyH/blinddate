@@ -16,13 +16,13 @@ class ProfileMenuSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -32,7 +32,7 @@ class ProfileMenuSection extends StatelessWidget {
           Text(
             '정보',
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white.withOpacity(0.95),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -76,7 +76,7 @@ class ProfileMenuSection extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: titleColor ?? AppColors.textSecondary,
+              color: titleColor ?? Colors.white.withOpacity(0.7),
               size: 24,
             ),
             const SizedBox(width: AppSpacing.md),
@@ -87,7 +87,7 @@ class ProfileMenuSection extends StatelessWidget {
                   Text(
                     title,
                     style: AppTextStyles.body1.copyWith(
-                      color: titleColor ?? AppColors.textPrimary,
+                      color: titleColor ?? Colors.white.withOpacity(0.95),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -96,7 +96,7 @@ class ProfileMenuSection extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Colors.white.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -105,7 +105,7 @@ class ProfileMenuSection extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right,
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
               size: 20,
             ),
           ],

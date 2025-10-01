@@ -22,14 +22,13 @@ class MatchHistoryCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -51,7 +50,7 @@ class MatchHistoryCard extends StatelessWidget {
                       Text(
                         otherUser['nickname'] ?? '익명',
                         style: AppTextStyles.h3.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Colors.white.withOpacity(0.95),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -59,7 +58,7 @@ class MatchHistoryCard extends StatelessWidget {
                       Text(
                         '$age세',
                         style: AppTextStyles.body1.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -71,7 +70,7 @@ class MatchHistoryCard extends StatelessWidget {
                     Text(
                       otherUser['bio'],
                       style: AppTextStyles.body2.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Colors.white.withOpacity(0.8),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -100,7 +99,7 @@ class MatchHistoryCard extends StatelessWidget {
       height: 60,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: AppColors.surfaceVariant,
+        color: Colors.white.withOpacity(0.1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -126,13 +125,13 @@ class MatchHistoryCard extends StatelessWidget {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
         Icons.person,
         size: 32,
-        color: AppColors.textSecondary,
+        color: Colors.white.withOpacity(0.6),
       ),
     );
   }
@@ -153,13 +152,13 @@ class MatchHistoryCard extends StatelessWidget {
             vertical: 2,
           ),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
+            color: Color(0xFFf093fb).withOpacity(0.2),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             interest,
             style: AppTextStyles.caption.copyWith(
-              color: AppColors.primary,
+              color: Color(0xFFf093fb),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -169,20 +168,7 @@ class MatchHistoryCard extends StatelessWidget {
   }
 
   Widget _buildMatchStatus() {
-    return Column(
-      children: [
-        _buildStatusIcon(),
-        const SizedBox(height: 4),
-        Text(
-          _getStatusText(),
-          style: AppTextStyles.caption.copyWith(
-            color: _getStatusColor(),
-            fontSize: 10,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
+    return _buildStatusIcon();
   }
 
   Widget _buildStatusIcon() {

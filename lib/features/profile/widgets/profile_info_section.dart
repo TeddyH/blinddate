@@ -23,13 +23,13 @@ class ProfileInfoSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -39,7 +39,7 @@ class ProfileInfoSection extends StatelessWidget {
           Text(
             '프로필 정보',
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white.withOpacity(0.95),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -82,7 +82,6 @@ class ProfileInfoSection extends StatelessWidget {
               icon: Icons.person_outline,
               label: '성별',
               value: profile['gender'] == 'male' ? '남성' : '여성',
-              isMultiline: true,
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -143,31 +142,28 @@ class ProfileInfoSection extends StatelessWidget {
             Text(
               '관심사',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
+              spacing: AppSpacing.xs,
+              runSpacing: 4,
               children: interests.map((interest) {
                 return Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.xs,
+                    horizontal: 6,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                    ),
+                    color: Color(0xFFf093fb).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     interest,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary,
+                      color: Color(0xFFf093fb),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -183,14 +179,14 @@ class ProfileInfoSection extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.6),
                     size: 32,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     '추가 정보를 입력해보세요',
                     style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Colors.white.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -217,13 +213,13 @@ class ProfileInfoSection extends StatelessWidget {
               Icon(
                 icon,
                 size: 20,
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 label,
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Colors.white.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -235,7 +231,7 @@ class ProfileInfoSection extends StatelessWidget {
             child: Text(
               value,
               style: AppTextStyles.body2.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.9),
               ),
               textAlign: TextAlign.left,
             ),
@@ -250,13 +246,13 @@ class ProfileInfoSection extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: AppColors.textSecondary,
+          color: Colors.white.withOpacity(0.7),
         ),
         const SizedBox(width: AppSpacing.sm),
         Text(
           label,
           style: AppTextStyles.body2.copyWith(
-            color: AppColors.textSecondary,
+            color: Colors.white.withOpacity(0.7),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -265,7 +261,7 @@ class ProfileInfoSection extends StatelessWidget {
           child: Text(
             value,
             style: AppTextStyles.body2.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white.withOpacity(0.9),
             ),
             textAlign: TextAlign.right,
             maxLines: 1,

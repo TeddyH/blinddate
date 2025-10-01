@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -82,16 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Column(
@@ -100,31 +92,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: Text(
                   '💕 Hearty',
                   style: AppTextStyles.h1.copyWith(
-                    color: AppColors.accent,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 centerTitle: true,
                 backgroundColor: Colors.transparent,
-                foregroundColor: AppColors.accent,
+                foregroundColor: Colors.white,
                 elevation: 0,
               ),
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async => _loadData(),
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildNoticesSection(),
-                        const SizedBox(height: AppSpacing.lg),
-                        _buildMatchingSummarySection(),
-                        const SizedBox(height: AppSpacing.lg),
-                        _buildMatchingTipsSection(),
-                      ],
-                    ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildNoticesSection(),
+                      const SizedBox(height: AppSpacing.lg),
+                      _buildMatchingSummarySection(),
+                      const SizedBox(height: AppSpacing.lg),
+                      _buildMatchingTipsSection(),
+                    ],
                   ),
                 ),
               ),
@@ -140,14 +128,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.surfaceVariant.withValues(alpha: 0.5)),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -160,29 +147,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               horizontal: AppSpacing.lg,
               vertical: AppSpacing.md,
             ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.surfaceVariant.withValues(alpha: 0.8), AppColors.surfaceVariant],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
             child: Row(
               children: [
                 Icon(
                   Icons.campaign_outlined,
-                  color: AppColors.textPrimary,
+                  color: Colors.grey[400],
                   size: 18,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   '새 소식',
                   style: AppTextStyles.body1.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Colors.grey[400],
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -196,8 +172,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: _currentNoticeIndex == index
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary.withValues(alpha:0.4),
+                            ? Colors.grey[400]
+                            : Colors.grey[600]?.withOpacity(0.4),
                       ),
                     );
                   }),
@@ -206,70 +182,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
             child: SizedBox(
-              height: 100,
+              height: 90,
               child: PageView.builder(
-              controller: _noticePageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentNoticeIndex = index;
-                });
-              },
-              itemCount: _notices.length,
-              itemBuilder: (context, index) {
-                final notice = _notices[index];
-                return Padding(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.accent,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              'NEW',
-                              style: AppTextStyles.caption.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                controller: _noticePageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentNoticeIndex = index;
+                  });
+                },
+                itemCount: _notices.length,
+                itemBuilder: (context, index) {
+                  final notice = _notices[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(AppSpacing.sm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'NEW',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Expanded(
-                            child: Text(
-                              notice['title']!,
-                              style: AppTextStyles.body1.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
+                            const SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: Text(
+                                notice['title']!,
+                                style: AppTextStyles.body1.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withOpacity(0.95),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Expanded(
-                        child: Text(
-                          notice['description']!,
-                          style: AppTextStyles.body2.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        const SizedBox(height: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            notice['description']!,
+                            style: AppTextStyles.body2.copyWith(
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -287,14 +265,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+            color: Color(0xFF252836),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha:0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -307,29 +284,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.md,
                 ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.accent.withValues(alpha:0.1), AppColors.primary.withValues(alpha:0.1)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.favorite,
-                      color: AppColors.accent,
+                      color: Colors.grey[400],
                       size: 18,
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
                       '오늘의 매칭',
                       style: AppTextStyles.body1.copyWith(
-                        color: AppColors.accent,
+                        color: Colors.grey[400],
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -337,7 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                 child: isLoading
                     ? const Center(
                         child: CircularProgressIndicator(),
@@ -363,11 +329,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.textSecondary.withValues(alpha: 0.1),
+              color: Colors.white.withOpacity(0.1),
             ),
             child: Icon(
               Icons.favorite_outline,
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.6),
               size: 30,
             ),
           ),
@@ -381,14 +347,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   '오늘의 추천을 기다려보세요',
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   '매일 낮 12시에 새로운 인연이 찾아와요',
                   style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -426,7 +392,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.accent.withValues(alpha:0.2),
+              color: Colors.white.withOpacity(0.1),
               image: profileImages.isNotEmpty
                   ? DecorationImage(
                       image: NetworkImage(profileImages.first),
@@ -437,7 +403,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: profileImages.isEmpty
                 ? Icon(
                     Icons.person,
-                    color: AppColors.accent,
+                    color: Colors.white.withOpacity(0.6),
                     size: 30,
                   )
                 : null,
@@ -451,7 +417,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   '${otherUser['nickname'] ?? '알 수 없음'}, $age세',
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withOpacity(0.95),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -464,7 +430,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ? '당신이 관심을 표현했어요 💝'
                         : '새로운 인연이 기다리고 있어요',
                   style: AppTextStyles.body2.copyWith(
-                    color: (match.receivedLike || match.sentLike) ? AppColors.accent : AppColors.textSecondary,
+                    color: (match.receivedLike || match.sentLike)
+                        ? Color(0xFFf093fb)
+                        : Colors.white.withOpacity(0.7),
                   ),
                 ),
               ],
@@ -474,7 +442,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Icon(
             Icons.arrow_forward_ios,
             size: 16,
-            color: AppColors.textSecondary,
+            color: Colors.white.withOpacity(0.5),
           ),
           ],
         ),
@@ -487,14 +455,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF009688).withValues(alpha: 0.2)),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -507,29 +474,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               horizontal: AppSpacing.lg,
               vertical: AppSpacing.md,
             ),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [const Color(0xFF009688).withValues(alpha:0.08), const Color(0xFF009688).withValues(alpha:0.18)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
             child: Row(
               children: [
                 Icon(
                   Icons.lightbulb,
-                  color: const Color(0xFF009688),
+                  color: Colors.grey[400],
                   size: 18,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   '매칭 팁',
                   style: AppTextStyles.body1.copyWith(
-                    color: const Color(0xFF009688),
+                    color: Colors.grey[400],
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -537,28 +493,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
             child: Column(
               children: [
                 _buildTipCard(
                   icon: Icons.photo_camera_outlined,
                   title: '매력적인 프로필 사진',
                   description: '자연스러운 미소와 밝은 조명의 사진을 업로드하세요',
-                  color: AppColors.accent,
+                  color: Color(0xFFf093fb),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildTipCard(
                   icon: Icons.favorite_outline,
                   title: '관심사 업데이트',
                   description: '취미와 관심사를 자주 업데이트하면 더 좋은 매칭을 받을 수 있어요',
-                  color: AppColors.primary,
+                  color: Color(0xFF667eea),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildTipCard(
                   icon: Icons.chat_bubble_outline,
                   title: '첫 메시지 작성법',
                   description: '상대방의 프로필을 보고 공통 관심사로 대화를 시작해보세요',
-                  color: AppColors.success,
+                  color: Color(0xFF43e97b),
                 ),
               ],
             ),
@@ -590,14 +546,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title,
                 style: AppTextStyles.body1.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: Colors.white.withOpacity(0.95),
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 description,
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Colors.white.withOpacity(0.7),
                 ),
               ),
             ],

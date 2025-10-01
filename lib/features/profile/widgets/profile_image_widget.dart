@@ -23,13 +23,13 @@ class ProfileImageWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -59,15 +59,12 @@ class ProfileImageWidget extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           decoration: BoxDecoration(
-                            color: AppColors.background,
+                            color: Colors.white.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                            ),
                           ),
                           child: Icon(
                             Icons.broken_image,
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withOpacity(0.6),
                             size: 24,
                           ),
                         );
@@ -78,25 +75,22 @@ class ProfileImageWidget extends StatelessWidget {
                   // 이미지가 없는 경우
                   return Container(
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.photo_outlined,
-                          color: AppColors.textSecondary,
+                          color: Colors.white.withOpacity(0.6),
                           size: 24,
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '사진 없음',
                           style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withOpacity(0.6),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -117,7 +111,7 @@ class ProfileImageWidget extends StatelessWidget {
                 Text(
                   profile['nickname'] ?? '사용자',
                   style: AppTextStyles.h2.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withOpacity(0.95),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -137,13 +131,13 @@ class ProfileImageWidget extends StatelessWidget {
                             Icon(
                               Icons.cake,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: Colors.white.withOpacity(0.7),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '${profileService.calculateAge(profile['birth_date'])}세',
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Colors.white.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -155,13 +149,13 @@ class ProfileImageWidget extends StatelessWidget {
                             Icon(
                               Icons.psychology,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: Colors.white.withOpacity(0.7),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               profile['mbti'],
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Colors.white.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -173,13 +167,13 @@ class ProfileImageWidget extends StatelessWidget {
                             Icon(
                               Icons.location_on,
                               size: 14,
-                              color: AppColors.textSecondary,
+                              color: Colors.white.withOpacity(0.7),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               profile['location'],
                               style: AppTextStyles.caption.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Colors.white.withOpacity(0.7),
                               ),
                             ),
                           ],

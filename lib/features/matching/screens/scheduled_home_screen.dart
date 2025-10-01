@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
+import 'dart:ui';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -90,6 +91,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -98,7 +100,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -108,7 +110,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
               child: Text(
                 '오늘의 추천',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -117,21 +119,12 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Consumer<ScheduledMatchingService>(
@@ -172,7 +165,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           Text(
             '오늘의 특별한 인연을 확인하고 있어요...',
             style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -196,7 +189,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '매칭 정보를 불러오는 중 오류가 발생했습니다',
               style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -204,7 +197,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               error,
               style: AppTextStyles.body2.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -238,7 +231,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '오늘은 새로운 인연이 없어요',
               style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -248,7 +241,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '내일 새로운 분을 소개해드릴게요!\n매일 낮 12시에 새로운 매칭이 공개됩니다.',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -261,14 +254,14 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
                 Text(
                   '다음 매칭까지',
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.6),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatCountdown(timeUntilReveal),
                   style: AppTextStyles.h1.copyWith(
-                    color: Colors.pink,
+                    color: Color(0xFFf093fb),
                     fontWeight: FontWeight.bold,
                     fontFeatures: [const FontFeature.tabularFigures()],
                   ),
@@ -308,14 +301,13 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
       margin: const EdgeInsets.all(AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -324,7 +316,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           Text(
             '🎉 오늘의 매칭이 준비되었어요!',
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white.withOpacity(0.95),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -332,14 +324,14 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           Text(
             '낮 12시에 공개됩니다',
             style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
             _formatCountdown(timeUntilReveal),
             style: AppTextStyles.h1.copyWith(
-              color: Colors.pink,
+              color: Color(0xFFf093fb),
               fontWeight: FontWeight.bold,
               fontFeatures: [const FontFeature.tabularFigures()],
             ),
@@ -387,7 +379,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '오늘의 매칭이 준비되었어요!',
               style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -397,7 +389,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Text(
               '${matches.length}명의 특별한 인연이 기다리고 있어요.\n낮 12시에 공개됩니다.',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),

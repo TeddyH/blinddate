@@ -36,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -45,7 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -55,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Text(
                 '프로필',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -64,20 +64,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: Consumer<ProfileService>(
         builder: (context, profileService, child) {
@@ -142,7 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       icon: Icon(
                         Icons.edit,
-                        color: AppColors.accent,
+                        color: Colors.white,
                       ),
                     ),
                     IconButton(
@@ -156,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       icon: Icon(
                         Icons.settings_outlined,
-                        color: AppColors.accent,
+                        color: Colors.white,
                       ),
                     ),
                     IconButton(
@@ -165,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       icon: Icon(
                         Icons.logout_outlined,
-                        color: AppColors.accent,
+                        color: Colors.white,
                       ),
                     ),
                   ],

@@ -144,19 +144,18 @@ class _ChatScreenState extends State<ChatScreen> {
     final otherUserName = _otherUserProfile?['nickname'] ?? '채팅 상대';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Text(
           otherUserName,
           style: AppTextStyles.h3.copyWith(
-            color: AppColors.textPrimary,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.1),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Column(
         children: [
@@ -207,20 +206,20 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Colors.white.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.chat_bubble_outline,
                 size: 40,
-                color: AppColors.primary,
+                color: Color(0xFFf093fb),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               '첫 메시지를 보내보세요! 💕',
               style: AppTextStyles.h3.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -228,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               '서로 좋아요를 누른 특별한 인연이에요.\n자연스럽게 대화를 시작해보세요!',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -280,7 +279,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Text(
               _formatTime(message.createdAt),
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.6),
               ),
             ),
           ),
@@ -298,23 +297,23 @@ class _ChatScreenState extends State<ChatScreen> {
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: isMe ? AppColors.accent : Colors.white,
+            color: isMe ? AppColors.accent : Color(0xFF252836),
             borderRadius: BorderRadius.circular(16).copyWith(
               bottomLeft: isMe ? const Radius.circular(16) : const Radius.circular(4),
               bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(16),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Text(
             message.message,
             style: AppTextStyles.body1.copyWith(
-              color: isMe ? Colors.white : AppColors.textPrimary,
+              color: Colors.white,
             ),
           ),
         ),
@@ -331,10 +330,10 @@ class _ChatScreenState extends State<ChatScreen> {
         bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromRGBO(6, 13, 24, 1),
         border: Border(
           top: BorderSide(
-            color: Colors.grey.withValues(alpha: 0.2),
+            color: Colors.white.withOpacity(0.1),
             width: 1,
           ),
         ),
@@ -345,16 +344,19 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: TextField(
                 controller: _messageController,
+                style: AppTextStyles.body1.copyWith(
+                  color: Colors.white,
+                ),
                 decoration: InputDecoration(
                   hintText: '메시지를 입력하세요...',
                   hintStyle: AppTextStyles.body1.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.5),
                   ),
+                  filled: true,
+                  fillColor: Color(0xFF252836),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.3),
-                    ),
+                    borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
@@ -434,7 +436,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Container(
               height: 1,
-              color: Colors.grey.withValues(alpha: 0.3),
+              color: Colors.white.withOpacity(0.2),
             ),
           ),
           Padding(
@@ -445,13 +447,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 vertical: AppSpacing.xs,
               ),
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.1),
+                color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 dateText,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Colors.white.withOpacity(0.6),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -460,7 +462,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Container(
               height: 1,
-              color: Colors.grey.withValues(alpha: 0.3),
+              color: Colors.white.withOpacity(0.2),
             ),
           ),
         ],

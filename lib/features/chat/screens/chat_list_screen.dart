@@ -82,7 +82,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -91,7 +91,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -101,7 +101,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               child: Text(
                 '채팅',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -110,21 +110,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.03),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Consumer2<ChatService, UnreadMessageService>(
@@ -159,7 +150,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           Text(
             '채팅 목록을 불러오고 있어요...',
             style: AppTextStyles.body1.copyWith(
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -183,7 +174,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             Text(
               '아직 채팅할 상대가 없어요',
               style: AppTextStyles.h2.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
               ),
               textAlign: TextAlign.center,
             ),
@@ -191,7 +182,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             Text(
               '추천받은 상대와 서로 좋아요를 누르면\n채팅을 시작할 수 있어요!',
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
@@ -223,13 +214,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
             bottom: index < chatRooms.length - 1 ? AppSpacing.md : 0,
           ),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFF252836),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -267,14 +258,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
             title: Text(
               otherUserName,
               style: AppTextStyles.body1.copyWith(
-                color: AppColors.textPrimary,
+                color: Colors.white.withOpacity(0.95),
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
               chatRoom.lastMessage ?? '대화를 시작해보세요!',
               style: AppTextStyles.body2.copyWith(
-                color: unreadCount > 0 ? AppColors.textPrimary : AppColors.textSecondary,
+                color: unreadCount > 0 ? Colors.white.withOpacity(0.9) : Colors.grey[400],
                 fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
               ),
               maxLines: 1,

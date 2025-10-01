@@ -59,7 +59,11 @@
       "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\\d users\")",
       "Bash(python3:*)",
       "Bash(/usr/libexec/java_home:*)",
-      "Bash(~/Library/Android/sdk/jbr/Contents/Home/bin/keytool -genkey -v -keystore android/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload -storepass blinddate123 -keypass blinddate123 -dname \"CN=Blinddate, OU=Development, O=TenSpoon, L=Seoul, ST=Seoul, C=KR\")"
+      "Bash(~/Library/Android/sdk/jbr/Contents/Home/bin/keytool -genkey -v -keystore android/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload -storepass blinddate123 -keypass blinddate123 -dname \"CN=Blinddate, OU=Development, O=TenSpoon, L=Seoul, ST=Seoul, C=KR\")",
+      "Bash(nc localhost 49280)",
+      "Bash(git checkout:*)",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT id, nickname, profile_image_1 FROM blinddate_users WHERE profile_image_1 LIKE ''%unsplash%'' OR profile_image_2 LIKE ''%unsplash%'' OR profile_image_3 LIKE ''%unsplash%'' LIMIT 5;\")",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"UPDATE blinddate_users SET profile_image_1 = ''https://randomuser.me/api/portraits/women/44.jpg'' WHERE profile_image_1 = ''https://images.unsplash.com/photo-1494790108755-2616b332c1cd?w=400'';\")"
     ],
     "deny": [],
     "ask": []

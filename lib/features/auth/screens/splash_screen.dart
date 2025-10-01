@@ -94,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       body: SafeArea(
         child: Center(
           child: FadeTransition(
@@ -107,11 +107,15 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.pink,
+                    gradient: LinearGradient(
+                      colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.pink.withValues(alpha: 0.3),
+                        color: Color(0xFFf093fb).withOpacity(0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -130,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
                 Text(
                   AppConstants.appName,
                   style: AppTextStyles.h1.copyWith(
-                    color: Colors.pink,
+                    color: Colors.white,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -141,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen>
                 Text(
                   '하루 1명, 특별한 만남',
                   style: AppTextStyles.body1.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
 
@@ -153,7 +157,7 @@ class _SplashScreenState extends State<SplashScreen>
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFf093fb)),
                   ),
                 ),
               ],
