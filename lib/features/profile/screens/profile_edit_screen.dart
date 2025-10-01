@@ -311,7 +311,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -320,7 +320,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -330,7 +330,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               child: Text(
                 '프로필 편집',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -339,20 +339,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.02),
-              AppColors.accent.withValues(alpha: 0.05),
-            ],
-            stops: const [0.0, 0.7, 1.0],
-          ),
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Column(
@@ -376,10 +368,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
                         // Additional Info Section (Interests)
                         _buildAdditionalInfoSection(),
-                        const SizedBox(height: AppSpacing.lg),
-
-                        // Physical & Personal Info Section
-                        _buildPhysicalPersonalInfoSection(),
                         const SizedBox(height: AppSpacing.xl),
                       ],
                     ),
@@ -394,10 +382,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   bottom: AppSpacing.lg,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withValues(alpha: 0.9),
+                  color: Color.fromRGBO(6, 13, 24, 1),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.3),
                       offset: const Offset(0, -2),
                       blurRadius: 8,
                     ),
@@ -468,12 +456,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    style: BorderStyle.solid,
-                  ),
                 ),
                 child: InkWell(
                   onTap: hasImage ? null : _showImagePickerOptions,
@@ -496,14 +480,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                       children: [
                                         Icon(
                                           Icons.broken_image,
-                                          color: AppColors.textSecondary,
+                                          color: Colors.white.withOpacity(0.6),
                                           size: 24,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           '이미지 오류',
                                           style: AppTextStyles.caption.copyWith(
-                                            color: AppColors.textSecondary,
+                                            color: Colors.white.withOpacity(0.6),
                                           ),
                                         ),
                                       ],
@@ -522,14 +506,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                       children: [
                                         Icon(
                                           Icons.broken_image,
-                                          color: AppColors.textSecondary,
+                                          color: Colors.white.withOpacity(0.6),
                                           size: 24,
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           '이미지 오류',
                                           style: AppTextStyles.caption.copyWith(
-                                            color: AppColors.textSecondary,
+                                            color: Colors.white.withOpacity(0.6),
                                           ),
                                         ),
                                       ],
@@ -564,14 +548,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         children: [
                           Icon(
                             Icons.add_a_photo_outlined,
-                            color: AppColors.primary,
+                            color: Color(0xFFf093fb),
                             size: 24,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '사진 추가',
                             style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
+                              color: Color(0xFFf093fb),
                             ),
                           ),
                         ],
@@ -585,7 +569,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           Text(
             '최대 3장까지 업로드 가능합니다',
             style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],
@@ -743,148 +727,166 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Gender and Birth Year Row
+          // Gender, Birth Year, Location Row
           Row(
             children: [
-              // Gender (smaller width)
+              // Gender
               Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '성별',
-                      style: AppTextStyles.body1.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedGender,
+                  decoration: InputDecoration(
+                    labelText: '성별',
+                    filled: true,
+                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    DropdownButtonFormField<String>(
-                      value: _selectedGender,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: AppColors.surface.withValues(alpha: 0.5),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.primary.withValues(alpha: 0.5),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
                       ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'male',
-                          child: Text('남성'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'female',
-                          child: Text('여성'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedGender = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '성별을 선택해주세요';
-                        }
-                        return null;
-                      },
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'male',
+                      child: Text('남성'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'female',
+                      child: Text('여성'),
                     ),
                   ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '성별을 선택해주세요';
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              // Birth Year (larger width)
+              // Birth Year
               Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '생년월일',
-                      style: AppTextStyles.body1.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
+                child: DropdownButtonFormField<int>(
+                  value: _selectedBirthYear,
+                  decoration: InputDecoration(
+                    labelText: '생년월일',
+                    filled: true,
+                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    DropdownButtonFormField<int>(
-                      value: _selectedBirthYear,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: AppColors.surface.withValues(alpha: 0.5),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: AppColors.primary.withValues(alpha: 0.5),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                        width: 1,
                       ),
-                      items: _generateBirthYearItems(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedBirthYear = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return '생년월일을 선택해주세요';
-                        }
-                        final currentYear = DateTime.now().year;
-                        final age = currentYear - value;
-                        if (age < 18 || age > 80) {
-                          return '18세~80세만 가입 가능합니다';
-                        }
-                        return null;
-                      },
-                      isExpanded: true, // Prevent overflow
                     ),
-                  ],
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: AppColors.primary.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                  ),
+                  items: _generateBirthYearItems(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedBirthYear = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return '생년월일을 선택해주세요';
+                    }
+                    final currentYear = DateTime.now().year;
+                    final age = currentYear - value;
+                    if (age < 18 || age > 80) {
+                      return '18세~80세만 가입 가능합니다';
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Location
+          DropdownButtonFormField<String>(
+            value: _selectedLocation,
+            decoration: InputDecoration(
+              labelText: '거주지역',
+              hintText: '지역 선택 (선택사항)',
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 16,
+              ),
+            ),
+            items: _generateLocationItems(),
+            onChanged: (value) {
+              setState(() {
+                _selectedLocation = value;
+              });
+            },
+            isExpanded: true,
           ),
         ],
       ),
@@ -920,8 +922,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         children: [
           // Interests
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.xs,
+            runSpacing: 4,
             children: [
               '영화/드라마', '음악', '독서', '여행', '운동', '요리',
               '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
@@ -951,27 +953,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 6,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.15)
-                        : AppColors.surface.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.4)
-                          : AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: isSelected ? 1.5 : 1,
-                    ),
+                        ? Color(0xFFf093fb).withOpacity(0.2)
+                        : Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     interest,
                     style: AppTextStyles.caption.copyWith(
                       color: isSelected
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
+                          ? Color(0xFFf093fb)
+                          : Colors.white.withOpacity(0.6),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -985,7 +981,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             Text(
               '선택된 관심사: ${_selectedInterests.length}/5개',
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
+                color: Colors.white.withOpacity(0.7),
               ),
             ),
           ],
@@ -994,70 +990,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  Widget _buildPhysicalPersonalInfoSection() {
-    return ProfileSectionCard(
-      title: '추가 정보',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Location
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '거주지역',
-                style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              DropdownButtonFormField<String>(
-                value: _selectedLocation,
-                decoration: InputDecoration(
-                  hintText: '지역 선택 (선택사항)',
-                  filled: true,
-                  fillColor: AppColors.surface.withValues(alpha: 0.5),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.primary.withValues(alpha: 0.5),
-                      width: 2,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 16,
-                  ),
-                ),
-                items: _generateLocationItems(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLocation = value;
-                  });
-                },
-                isExpanded: true,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   List<DropdownMenuItem<String>> _generateMbtiItems() {
     const mbtiTypes = [

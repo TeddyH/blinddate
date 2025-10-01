@@ -20,17 +20,13 @@ class ProfileSectionCard extends StatelessWidget {
     return Container(
       padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.surfaceVariant.withValues(alpha: 0.2),
-          width: 1,
-        ),
+        color: Color(0xFF252836),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -40,7 +36,7 @@ class ProfileSectionCard extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white.withOpacity(0.95),
               fontWeight: FontWeight.w600,
             ),
           ),
