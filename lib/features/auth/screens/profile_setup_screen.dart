@@ -28,8 +28,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   List<String> _interests = [];
   String? _selectedGender = 'male'; // Default to male
   int? _selectedBirthYear = 2000; // Default to 2000
-  String? _selectedMbti;
-  String? _selectedLocation;
+  String? _selectedMbti = 'ISTJ'; // Default to first MBTI type
+  String? _selectedLocation = '서울'; // Default to first location
   bool _isLoading = false;
   bool _isLoadingData = true;
   bool _isUpdating = false; // Track if this is an update vs create
@@ -470,10 +470,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                         // Additional Info Section (Interests)
                         _buildAdditionalInfoSection(),
-                        const SizedBox(height: AppSpacing.lg),
-
-                        // Physical & Personal Info Section
-                        _buildPhysicalPersonalInfoSection(),
                         const SizedBox(height: AppSpacing.xl),
                       ],
                     ),
@@ -558,7 +554,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: const Color(0xFF1A1F2E),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: const Color(0xFFf093fb).withOpacity(0.3),
@@ -711,6 +707,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   value: _selectedMbti,
                   style: const TextStyle(color: Colors.white),
                   dropdownColor: const Color(0xFF252836),
+                  icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.7)),
                   decoration: InputDecoration(
                     labelText: 'MBTI',
                     hintText: '선택',
@@ -951,6 +948,55 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Location
+          DropdownButtonFormField<String>(
+            value: _selectedLocation,
+            style: const TextStyle(color: Colors.white),
+            dropdownColor: const Color(0xFF252836),
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white.withOpacity(0.7)),
+            decoration: InputDecoration(
+              labelText: '거주지역',
+              hintText: '지역 선택 (선택사항)',
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+              filled: true,
+              fillColor: const Color(0xFF1A1F2E),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.surfaceVariant.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFFf093fb),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 16,
+              ),
+            ),
+            items: _generateLocationItems(),
+            onChanged: (value) {
+              setState(() {
+                _selectedLocation = value;
+              });
+            },
+            isExpanded: true,
+          ),
         ],
       ),
     );
@@ -964,8 +1010,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         children: [
           // Interests
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: AppSpacing.xs,
+            runSpacing: 4,
             children: [
               '영화/드라마', '음악', '독서', '여행', '운동', '요리',
               '사진', '게임', '카페', '맛집', '쇼핑', '전시회',
@@ -984,7 +1030,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         _interests.add(interest);
                         _interestError = null;
                       } else {
-                        _interestError = '최대 5개까지 선택할 수 있습니다';
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('최대 5개까지 선택할 수 있습니다'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
                       }
                     }
                   });
@@ -992,27 +1043,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 6,
+                    vertical: 2,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFFf093fb).withOpacity(0.15)
-                        : AppColors.surface.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFFf093fb).withOpacity(0.4)
-                          : AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: isSelected ? 1.5 : 1,
-                    ),
+                        ? const Color(0xFFf093fb).withOpacity(0.2)
+                        : Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     interest,
                     style: AppTextStyles.caption.copyWith(
                       color: isSelected
                           ? const Color(0xFFf093fb)
-                          : AppColors.textSecondary,
+                          : Colors.white.withOpacity(0.6),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1026,17 +1071,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             Text(
               '선택된 관심사: ${_interests.length}/5개',
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-
-          if (_interestError != null) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              _interestError!,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.error,
+                color: Colors.white.withOpacity(0.7),
               ),
             ),
           ],
@@ -1143,74 +1178,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return items;
   }
 
-  Widget _buildPhysicalPersonalInfoSection() {
-    return ProfileSectionCard(
-      title: '추가 정보',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Location
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '거주지역',
-                style: AppTextStyles.body1.copyWith(
-                  color: Colors.white.withOpacity(0.9),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              DropdownButtonFormField<String>(
-                value: _selectedLocation,
-                style: const TextStyle(color: Colors.white),
-                dropdownColor: const Color(0xFF252836),
-                decoration: InputDecoration(
-                  hintText: '지역 선택 (선택사항)',
-                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                  filled: true,
-                  fillColor: const Color(0xFF1A1F2E),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.surfaceVariant.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFf093fb),
-                      width: 2,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 16,
-                  ),
-                ),
-                items: _generateLocationItems(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLocation = value;
-                  });
-                },
-                isExpanded: true,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   List<DropdownMenuItem<String>> _generateMbtiItems() {
     const mbtiTypes = [
       'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
@@ -1222,7 +1189,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return mbtiTypes.map((mbti) {
       return DropdownMenuItem<String>(
         value: mbti,
-        child: Text(mbti),
+        child: Text(
+          mbti,
+          style: const TextStyle(color: Colors.white),
+        ),
       );
     }).toList();
   }
@@ -1246,7 +1216,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return locations.map((location) {
       return DropdownMenuItem<String>(
         value: location,
-        child: Text(location),
+        child: Text(
+          location,
+          style: const TextStyle(color: Colors.white),
+        ),
       );
     }).toList();
   }
