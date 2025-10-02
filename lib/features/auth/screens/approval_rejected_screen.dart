@@ -67,8 +67,11 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
+        backgroundColor: Color.fromRGBO(6, 13, 24, 1),
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFf093fb)),
+          ),
         ),
       );
     }
@@ -76,12 +79,25 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
     final rejectionReason = _profileData?['rejection_reason'] as String?;
 
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
-        title: const Text('프로필 승인 거부'),
+        title: const Text(
+          '프로필 승인 거부',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           TextButton(
             onPressed: _signOut,
-            child: const Text('로그아웃'),
+            child: const Text(
+              '로그아웃',
+              style: TextStyle(color: Color(0xFFf093fb)),
+            ),
           ),
         ],
       ),
@@ -97,10 +113,10 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
+                  color: AppColors.error.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.cancel_outlined,
                   size: 60,
                   color: AppColors.error,
@@ -113,7 +129,8 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
               Text(
                 '프로필 승인이 거부되었습니다',
                 style: AppTextStyles.h1.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -124,7 +141,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
               Text(
                 '안전한 서비스 운영을 위해 일부 프로필이 승인되지 않을 수 있습니다.\n아래 가이드라인을 참고하여 프로필을 수정해주세요.',
                 style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Colors.white.withOpacity(0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -136,10 +153,10 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
+                    color: AppColors.error.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.3),
+                      color: AppColors.error.withOpacity(0.4),
                       width: 1,
                     ),
                   ),
@@ -148,7 +165,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.info_outline,
                             size: 20,
                             color: AppColors.error,
@@ -167,7 +184,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                       Text(
                         rejectionReason,
                         style: AppTextStyles.body2.copyWith(
-                          color: AppColors.textPrimary,
+                          color: Colors.white.withOpacity(0.9),
                         ),
                       ),
                     ],
@@ -210,6 +227,10 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _editProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFf093fb),
+                        foregroundColor: Colors.white,
+                      ),
                       icon: const Icon(Icons.edit),
                       label: const Text('프로필 수정하기'),
                     ),
@@ -226,6 +247,10 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                           ),
                         );
                       },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFf093fb),
+                        side: const BorderSide(color: Color(0xFFf093fb)),
+                      ),
                       icon: const Icon(Icons.support_agent_outlined),
                       label: const Text('고객센터 문의'),
                     ),
@@ -249,10 +274,10 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: const Color(0xFF252836),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.surfaceVariant,
+          color: Colors.white.withOpacity(0.1),
           width: 1,
         ),
       ),
@@ -265,13 +290,13 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: const Color(0xFFf093fb).withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
                   size: 20,
-                  color: AppColors.primary,
+                  color: const Color(0xFFf093fb),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -280,7 +305,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                   title,
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
               ),
@@ -297,7 +322,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.7),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -306,7 +331,7 @@ class _ApprovalRejectedScreenState extends State<ApprovalRejectedScreen> {
                   child: Text(
                     point,
                     style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Colors.white.withOpacity(0.7),
                     ),
                   ),
                 ),

@@ -110,6 +110,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: const Text(
           '승인 대기',
@@ -118,7 +119,9 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.primary,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           TextButton(
@@ -150,13 +153,13 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: AppColors.accent.withValues(alpha: 0.1),
+                      color: const Color(0xFFf093fb).withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.hourglass_empty_outlined,
                       size: 60,
-                      color: AppColors.accent,
+                      color: Color(0xFFf093fb),
                     ),
                   ),
 
@@ -166,7 +169,8 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                   Text(
                     '프로필 검토 중입니다',
                     style: AppTextStyles.h1.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -177,7 +181,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                   Text(
                     '안전한 만남을 위해 모든 프로필을 검토하고 있습니다.\n승인이 완료되면 알림을 보내드릴게요!',
                     style: AppTextStyles.body1.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Colors.white.withOpacity(0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -216,11 +220,18 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _isChecking ? null : _checkApprovalStatus,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFf093fb),
+                        side: const BorderSide(color: Color(0xFFf093fb)),
+                      ),
                       icon: _isChecking
                         ? const SizedBox(
                             width: 16,
                             height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFf093fb)),
+                            ),
                           )
                         : const Icon(Icons.refresh),
                       label: Text(_isChecking ? '확인 중...' : '승인 상태 확인'),
@@ -245,10 +256,10 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: const Color(0xFF252836),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.surfaceVariant,
+          color: Colors.white.withOpacity(0.1),
           width: 1,
         ),
       ),
@@ -258,13 +269,13 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: const Color(0xFFf093fb).withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: 24,
-              color: AppColors.primary,
+              color: const Color(0xFFf093fb),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -276,14 +287,14 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                   title,
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
                   style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
               ],

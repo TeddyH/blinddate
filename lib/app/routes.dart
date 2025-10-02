@@ -206,6 +206,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 child: const Icon(
                   Icons.home,
                   size: 26,
+                  color: Color(0xFFf093fb),
                 ),
               ),
               label: '홈',
@@ -223,6 +224,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 child: const Icon(
                   Icons.favorite,
                   size: 26,
+                  color: Color(0xFFf093fb),
                 ),
               ),
               label: '추천',
@@ -250,6 +252,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                       icon: const Icon(
                         Icons.chat_bubble,
                         size: 26,
+                        color: Color(0xFFf093fb),
                       ),
                       badgeCount: unreadService.unreadCount,
                     );
@@ -271,6 +274,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 child: const Icon(
                   Icons.history,
                   size: 26,
+                  color: Color(0xFFf093fb),
                 ),
               ),
               label: '기록',
@@ -288,6 +292,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                 child: const Icon(
                   Icons.person,
                   size: 26,
+                  color: Color(0xFFf093fb),
                 ),
               ),
               label: '프로필',

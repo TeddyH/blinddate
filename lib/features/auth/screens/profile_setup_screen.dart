@@ -381,29 +381,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     if (_isLoadingData) {
       return Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.background,
-                AppColors.accent.withValues(alpha: 0.03),
-                AppColors.accent.withValues(alpha: 0.08),
-              ],
-              stops: const [0.0, 0.6, 1.0],
-            ),
+          decoration: const BoxDecoration(
+            color: Color.fromRGBO(6, 13, 24, 1),
           ),
           child: const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFf093fb)),
+            ),
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -412,7 +405,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: const Color(0xFFf093fb),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -422,7 +415,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               child: Text(
                 _isUpdating ? '프로필 수정' : '프로필 설정',
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -431,13 +424,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
         actions: [
           // 로그아웃 버튼 (개발용)
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.logout,
-              color: AppColors.accent,
+              color: Color(0xFFf093fb),
             ),
             onPressed: () async {
               final authService = context.read<AuthService>();
@@ -451,17 +445,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.02),
-              AppColors.accent.withValues(alpha: 0.05),
-            ],
-            stops: const [0.0, 0.7, 1.0],
-          ),
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(6, 13, 24, 1),
         ),
         child: SafeArea(
           child: Column(
@@ -503,10 +488,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   bottom: AppSpacing.lg,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withValues(alpha: 0.9),
+                  color: const Color(0xFF252836),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: 0.2),
                       offset: const Offset(0, -2),
                       blurRadius: 8,
                     ),
@@ -517,7 +502,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: const Color(0xFFf093fb),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -576,7 +561,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   color: AppColors.background,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: const Color(0xFFf093fb).withOpacity(0.3),
                     style: BorderStyle.solid,
                   ),
                 ),
@@ -621,14 +606,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         children: [
                           Icon(
                             Icons.add_a_photo_outlined,
-                            color: AppColors.primary,
+                            color: const Color(0xFFf093fb),
                             size: 24,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '사진 추가',
                             style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primary,
+                              color: const Color(0xFFf093fb),
                             ),
                           ),
                         ],
@@ -673,11 +658,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 flex: 3,
                 child: TextFormField(
                   controller: _nicknameController,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: '닉네임',
                     hintText: '닉네임을 입력하세요',
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                     filled: true,
-                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    fillColor: const Color(0xFF1A1F2E),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
@@ -695,7 +683,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: AppColors.primary.withValues(alpha: 0.5),
+                        color: const Color(0xFFf093fb),
                         width: 2,
                       ),
                     ),
@@ -721,11 +709,15 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 flex: 2,
                 child: DropdownButtonFormField<String>(
                   value: _selectedMbti,
+                  style: const TextStyle(color: Colors.white),
+                  dropdownColor: const Color(0xFF252836),
                   decoration: InputDecoration(
                     labelText: 'MBTI',
                     hintText: '선택',
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                     filled: true,
-                    fillColor: AppColors.surface.withValues(alpha: 0.5),
+                    fillColor: const Color(0xFF1A1F2E),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
@@ -743,7 +735,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: AppColors.primary.withValues(alpha: 0.5),
+                        color: const Color(0xFFf093fb),
                         width: 2,
                       ),
                     ),
@@ -770,11 +762,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             controller: _bioController,
             maxLines: 8,
             maxLength: 500,
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               labelText: '자기소개',
               hintText: '자신을 매력적으로 소개해보세요 (최소 100자)',
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
               filled: true,
-              fillColor: AppColors.surface.withValues(alpha: 0.5),
+              fillColor: const Color(0xFF1A1F2E),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
@@ -821,16 +816,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     Text(
                       '성별',
                       style: AppTextStyles.body1.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Colors.white.withOpacity(0.9),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     DropdownButtonFormField<String>(
                       value: _selectedGender,
+                      style: const TextStyle(color: Colors.white),
+                      dropdownColor: const Color(0xFF252836),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        fillColor: const Color(0xFF1A1F2E),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -848,7 +845,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppColors.primary.withValues(alpha: 0.5),
+                            color: const Color(0xFFf093fb),
                             width: 2,
                           ),
                         ),
@@ -892,16 +889,18 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     Text(
                       '생년월일',
                       style: AppTextStyles.body1.copyWith(
-                        color: AppColors.textPrimary,
+                        color: Colors.white.withOpacity(0.9),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     DropdownButtonFormField<int>(
                       value: _selectedBirthYear,
+                      style: const TextStyle(color: Colors.white),
+                      dropdownColor: const Color(0xFF252836),
                       decoration: InputDecoration(
                         filled: true,
-                        fillColor: AppColors.surface.withValues(alpha: 0.5),
+                        fillColor: const Color(0xFF1A1F2E),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -919,7 +918,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: AppColors.primary.withValues(alpha: 0.5),
+                            color: const Color(0xFFf093fb),
                             width: 2,
                           ),
                         ),
@@ -998,12 +997,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primary.withValues(alpha: 0.15)
+                        ? const Color(0xFFf093fb).withOpacity(0.15)
                         : AppColors.surface.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.4)
+                          ? const Color(0xFFf093fb).withOpacity(0.4)
                           : AppColors.surfaceVariant.withValues(alpha: 0.3),
                       width: isSelected ? 1.5 : 1,
                     ),
@@ -1012,7 +1011,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     interest,
                     style: AppTextStyles.caption.copyWith(
                       color: isSelected
-                          ? AppColors.primary
+                          ? const Color(0xFFf093fb)
                           : AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1157,17 +1156,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               Text(
                 '거주지역',
                 style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Colors.white.withOpacity(0.9),
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               DropdownButtonFormField<String>(
                 value: _selectedLocation,
+                style: const TextStyle(color: Colors.white),
+                dropdownColor: const Color(0xFF252836),
                 decoration: InputDecoration(
                   hintText: '지역 선택 (선택사항)',
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
                   filled: true,
-                  fillColor: AppColors.surface.withValues(alpha: 0.5),
+                  fillColor: const Color(0xFF1A1F2E),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
@@ -1184,8 +1186,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: AppColors.primary.withValues(alpha: 0.5),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFf093fb),
                       width: 2,
                     ),
                   ),

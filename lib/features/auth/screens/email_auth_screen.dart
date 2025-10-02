@@ -127,17 +127,18 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 barrierDismissible: false,
                 builder: (BuildContext context) {
                   return AlertDialog(
+                    backgroundColor: const Color(0xFF252836),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     title: Row(
                       children: [
-                        Icon(Icons.email_outlined, color: AppColors.primary, size: 28),
+                        Icon(Icons.email_outlined, color: const Color(0xFFf093fb), size: 28),
                         SizedBox(width: 12),
                         Text(
                           '이메일 인증 필요',
                           style: AppTextStyles.h3.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -150,7 +151,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         Text(
                           '아직 이메일 인증이 완료되지 않았습니다.',
                           style: AppTextStyles.body1.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Colors.white.withOpacity(0.9),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -158,18 +159,18 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         Container(
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: const Color(0xFFf093fb).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.mail_outline, color: AppColors.primary, size: 20),
+                              Icon(Icons.mail_outline, color: const Color(0xFFf093fb), size: 20),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _emailController.text.trim(),
                                   style: AppTextStyles.body2.copyWith(
-                                    color: AppColors.primary,
+                                    color: const Color(0xFFf093fb),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -181,14 +182,14 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         Text(
                           '위 이메일로 전송된 인증 링크를 확인하고 이메일 인증을 완료해주세요.',
                           style: AppTextStyles.body2.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withOpacity(0.7),
                           ),
                         ),
                         SizedBox(height: 8),
                         Text(
                           '💡 이메일이 오지 않았다면 스팸함을 확인해보세요.',
                           style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withOpacity(0.6),
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -202,7 +203,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         child: Text(
                           '확인',
                           style: AppTextStyles.body1.copyWith(
-                            color: AppColors.primary,
+                            color: const Color(0xFFf093fb),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -279,8 +280,18 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
-        title: Text(_isSignUp ? '회원가입' : '로그인'),
+        title: Text(
+          _isSignUp ? '회원가입' : '로그인',
+          style: AppTextStyles.h3.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -297,7 +308,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 Text(
                   _isSignUp ? '새 계정 만들기' : '다시 오신 것을 환영합니다',
                   style: AppTextStyles.h2.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
@@ -308,7 +320,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     ? '이메일과 비밀번호로 계정을 만드세요.'
                     : '이메일과 비밀번호로 로그인하세요.',
                   style: AppTextStyles.body1.copyWith(
-                    color: AppColors.textSecondary,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
 
@@ -318,10 +330,27 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
                     labelText: '이메일',
                     hintText: 'example@email.com',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: const Color(0xFF252836),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFf093fb), width: 2),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -340,10 +369,27 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
                     labelText: '비밀번호',
                     hintText: '비밀번호를 입력하세요',
-                    prefixIcon: Icon(Icons.lock_outlined),
+                    labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    prefixIcon: Icon(Icons.lock_outlined, color: Colors.white.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: const Color(0xFF252836),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFf093fb), width: 2),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -361,6 +407,14 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 // Auth Button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleAuth,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFf093fb),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   child: _isLoading
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
@@ -394,6 +448,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     _isSignUp
                       ? '이미 계정이 있으신가요? 로그인'
                       : '계정이 없으신가요? 회원가입',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
 
@@ -405,7 +460,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                   child: Text(
                     '계속 진행하시면 이용약관 및 개인정보처리방침에\n동의하는 것으로 간주됩니다.',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Colors.white.withOpacity(0.5),
                     ),
                     textAlign: TextAlign.center,
                   ),
