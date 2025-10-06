@@ -5,12 +5,14 @@ import '../../core/constants/app_spacing.dart';
 
 class ProfileSectionCard extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final Widget child;
   final EdgeInsets? padding;
 
   const ProfileSectionCard({
     super.key,
     required this.title,
+    this.subtitle,
     required this.child,
     this.padding,
   });
@@ -40,6 +42,15 @@ class ProfileSectionCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              subtitle!,
+              style: AppTextStyles.caption.copyWith(
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           child,
         ],

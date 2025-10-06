@@ -17,8 +17,12 @@ class ProfileInfoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileService = context.read<ProfileService>();
 
-    // Get interests directly from profile data
+    // Get data from profile
     final interests = (profile['interests'] as List?)?.cast<String>() ?? <String>[];
+    final personalityTraits = (profile['personality_traits'] as List?)?.cast<String>() ?? <String>[];
+    final othersSayAboutMe = (profile['others_say_about_me'] as List?)?.cast<String>() ?? <String>[];
+    final idealTypeTraits = (profile['ideal_type_traits'] as List?)?.cast<String>() ?? <String>[];
+    final dateStyle = (profile['date_style'] as List?)?.cast<String>() ?? <String>[];
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -56,26 +60,6 @@ class ProfileInfoSection extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Occupation
-          if (profile['occupation'] != null && profile['occupation'].toString().isNotEmpty) ...[
-            _buildInfoRow(
-              icon: Icons.work_outline,
-              label: '직업',
-              value: profile['occupation'],
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-
-          // School
-          if (profile['school'] != null && profile['school'].toString().isNotEmpty) ...[
-            _buildInfoRow(
-              icon: Icons.school_outlined,
-              label: '학교',
-              value: profile['school'],
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-
           // Gender
           if (profile['gender'] != null) ...[
             _buildInfoRow(
@@ -86,90 +70,54 @@ class ProfileInfoSection extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // MBTI
-          if (profile['mbti'] != null && profile['mbti'].toString().isNotEmpty) ...[
+          // Drinking
+          if (profile['drinking_style'] != null) ...[
             _buildInfoRow(
-              icon: Icons.psychology_outlined,
-              label: 'MBTI',
-              value: profile['mbti'],
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-
-          // Location
-          if (profile['location'] != null && profile['location'].toString().isNotEmpty) ...[
-            _buildInfoRow(
-              icon: Icons.location_on_outlined,
-              label: '거주지역',
-              value: profile['location'],
-            ),
-            const SizedBox(height: AppSpacing.md),
-          ],
-
-          // Religion
-          if (profile['religion'] != null && profile['religion'].toString().isNotEmpty) ...[
-            _buildInfoRow(
-              icon: Icons.church_outlined,
-              label: '종교',
-              value: profile['religion'],
+              icon: Icons.local_bar_outlined,
+              label: '음주',
+              value: _getDrinkingText(profile['drinking_style']),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
 
           // Smoking
-          if (profile['smoking'] != null) ...[
+          if (profile['smoking_status'] != null) ...[
             _buildInfoRow(
               icon: Icons.smoke_free_outlined,
               label: '흡연',
-              value: _getSmokingText(profile['smoking']),
+              value: _getSmokingText(profile['smoking_status']),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Drinking
-          if (profile['drinking'] != null) ...[
-            _buildInfoRow(
-              icon: Icons.local_bar_outlined,
-              label: '음주',
-              value: _getDrinkingText(profile['drinking']),
-            ),
+          // Personality traits
+          if (personalityTraits.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _buildTagSection('💫 성격/매력', personalityTraits),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Others say about me
+          if (othersSayAboutMe.isNotEmpty) ...[
+            _buildTagSection('👂 주변평가', othersSayAboutMe),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Ideal type
+          if (idealTypeTraits.isNotEmpty) ...[
+            _buildTagSection('❤️ 이상형', idealTypeTraits),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Date style
+          if (dateStyle.isNotEmpty) ...[
+            _buildTagSection('🎯 데이트 스타일', dateStyle),
             const SizedBox(height: AppSpacing.md),
           ],
 
           // Interests
           if (interests.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              '관심사',
-              style: AppTextStyles.body1.copyWith(
-                color: Colors.white.withOpacity(0.95),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: 4,
-              children: interests.map((interest) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFf093fb).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    interest,
-                    style: AppTextStyles.caption.copyWith(
-                      color: Color(0xFFf093fb),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+            _buildTagSection('🎨 관심사', interests),
           ],
 
           // If no additional info
@@ -232,6 +180,7 @@ class ProfileInfoSection extends StatelessWidget {
               value,
               style: AppTextStyles.body2.copyWith(
                 color: Colors.white.withOpacity(0.9),
+                height: 1.4,
               ),
               textAlign: TextAlign.left,
             ),
@@ -272,13 +221,65 @@ class ProfileInfoSection extends StatelessWidget {
     );
   }
 
+  Widget _buildTagSection(String title, List<String> tags) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.body1.copyWith(
+            color: Colors.white.withOpacity(0.95),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: 4,
+          children: tags.map((tag) {
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: Color(0xFFf093fb).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                tag,
+                style: AppTextStyles.caption.copyWith(
+                  color: Color(0xFFf093fb),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  int _calculateAge(String birthDateStr) {
+    try {
+      final birthDate = DateTime.parse(birthDateStr);
+      final now = DateTime.now();
+      int age = now.year - birthDate.year;
+      if (now.month < birthDate.month ||
+          (now.month == birthDate.month && now.day < birthDate.day)) {
+        age--;
+      }
+      return age;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   String _getSmokingText(String smoking) {
     switch (smoking) {
-      case 'never':
+      case 'non_smoker':
         return '비흡연';
-      case 'sometimes':
-        return '가끔';
-      case 'regularly':
+      case 'smoker':
         return '흡연';
       default:
         return smoking;
@@ -287,12 +288,14 @@ class ProfileInfoSection extends StatelessWidget {
 
   String _getDrinkingText(String drinking) {
     switch (drinking) {
-      case 'never':
-        return '금주';
+      case 'none':
+        return '전혀 안 마셔요';
       case 'sometimes':
-        return '가끔';
-      case 'regularly':
-        return '자주';
+        return '가끔 마셔요';
+      case 'often':
+        return '자주 마셔요';
+      case 'social':
+        return '분위기에 따라요';
       default:
         return drinking;
     }
@@ -300,11 +303,13 @@ class ProfileInfoSection extends StatelessWidget {
 
   bool _hasNoAdditionalInfo() {
     return (profile['bio'] == null || profile['bio'].toString().isEmpty) &&
-           (profile['occupation'] == null || profile['occupation'].toString().isEmpty) &&
-           (profile['school'] == null || profile['school'].toString().isEmpty) &&
-           (profile['religion'] == null || profile['religion'].toString().isEmpty) &&
-           profile['smoking'] == null &&
-           profile['drinking'] == null &&
+           (profile['job_category'] == null || profile['job_category'].toString().isEmpty) &&
+           profile['drinking_style'] == null &&
+           profile['smoking_status'] == null &&
+           (profile['personality_traits'] == null || (profile['personality_traits'] as List).isEmpty) &&
+           (profile['others_say_about_me'] == null || (profile['others_say_about_me'] as List).isEmpty) &&
+           (profile['ideal_type_traits'] == null || (profile['ideal_type_traits'] as List).isEmpty) &&
+           (profile['date_style'] == null || (profile['date_style'] as List).isEmpty) &&
            (profile['interests'] == null || (profile['interests'] as List).isEmpty);
   }
 }

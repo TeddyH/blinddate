@@ -116,8 +116,8 @@ class ProfileImageWidget extends StatelessWidget {
                   ),
                 ),
 
-                // Additional info (age, mbti, location)
-                if (profile['birth_date'] != null || profile['mbti'] != null || profile['location'] != null) ...[
+                // Additional info (age, job_category, location, mbti)
+                if (profile['birth_date'] != null || profile['job_category'] != null || profile['location'] != null || profile['mbti'] != null) ...[
                   const SizedBox(height: AppSpacing.sm),
                   Wrap(
                     alignment: WrapAlignment.center,
@@ -142,18 +142,18 @@ class ProfileImageWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                      if (profile['mbti'] != null)
+                      if (profile['job_category'] != null && profile['job_category'].toString().isNotEmpty)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.psychology,
+                              Icons.work_outline,
                               size: 14,
                               color: Colors.white.withOpacity(0.7),
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              profile['mbti'],
+                              profile['job_category'],
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.white.withOpacity(0.7),
                               ),
@@ -172,6 +172,24 @@ class ProfileImageWidget extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               profile['location'],
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (profile['mbti'] != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.psychology,
+                              size: 14,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              profile['mbti'],
                               style: AppTextStyles.caption.copyWith(
                                 color: Colors.white.withOpacity(0.7),
                               ),

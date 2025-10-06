@@ -228,9 +228,39 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
 
                 const SizedBox(height: AppSpacing.md),
 
+                // Personality traits
+                if (otherUser['personality_traits'] != null && (otherUser['personality_traits'] as List).isNotEmpty)
+                  _buildProfileSection('💫 성격/매력', otherUser['personality_traits']),
+
+                // Others say about me
+                if (otherUser['others_say_about_me'] != null && (otherUser['others_say_about_me'] as List).isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildProfileSection('👂 주변평가', otherUser['others_say_about_me']),
+                ],
+
+                // Ideal type
+                if (otherUser['ideal_type_traits'] != null && (otherUser['ideal_type_traits'] as List).isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildProfileSection('❤️ 이상형', otherUser['ideal_type_traits']),
+                ],
+
+                // Date style
+                if (otherUser['date_style'] != null && (otherUser['date_style'] as List).isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildProfileSection('🎯 데이트', otherUser['date_style']),
+                ],
+
+                // Lifestyle (drinking & smoking)
+                if (otherUser['drinking_style'] != null || otherUser['smoking_status'] != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildLifestyleInfo(otherUser),
+                ],
+
                 // Interests
-                if (otherUser['interests'] != null)
-                  _buildInterests(otherUser['interests']),
+                if (otherUser['interests'] != null && (otherUser['interests'] as List).isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildProfileSection('🎨 관심사', otherUser['interests']),
+                ],
 
                 const SizedBox(height: AppSpacing.lg),
 
@@ -362,14 +392,36 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
     }
 
     final nickname = user['nickname'] ?? '특별한 인연';
-    final age = user['age']?.toString() ?? '';
+
+    // Calculate age from birth_date
+    String age = '';
+    if (user['birth_date'] != null) {
+      try {
+        final birthDate = DateTime.parse(user['birth_date']);
+        final now = DateTime.now();
+        int calculatedAge = now.year - birthDate.year;
+        if (now.month < birthDate.month ||
+            (now.month == birthDate.month && now.day < birthDate.day)) {
+          calculatedAge--;
+        }
+        age = calculatedAge.toString();
+      } catch (e) {
+        debugPrint('Error parsing birth_date: $e');
+      }
+    }
+    // Fallback to age field if exists
+    if (age.isEmpty && user['age'] != null) {
+      age = user['age'].toString();
+    }
+
     final mbti = user['mbti'];
     final location = user['location'];
+    final jobCategory = user['job_category'];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Nickname
+        // Nickname only
         Text(
           nickname,
           style: AppTextStyles.h2.copyWith(
@@ -378,70 +430,86 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
           ),
         ),
 
-        // Additional info (age, mbti, location)
-        if (age.isNotEmpty || mbti != null || location != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.sm,
-            children: [
-              if (age.isNotEmpty)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.cake,
-                      size: 16,
-                      color: AppColors.textSecondary,
+        // Additional info (age, job, location, mbti)
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.sm,
+          children: [
+            if (age.isNotEmpty)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.cake,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${age}세',
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.grey[400],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${age}세',
-                      style: AppTextStyles.body2.copyWith(
-                        color: Colors.grey[400],
-                      ),
+                  ),
+                ],
+              ),
+            if (jobCategory != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.work_outline,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    jobCategory,
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.grey[400],
                     ),
-                  ],
-                ),
-              if (mbti != null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.psychology,
-                      size: 16,
-                      color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            if (location != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    location,
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.grey[400],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      mbti,
-                      style: AppTextStyles.body2.copyWith(
-                        color: Colors.grey[400],
-                      ),
+                  ),
+                ],
+              ),
+            if (mbti != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.psychology,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    mbti,
+                    style: AppTextStyles.body2.copyWith(
+                      color: Colors.grey[400],
                     ),
-                  ],
-                ),
-              if (location != null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      location,
-                      style: AppTextStyles.body2.copyWith(
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ],
+                  ),
+                ],
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -481,6 +549,142 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
               ),
             );
           }).toList(),
+    );
+  }
+
+  Widget _buildProfileSection(String title, List<dynamic> items) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.body2.copyWith(
+            color: Colors.white.withOpacity(0.7),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: 4,
+          children: items.map((item) {
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 2,
+              ),
+              decoration: BoxDecoration(
+                color: Color(0xFFf093fb).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                item.toString(),
+                style: AppTextStyles.caption.copyWith(
+                  color: Color(0xFFf093fb),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLifestyleInfo(Map<String, dynamic> user) {
+    final drinkingStyle = user['drinking_style'];
+    final smokingStatus = user['smoking_status'];
+
+    final drinkingLabels = {
+      'none': '전혀 안 마셔요',
+      'sometimes': '가끔 마셔요',
+      'often': '자주 마셔요',
+      'social': '분위기에 따라요',
+    };
+
+    final smokingLabels = {
+      'non_smoker': '비흡연',
+      'smoker': '흡연',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '🍺 라이프스타일',
+          style: AppTextStyles.body2.copyWith(
+            color: Colors.white.withOpacity(0.7),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: 4,
+          children: [
+            if (drinkingStyle != null)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Color(0xFFf093fb).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.local_bar,
+                      size: 12,
+                      color: Color(0xFFf093fb),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      drinkingLabels[drinkingStyle] ?? drinkingStyle,
+                      style: AppTextStyles.caption.copyWith(
+                        color: Color(0xFFf093fb),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (smokingStatus != null)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Color(0xFFf093fb).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      smokingStatus == 'smoker' ? Icons.smoking_rooms : Icons.smoke_free,
+                      size: 12,
+                      color: Color(0xFFf093fb),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      smokingLabels[smokingStatus] ?? smokingStatus,
+                      style: AppTextStyles.caption.copyWith(
+                        color: Color(0xFFf093fb),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 

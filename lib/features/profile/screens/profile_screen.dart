@@ -124,13 +124,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const ProfileEditScreen(),
                           ),
                         );
+                        // Reload profile data after returning from edit screen
+                        if (mounted) {
+                          _loadProfileData();
+                        }
                       },
                       icon: Icon(
                         Icons.edit,

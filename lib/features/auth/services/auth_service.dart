@@ -198,6 +198,13 @@ class AuthService with ChangeNotifier {
     List<File>? profileImages,
     String? mbti,
     String? location,
+    String? jobCategory,
+    List<String>? personalityTraits,
+    List<String>? othersSayAboutMe,
+    List<String>? idealTypeTraits,
+    List<String>? dateStyle,
+    String? drinkingStyle,
+    String? smokingStatus,
   }) async {
     if (!isAuthenticated) throw Exception('User not authenticated');
 
@@ -222,6 +229,13 @@ class AuthService with ChangeNotifier {
         'gender': gender,
         'mbti': mbti,
         'location': location,
+        'job_category': jobCategory,
+        'personality_traits': personalityTraits ?? [],
+        'others_say_about_me': othersSayAboutMe ?? [],
+        'ideal_type_traits': idealTypeTraits ?? [],
+        'date_style': dateStyle ?? [],
+        'drinking_style': drinkingStyle,
+        'smoking_status': smokingStatus,
         'profile_image_urls': imageUrls,
         'approval_status': AppConstants.approvalPending,
       });
