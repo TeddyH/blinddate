@@ -67,7 +67,18 @@
       "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -f /Volumes/Data2TB/git-project/blinddate/database_migration_profile_enhancement.sql)",
       "Bash(ls:*)",
       "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT id, nickname, bio, interests, mbti, location FROM blinddate_users WHERE approval_status = ''approved'' LIMIT 10;\")",
-      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\nSELECT \n  gender,\n  COUNT(*) as user_count\nFROM blinddate_users\nWHERE approval_status = ''approved'' AND country = ''KR''\nGROUP BY gender;\n\")"
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\nSELECT \n  gender,\n  COUNT(*) as user_count\nFROM blinddate_users\nWHERE approval_status = ''approved'' AND country = ''KR''\nGROUP BY gender;\n\")",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\n-- 1. 트리거 존재 확인\nSELECT \n  trigger_name,\n  event_manipulation,\n  event_object_table,\n  action_statement\nFROM information_schema.triggers\nWHERE trigger_name = ''on_user_action_schedule_ai_response'';\n\")",
+      "Read(//Applications/**)",
+      "Bash(osascript:*)",
+      "Bash(launchctl:*)",
+      "Bash(plutil -lint:*)",
+      "Bash(/usr/bin/python3:*)",
+      "Bash(echo $HOME)",
+      "Read(//Users/honghyungseok/Library/LaunchAgents/**)",
+      "Read(//Users/honghyungseok/operation/blinddate/**)",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT id, ai_user_id, target_user_id, status, scheduled_at, retry_count FROM blinddate_ai_action_queue WHERE status IN (''processing'', ''failed'') ORDER BY created_at DESC LIMIT 5;\")",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\\d blinddate_chat_rooms\")"
     ],
     "deny": [],
     "ask": []
