@@ -17,6 +17,7 @@ class ScheduledMatch {
   final Map<String, dynamic> user2Profile;
   final bool receivedLike;
   final bool sentLike;
+  final bool sentPass;
 
   ScheduledMatch({
     required this.id,
@@ -29,9 +30,10 @@ class ScheduledMatch {
     required this.user2Profile,
     this.receivedLike = false,
     this.sentLike = false,
+    this.sentPass = false,
   });
 
-  factory ScheduledMatch.fromJson(Map<String, dynamic> json, {bool receivedLike = false, bool sentLike = false}) {
+  factory ScheduledMatch.fromJson(Map<String, dynamic> json, {bool receivedLike = false, bool sentLike = false, bool sentPass = false}) {
     return ScheduledMatch(
       id: json['id'],
       user1Id: json['user1_id'],
@@ -43,6 +45,7 @@ class ScheduledMatch {
       user2Profile: json['user2_profile'] ?? {},
       receivedLike: receivedLike,
       sentLike: sentLike,
+      sentPass: sentPass,
     );
   }
 
@@ -151,6 +154,7 @@ class ScheduledMatchingService extends ChangeNotifier {
         final otherUserId = userId == user1Id ? user2Id : user1Id;
         final receivedLike = await hasReceivedLikeFromUser(otherUserId);
         final sentLike = await hasSentLikeToUser(otherUserId);
+        final sentPass = await hasSentPassToUser(otherUserId);
 
         matches.add(ScheduledMatch(
           id: json['id'],
@@ -163,6 +167,7 @@ class ScheduledMatchingService extends ChangeNotifier {
           user2Profile: user2Response,
           receivedLike: receivedLike,
           sentLike: sentLike,
+          sentPass: sentPass,
         ));
       }
 
@@ -571,6 +576,34 @@ class ScheduledMatchingService extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error checking received like: $e');
+      return false;
+    }
+  }
+
+  // Check if current user has sent a pass to target user
+  Future<bool> hasSentPassToUser(String targetUserId) async {
+    try {
+      final userId = _supabaseService.currentUser?.id;
+      if (userId == null) {
+        return false;
+      }
+
+      try {
+        final response = await _supabaseService
+            .from(TableNames.userActions)
+            .select('id')
+            .eq('user_id', userId)
+            .eq('target_user_id', targetUserId)
+            .eq('action', AppConstants.actionPass)
+            .maybeSingle();
+
+        return response != null;
+      } catch (e) {
+        debugPrint('Error checking sent pass: $e');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Error checking sent pass: $e');
       return false;
     }
   }

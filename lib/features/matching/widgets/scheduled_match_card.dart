@@ -69,6 +69,7 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
     final isMutualLike = widget.match.status == 'mutual_like';
     final receivedLike = widget.match.receivedLike;
     final sentLike = widget.match.sentLike;
+    final sentPass = widget.match.sentPass;
 
     return Container(
       decoration: BoxDecoration(
@@ -264,8 +265,12 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
 
                 const SizedBox(height: AppSpacing.lg),
 
-                // Action buttons (only show if not mutual like)
-                if (!isMutualLike) sentLike ? _buildSentLikeStatus() : _buildActionButtons(),
+                // Action buttons (only show if not mutual like and not passed)
+                if (!isMutualLike && !sentPass)
+                  sentLike ? _buildSentLikeStatus() : _buildActionButtons(),
+
+                // Pass status (show if passed)
+                if (sentPass) _buildSentPassStatus(),
 
                 // Selection deadline countdown (only show if not mutual like)
                 if (!isMutualLike) ...[
@@ -737,6 +742,36 @@ class _ScheduledMatchCardState extends State<ScheduledMatchCard> {
             '관심을 표현했어요',
             style: AppTextStyles.body1.copyWith(
               color: Colors.purple,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSentPassStatus() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.thumb_down_alt_outlined,
+            color: Colors.grey,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '패스했어요',
+            style: AppTextStyles.body1.copyWith(
+              color: Colors.grey,
               fontWeight: FontWeight.w600,
             ),
           ),

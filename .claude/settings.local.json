@@ -66,7 +66,8 @@
       "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"UPDATE blinddate_users SET profile_image_1 = ''https://randomuser.me/api/portraits/women/44.jpg'' WHERE profile_image_1 = ''https://images.unsplash.com/photo-1494790108755-2616b332c1cd?w=400'';\")",
       "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -f /Volumes/Data2TB/git-project/blinddate/database_migration_profile_enhancement.sql)",
       "Bash(ls:*)",
-      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT id, nickname, bio, interests, mbti, location FROM blinddate_users WHERE approval_status = ''approved'' LIMIT 10;\")"
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT id, nickname, bio, interests, mbti, location FROM blinddate_users WHERE approval_status = ''approved'' LIMIT 10;\")",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\nSELECT \n  gender,\n  COUNT(*) as user_count\nFROM blinddate_users\nWHERE approval_status = ''approved'' AND country = ''KR''\nGROUP BY gender;\n\")"
     ],
     "deny": [],
     "ask": []
