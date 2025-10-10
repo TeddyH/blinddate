@@ -86,7 +86,9 @@
       "Bash(kill:*)",
       "Bash(killall:*)",
       "Read(//Users/honghyungseok/**)",
-      "Bash(PGPASSWORD='conn1004!!' psql:*)"
+      "Bash(PGPASSWORD='conn1004!!' psql:*)",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"\nSELECT \n  u1.nickname as from_user,\n  u2.nickname as to_user,\n  l.status,\n  l.created_at,\n  u2.is_ai_user\nFROM blinddate_likes l\nJOIN blinddate_users u1 ON l.user_id = u1.id\nJOIN blinddate_users u2 ON l.liked_user_id = u2.id\nWHERE u1.nickname = ''PlutusJ'' AND u2.nickname = ''Dottie''\nORDER BY l.created_at DESC\nLIMIT 1;\n\")",
+      "Bash(PGPASSWORD='conn1004!!' psql -h aws-0-ap-northeast-2.pooler.supabase.com -p 6543 -U postgres.bpzzojhokslqcuecjxaw -d postgres -c \"SELECT nickname, active_hours_start, active_hours_end, min_chat_delay_minutes, max_chat_delay_minutes, is_active FROM blinddate_ai_user_settings s JOIN blinddate_users u ON s.ai_user_id = u.id WHERE u.nickname = ''Dottie'';\")"
     ],
     "deny": [],
     "ask": []
