@@ -147,8 +147,65 @@ Total: ~50+ SQL/Python/Shell scripts for database management
 **Usage:**
 - AI Scheduler runs as background service (launchd on macOS)
 - Processes `blinddate_ai_action_queue` table every minute
-- Executes actions where `scheduled_at <= NOW()`
+- Executes actions where `scheduled_at <= NOW()` (UTC time)
 - Uses LLM (Ollama/exaone3.5) for AI decision making
+
+**⚠️ CRITICAL SERVICE MANAGEMENT RULES:**
+
+1. **NEVER manually run ai_scheduler.py directly**
+   - The scheduler is registered with launchd as a system service
+   - Manual execution will create duplicate processes → duplicate log entries → confusion
+   - Always use launchd commands to control the service
+
+2. **Service Control Commands:**
+   ```bash
+   # Check service status
+   launchctl list | grep blinddate
+
+   # Start service
+   launchctl start com.blinddate.ai-scheduler
+
+   # Stop service
+   launchctl stop com.blinddate.ai-scheduler
+
+   # Restart service (after code changes)
+   launchctl stop com.blinddate.ai-scheduler && launchctl start com.blinddate.ai-scheduler
+
+   # Reload service configuration
+   launchctl unload ~/Library/LaunchAgents/com.blinddate.ai-scheduler.plist
+   launchctl load ~/Library/LaunchAgents/com.blinddate.ai-scheduler.plist
+
+   # View logs
+   tail -f ~/operation/blinddate/logs/ai_scheduler.log
+   ```
+
+3. **Before making changes to ai_scheduler.py:**
+   - Stop the service first: `launchctl stop com.blinddate.ai-scheduler`
+   - Make your code changes
+   - Restart the service: `launchctl start com.blinddate.ai-scheduler`
+   - Verify single process: `pgrep -lf ai_scheduler.py` (should show only 1 process)
+
+4. **Troubleshooting duplicate processes:**
+   ```bash
+   # Kill all ai_scheduler processes
+   pkill -f ai_scheduler.py
+
+   # Restart via launchd only
+   launchctl start com.blinddate.ai-scheduler
+
+   # Verify single process
+   pgrep -lf ai_scheduler.py  # Should show exactly 1 process
+   ```
+
+5. **Log file location:**
+   - Main log: `~/operation/blinddate/logs/ai_scheduler.log`
+   - If you see duplicate log entries, multiple processes are running
+   - Always check process count before debugging: `pgrep -lf ai_scheduler.py`
+
+6. **Timezone handling:**
+   - Database stores all timestamps in UTC (PostgreSQL TIMESTAMPTZ)
+   - ai_scheduler.py uses `datetime.utcnow()` for all comparisons
+   - Never use `datetime.now()` for scheduled_at comparisons (causes 9-hour offset in KST)
 
 ### Directories to IGNORE During Development
 

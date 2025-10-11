@@ -47,7 +47,10 @@
       "WebFetch(domain:stackoverflow.com)",
       "Bash(tree:*)",
       "Bash(awk:*)",
-      "Read(//Users/honghyungseok/**)"
+      "Read(//Users/honghyungseok/**)",
+      "Read(//private/tmp/**)",
+      "Bash(pgrep:*)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []
