@@ -1,171 +1,198 @@
-/// 프로필 설정에 사용되는 모든 선택지 옵션들을 정의합니다.
+import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
+
+/// Profile setup options using i18n for internationalization
 class ProfileOptions {
-  // 성격/매력 태그 (최대 5개 선택)
-  static const List<String> personalityTraits = [
-    '유머러스해요',
-    '진지해요',
-    '활발해요',
-    '차분해요',
-    '배려심 많아요',
-    '솔직해요',
-    '긍정적이에요',
-    '사려깊어요',
-    '열정적이에요',
-    '여유로워요',
-    '지적이에요',
-    '감성적이에요',
-    '현실적이에요',
-    '창의적이에요',
-    '계획적이에요',
-    '즉흥적이에요',
-  ];
+  // Personality/charm tags (max 5 selections)
+  static List<String> personalityTraits(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.personalityHumorous,
+      l10n.personalitySerious,
+      l10n.personalityEnergetic,
+      l10n.personalityCalm,
+      l10n.personalityConsiderate,
+      l10n.personalityHonest,
+      l10n.personalityPositive,
+      l10n.personalityThoughtful,
+      l10n.personalityPassionate,
+      l10n.personalityRelaxed,
+      l10n.personalityIntellectual,
+      l10n.personalityEmotional,
+      l10n.personalityRealistic,
+      l10n.personalityCreative,
+      l10n.personalityOrganized,
+      l10n.personalitySpontaneous,
+    ];
+  }
 
-  // 주변에서 듣는 말 (최대 3개 선택)
-  static const List<String> othersSayAboutMe = [
-    '웃겨요',
-    '착해요',
-    '멋있어요',
-    '예뻐요',
-    '똑똑해요',
-    '센스있어요',
-    '다정해요',
-    '쿨해요',
-    '귀여워요',
-    '든든해요',
-    '편안해요',
-    '매력있어요',
-    '신뢰감 있어요',
-    '리더십 있어요',
-  ];
+  // What others say about me (max 3 selections)
+  static List<String> othersSayAboutMe(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.othersFunny,
+      l10n.othersKind,
+      l10n.othersCool,
+      l10n.othersPretty,
+      l10n.othersSmart,
+      l10n.othersSensible,
+      l10n.othersGentle,
+      l10n.othersChill,
+      l10n.othersCute,
+      l10n.othersReliable,
+      l10n.othersComfortable,
+      l10n.othersCharming,
+      l10n.othersTrustworthy,
+      l10n.othersLeadership,
+    ];
+  }
 
-  // 이상형/원하는 스타일 (최대 5개 선택)
-  static const List<String> idealTypeTraits = [
-    '유머감각',
-    '진지함',
-    '활발함',
-    '차분함',
-    '대화 잘통함',
-    '배려심',
-    '열정적',
-    '여유로움',
-    '솔직함',
-    '긍정적',
-    '지적임',
-    '감성적',
-    '계획적',
-    '즉흥적',
-    '리더십',
-    '공감능력',
-  ];
+  // Ideal type/desired style (max 5 selections)
+  static List<String> idealTypeTraits(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.idealHumor,
+      l10n.idealSeriousness,
+      l10n.idealEnergy,
+      l10n.idealCalmness,
+      l10n.idealConversation,
+      l10n.idealConsideration,
+      l10n.idealPassion,
+      l10n.idealRelaxation,
+      l10n.idealHonesty,
+      l10n.idealPositivity,
+      l10n.idealIntellect,
+      l10n.idealEmotion,
+      l10n.idealPlanning,
+      l10n.idealSpontaneity,
+      l10n.idealLeadership,
+      l10n.idealEmpathy,
+    ];
+  }
 
-  // 데이트 스타일 (최대 2개 선택)
-  static const List<String> dateStyles = [
-    '액티브한 활동',
-    '여유로운 산책',
-    '맛집 탐방',
-    '카페 데이트',
-    '문화생활',
-    '집에서 편하게',
-    '드라이브',
-    '운동',
-    '영화/공연',
-    '쇼핑',
-    '힐링',
-    '새로운 경험',
-  ];
+  // Date styles (max 2 selections)
+  static List<String> dateStyles(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.dateActiveActivities,
+      l10n.dateRelaxedWalk,
+      l10n.dateFoodTour,
+      l10n.dateCafe,
+      l10n.dateCulture,
+      l10n.dateHomeRelax,
+      l10n.dateDrive,
+      l10n.dateExercise,
+      l10n.dateMovieShow,
+      l10n.dateShopping,
+      l10n.dateHealing,
+      l10n.dateNewExperience,
+    ];
+  }
 
-  // 음주 스타일 (단일 선택)
-  static const Map<String, String> drinkingStyles = {
-    'none': '전혀 안 마셔요',
-    'sometimes': '가끔 마셔요',
-    'often': '자주 마셔요',
-    'social': '분위기에 따라요',
-  };
+  // Drinking style (single selection)
+  static Map<String, String> drinkingStyles(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return {
+      'none': l10n.drinkingNone,
+      'sometimes': l10n.drinkingSometimes,
+      'often': l10n.drinkingOften,
+      'social': l10n.drinkingSocial,
+    };
+  }
 
-  // 흡연 여부 (단일 선택)
-  static const Map<String, String> smokingStatuses = {
-    'non_smoker': '비흡연',
-    'smoker': '흡연',
-  };
+  // Smoking status (single selection)
+  static Map<String, String> smokingStatuses(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return {
+      'non_smoker': l10n.smokingNonSmoker,
+      'smoker': l10n.smokingSmoker,
+    };
+  }
 
-  // 직업군 (선택사항)
-  static const List<String> jobCategories = [
-    '무직',
-    'IT/기술',
-    '금융/은행',
-    '의료/보건',
-    '교육',
-    '디자인/예술',
-    '미디어/엔터테인먼트',
-    '서비스업',
-    '제조/생산',
-    '건설/부동산',
-    '유통/판매',
-    '공공기관',
-    '법률/법무',
-    '연구/개발',
-    '프리랜서',
-    '창업/사업',
-    '학생',
-    '기타',
-  ];
+  // Job categories (optional)
+  static List<String> jobCategories(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.jobUnemployed,
+      l10n.jobIT,
+      l10n.jobFinance,
+      l10n.jobMedical,
+      l10n.jobEducation,
+      l10n.jobDesign,
+      l10n.jobMedia,
+      l10n.jobService,
+      l10n.jobManufacturing,
+      l10n.jobConstruction,
+      l10n.jobRetail,
+      l10n.jobPublic,
+      l10n.jobLegal,
+      l10n.jobResearch,
+      l10n.jobFreelance,
+      l10n.jobBusiness,
+      l10n.jobStudent,
+      l10n.jobOther,
+    ];
+  }
 
-  // 관심사 (기존 유지, 1-5개 선택)
-  static const List<String> interests = [
-    '영화/드라마',
-    '음악',
-    '독서',
-    '여행',
-    '운동',
-    '요리',
-    '사진',
-    '게임',
-    '카페',
-    '맛집',
-    '쇼핑',
-    '전시회',
-    '콘서트',
-    '스포츠',
-    '등산',
-    '바다',
-    '반려동물',
-    '술',
-    '커피',
-    '디저트',
-    '패션',
-    '뷰티',
-    '자동차',
-    '바이크',
-    '춤',
-    '노래방',
-    '악기연주',
-    '그림/그리기',
-    '공예/만들기',
-    '베이킹',
-    '와인',
-    '맥주',
-    '칵테일',
-    '홈트레이닝',
-    '요가/필라테스',
-    '수영',
-    '클라이밍',
-    '골프',
-    '테니스',
-    '배드민턴',
-    '축구',
-    '농구',
-    '야구',
-    '러닝',
-    '자전거',
-    '캠핑',
-    '낚시',
-    '서핑',
-    '스키/보드',
-    '다이빙',
-    '드라이브',
-  ];
+  // Interests (1-5 selections)
+  static List<String> interests(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.interestMovies,
+      l10n.interestMusic,
+      l10n.interestReading,
+      l10n.interestTravel,
+      l10n.interestExercise,
+      l10n.interestCooking,
+      l10n.interestPhotography,
+      l10n.interestGaming,
+      l10n.interestCafe,
+      l10n.interestFood,
+      l10n.interestShopping,
+      l10n.interestExhibitions,
+      l10n.interestConcerts,
+      l10n.interestSports,
+      l10n.interestHiking,
+      l10n.interestBeach,
+      l10n.interestPets,
+      l10n.interestAlcohol,
+      l10n.interestCoffee,
+      l10n.interestDesserts,
+      l10n.interestFashion,
+      l10n.interestBeauty,
+      l10n.interestCars,
+      l10n.interestMotorcycles,
+      l10n.interestDancing,
+      l10n.interestKaraoke,
+      l10n.interestInstruments,
+      l10n.interestDrawing,
+      l10n.interestCrafts,
+      l10n.interestBaking,
+      l10n.interestWine,
+      l10n.interestBeer,
+      l10n.interestCocktails,
+      l10n.interestHomeWorkout,
+      l10n.interestYogaPilates,
+      l10n.interestSwimming,
+      l10n.interestClimbing,
+      l10n.interestGolf,
+      l10n.interestTennis,
+      l10n.interestBadminton,
+      l10n.interestSoccer,
+      l10n.interestBasketball,
+      l10n.interestBaseball,
+      l10n.interestRunning,
+      l10n.interestCycling,
+      l10n.interestCamping,
+      l10n.interestFishing,
+      l10n.interestSurfing,
+      l10n.interestSkiSnowboard,
+      l10n.interestDiving,
+      l10n.interestDriving,
+    ];
+  }
 
-  // MBTI 타입
+  // MBTI types (no translation needed)
   static const List<String> mbtiTypes = [
     'ISTJ',
     'ISFJ',
@@ -185,25 +212,31 @@ class ProfileOptions {
     'ENTJ',
   ];
 
-  // 지역 목록
-  static const List<String> locations = [
-    '서울',
-    '인천',
-    '경기 남부',
-    '경기 북부',
-    '강원',
-    '충북',
-    '충남',
-    '경북',
-    '경남',
-    '전북',
-    '전남',
-    '제주',
-  ];
+  // Locations
+  static List<String> locations(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      l10n.locationSeoul,
+      l10n.locationIncheon,
+      l10n.locationGyeonggiSouth,
+      l10n.locationGyeonggiNorth,
+      l10n.locationGangwon,
+      l10n.locationChungbuk,
+      l10n.locationChungnam,
+      l10n.locationGyeongbuk,
+      l10n.locationGyeongnam,
+      l10n.locationJeonbuk,
+      l10n.locationJeonnam,
+      l10n.locationJeju,
+    ];
+  }
 
-  // 성별
-  static const Map<String, String> genders = {
-    'male': '남성',
-    'female': '여성',
-  };
+  // Gender
+  static Map<String, String> genders(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return {
+      'male': l10n.genderMale,
+      'female': l10n.genderFemale,
+    };
+  }
 }

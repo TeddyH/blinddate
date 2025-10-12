@@ -1,0 +1,543 @@
+{
+  "@@locale": "en",
+
+  "personalityHumorous": "Humorous",
+  "personalitySerious": "Serious",
+  "personalityEnergetic": "Energetic",
+  "personalityCalm": "Calm",
+  "personalityConsiderate": "Considerate",
+  "personalityHonest": "Honest",
+  "personalityPositive": "Positive",
+  "personalityThoughtful": "Thoughtful",
+  "personalityPassionate": "Passionate",
+  "personalityRelaxed": "Relaxed",
+  "personalityIntellectual": "Intellectual",
+  "personalityEmotional": "Emotional",
+  "personalityRealistic": "Realistic",
+  "personalityCreative": "Creative",
+  "personalityOrganized": "Organized",
+  "personalitySpontaneous": "Spontaneous",
+
+  "othersFunny": "Funny",
+  "othersKind": "Kind",
+  "othersCool": "Cool",
+  "othersPretty": "Pretty",
+  "othersSmart": "Smart",
+  "othersSensible": "Sensible",
+  "othersGentle": "Gentle",
+  "othersChill": "Chill",
+  "othersCute": "Cute",
+  "othersReliable": "Reliable",
+  "othersComfortable": "Comfortable",
+  "othersCharming": "Charming",
+  "othersTrustworthy": "Trustworthy",
+  "othersLeadership": "Leadership",
+
+  "idealHumor": "Sense of humor",
+  "idealSeriousness": "Seriousness",
+  "idealEnergy": "Energy",
+  "idealCalmness": "Calmness",
+  "idealConversation": "Good conversation",
+  "idealConsideration": "Consideration",
+  "idealPassion": "Passion",
+  "idealRelaxation": "Relaxation",
+  "idealHonesty": "Honesty",
+  "idealPositivity": "Positivity",
+  "idealIntellect": "Intellect",
+  "idealEmotion": "Emotion",
+  "idealPlanning": "Planning",
+  "idealSpontaneity": "Spontaneity",
+  "idealLeadership": "Leadership",
+  "idealEmpathy": "Empathy",
+
+  "dateActiveActivities": "Active activities",
+  "dateRelaxedWalk": "Relaxed walk",
+  "dateFoodTour": "Food tour",
+  "dateCafe": "Cafe date",
+  "dateCulture": "Cultural activities",
+  "dateHomeRelax": "Relax at home",
+  "dateDrive": "Drive",
+  "dateExercise": "Exercise",
+  "dateMovieShow": "Movies/Shows",
+  "dateShopping": "Shopping",
+  "dateHealing": "Healing",
+  "dateNewExperience": "New experiences",
+
+  "drinkingNone": "Don't drink",
+  "drinkingSometimes": "Sometimes",
+  "drinkingOften": "Often",
+  "drinkingSocial": "Social drinker",
+
+  "smokingNonSmoker": "Non-smoker",
+  "smokingSmoker": "Smoker",
+
+  "jobUnemployed": "Unemployed",
+  "jobIT": "IT/Tech",
+  "jobFinance": "Finance/Banking",
+  "jobMedical": "Medical/Healthcare",
+  "jobEducation": "Education",
+  "jobDesign": "Design/Arts",
+  "jobMedia": "Media/Entertainment",
+  "jobService": "Service",
+  "jobManufacturing": "Manufacturing",
+  "jobConstruction": "Construction/Real Estate",
+  "jobRetail": "Retail/Sales",
+  "jobPublic": "Public Sector",
+  "jobLegal": "Legal/Law",
+  "jobResearch": "Research/Development",
+  "jobFreelance": "Freelance",
+  "jobBusiness": "Business/Startup",
+  "jobStudent": "Student",
+  "jobOther": "Other",
+
+  "interestMovies": "Movies/Drama",
+  "interestMusic": "Music",
+  "interestReading": "Reading",
+  "interestTravel": "Travel",
+  "interestExercise": "Exercise",
+  "interestCooking": "Cooking",
+  "interestPhotography": "Photography",
+  "interestGaming": "Gaming",
+  "interestCafe": "Cafes",
+  "interestFood": "Food",
+  "interestShopping": "Shopping",
+  "interestExhibitions": "Exhibitions",
+  "interestConcerts": "Concerts",
+  "interestSports": "Sports",
+  "interestHiking": "Hiking",
+  "interestBeach": "Beach",
+  "interestPets": "Pets",
+  "interestAlcohol": "Alcohol",
+  "interestCoffee": "Coffee",
+  "interestDesserts": "Desserts",
+  "interestFashion": "Fashion",
+  "interestBeauty": "Beauty",
+  "interestCars": "Cars",
+  "interestMotorcycles": "Motorcycles",
+  "interestDancing": "Dancing",
+  "interestKaraoke": "Karaoke",
+  "interestInstruments": "Playing instruments",
+  "interestDrawing": "Drawing",
+  "interestCrafts": "Crafts",
+  "interestBaking": "Baking",
+  "interestWine": "Wine",
+  "interestBeer": "Beer",
+  "interestCocktails": "Cocktails",
+  "interestHomeWorkout": "Home workout",
+  "interestYogaPilates": "Yoga/Pilates",
+  "interestSwimming": "Swimming",
+  "interestClimbing": "Climbing",
+  "interestGolf": "Golf",
+  "interestTennis": "Tennis",
+  "interestBadminton": "Badminton",
+  "interestSoccer": "Soccer",
+  "interestBasketball": "Basketball",
+  "interestBaseball": "Baseball",
+  "interestRunning": "Running",
+  "interestCycling": "Cycling",
+  "interestCamping": "Camping",
+  "interestFishing": "Fishing",
+  "interestSurfing": "Surfing",
+  "interestSkiSnowboard": "Ski/Snowboard",
+  "interestDiving": "Diving",
+  "interestDriving": "Driving",
+
+  "locationSeoul": "Seoul",
+  "locationIncheon": "Incheon",
+  "locationGyeonggiSouth": "Southern Gyeonggi",
+  "locationGyeonggiNorth": "Northern Gyeonggi",
+  "locationGangwon": "Gangwon",
+  "locationChungbuk": "Chungcheongbuk",
+  "locationChungnam": "Chungcheongnam",
+  "locationGyeongbuk": "Gyeongsangbuk",
+  "locationGyeongnam": "Gyeongsangnam",
+  "locationJeonbuk": "Jeonrabuk",
+  "locationJeonnam": "Jeonranam",
+  "locationJeju": "Jeju",
+
+  "genderMale": "Male",
+  "genderFemale": "Female",
+
+  "appName": "Hearty",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "close": "Close",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+
+  "matchingTitle": "Today's Match",
+  "matchingLoading": "Finding your special connection today...",
+  "matchingError": "Error loading match information",
+  "matchingEmpty": "No new matches today",
+  "matchingEmptyDesc": "We'll introduce someone new tomorrow!\nNew matches are revealed daily at 12 PM.",
+  "matchingNextMatch": "Next match in",
+  "matchingReady": "Today's match is ready!",
+  "matchingReadyTime": "Revealed at 12 PM",
+  "matchingReadyDesc": "{count} special connection(s) waiting for you.\nRevealed at 12 PM.",
+  "@matchingReadyDesc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "matchingLiked": "Liked!",
+  "matchingPassed": "See you next time",
+
+  "chatTitle": "Chat",
+  "chatLoading": "Loading chat list...",
+  "chatEmpty": "No chats yet",
+  "chatEmptyDesc": "When you both like each other,\nyou can start chatting!",
+  "chatPlaceholder": "Type a message...",
+  "chatFirstMessage": "Send your first message!",
+  "chatFirstMessageDesc": "You both liked each other - it's a special connection.\nStart the conversation naturally!",
+  "chatWeekdaySun": "Sun",
+  "chatWeekdayMon": "Mon",
+  "chatWeekdayTue": "Tue",
+  "chatWeekdayWed": "Wed",
+  "chatWeekdayThu": "Thu",
+  "chatWeekdayFri": "Fri",
+  "chatWeekdaySat": "Sat",
+
+  "profileTitle": "Profile",
+  "profileLogout": "Logout",
+  "profileLogoutConfirm": "Are you sure you want to logout?",
+  "profileError": "Unable to load profile information",
+  "profileNickname": "Nickname",
+  "profileNicknameHint": "Enter your nickname",
+  "profileNicknameError": "Please enter a nickname",
+  "profileNicknameMinLength": "Nickname must be at least 2 characters",
+  "profileBio": "Bio",
+  "profileBioHint": "Introduce yourself attractively (at least 50 characters)",
+  "profileBioError": "Please enter your bio",
+  "profileBioMinLength": "Bio must be at least 50 characters",
+  "profileGender": "Gender",
+  "profileGenderError": "Please select your gender",
+  "profileBirthday": "Birthday",
+  "profileBirthdayError": "Please select your birthday",
+  "profileAgeError": "Age must be between 18-80",
+  "profileLocation": "Location",
+  "profileLocationHint": "Optional",
+  "profileJobCategory": "Job Category",
+  "profileJobCategoryHint": "Optional",
+  "profileDrinking": "Drinking",
+  "profileDrinkingHint": "Select",
+  "profileSmoking": "Smoking",
+  "profileSmokingHint": "Select",
+  "profilePhotos": "Profile Photos",
+  "profilePhotoAdd": "Add Photo",
+  "profilePhotoCamera": "Take Photo",
+  "profilePhotoGallery": "Choose from Gallery",
+  "profilePhotoMaxError": "You can upload up to 3 photos",
+  "profileBasicInfo": "Basic Information",
+  "profilePersonalityTitle": "My Personality/Appeal",
+  "profilePersonalitySubtitle": "Select up to 5",
+  "profilePersonalityCount": "Selected: {count}/5",
+  "@profilePersonalityCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileOthersSayTitle": "What Others Say About Me",
+  "profileOthersSaySubtitle": "Select up to 3",
+  "profileOthersSayCount": "Selected: {count}/3",
+  "@profileOthersSayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileIdealTypeTitle": "Ideal Type/Desired Style",
+  "profileIdealTypeSubtitle": "Select up to 5",
+  "profileIdealTypeCount": "Selected: {count}/5",
+  "@profileIdealTypeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "authApprovalWaiting": "Profile Review in Progress",
+  "authApprovalWaitingDesc": "We're reviewing all profiles for safe connections.\nYou'll receive a notification when approved!",
+  "authApprovalCheckStatus": "Check Approval Status",
+  "authApprovalChecking": "Checking...",
+
+  "dashboardNews": "News",
+  "dashboardTodayMatch": "Today's Match",
+  "dashboardMatchingTip": "Matching Tips",
+  "dashboardNoMatchTitle": "Wait for today's recommendation",
+  "dashboardNoMatchDesc": "New connections arrive daily at 12 PM",
+
+  "errorGeneric": "An error occurred: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorProfileNotFound": "Profile not found. Please set up your profile again.",
+  "errorChatCreate": "Error creating chat room.",
+  "errorChatLoad": "Error loading chat: {error}",
+  "@errorChatLoad": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLogout": "Error during logout",
+  "errorImageSelect": "Error selecting image: {error}",
+  "@errorImageSelect": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorProfileCreate": "Error creating profile: {error}",
+  "@errorProfileCreate": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "successProfileUpdated": "Profile successfully updated.",
+  "successProfileUpdatedReview": "Profile successfully updated. Awaiting admin review.",
+  "successProfileCreated": "Profile successfully created. Awaiting admin approval.",
+
+  "approvalWaitingTitle": "Approval Pending",
+  "approvalWaitingMessage": "Profile Under Review",
+  "approvalWaitingDesc": "We're reviewing all profiles for safe connections.\nYou'll receive a notification when approved!",
+  "approvalStillPending": "Still under review. Please wait a bit longer.",
+  "approvalInfoVerificationTitle": "Thorough Verification",
+  "approvalInfoVerificationDesc": "We carefully review all profile photos and information",
+  "approvalInfoProcessTitle": "Quick Processing",
+  "approvalInfoProcessDesc": "Reviews are usually completed within 24 hours",
+  "approvalInfoNotificationTitle": "Instant Notification",
+  "approvalInfoNotificationDesc": "You'll be notified via app and email when approved",
+  "checking": "Checking...",
+  "checkApprovalStatus": "Check Approval Status",
+  "errorCheckingStatus": "Error checking status: {error}",
+  "@errorCheckingStatus": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "approvalRejectedTitle": "Profile Approval Rejected",
+  "approvalRejectedMessage": "Profile Approval Rejected",
+  "approvalRejectedDesc": "Some profiles may not be approved for safe service operation.\nPlease refer to the guidelines below and edit your profile.",
+  "rejectionReason": "Rejection Reason",
+  "guidelinePhotoTitle": "Profile Photo Guidelines",
+  "guidelinePhoto1": "Clear photo showing your face",
+  "guidelinePhoto2": "Clear and appropriate quality photo",
+  "guidelinePhoto3": "No inappropriate content",
+  "guidelinePhoto4": "Your own photo, not someone else's",
+  "guidelineInfoTitle": "Profile Information Guidelines",
+  "guidelineInfo1": "Write only truthful information",
+  "guidelineInfo2": "No inappropriate language",
+  "guidelineInfo3": "Comply with privacy protection",
+  "guidelineInfo4": "Content that doesn't offend others",
+  "editProfile": "Edit Profile",
+  "contactSupport": "Contact Support",
+  "supportComingSoon": "Support feature coming soon.",
+
+  "errorLoadingMatch": "Error loading match information",
+  "noMatchToday": "No new matches today",
+  "noMatchTodayDesc": "We'll introduce someone new tomorrow!\nNew matches are revealed daily at 12 PM.",
+  "untilNextMatch": "Until next match",
+  "matchReady": "🎉 Today's match is ready!",
+  "revealAtNoon": "Revealed at 12 PM",
+  "matchReadyShort": "Today's match is ready!",
+  "matchPendingDesc": "{count} special connection(s) waiting for you.\nRevealed at 12 PM.",
+  "@matchPendingDesc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "likeSent": "💖 Like sent!",
+  "passMessage": "See you next time",
+  "errorOccurred": "An error occurred: {error}",
+  "@errorOccurred": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "news": "News",
+  "noticeEarlyAdopterTitle": "🎁 Early Adopter Special Offer!",
+  "noticeEarlyAdopterDesc": "Enjoy unlimited chat for free until 2025! A special offer for early users.",
+  "noticeWelcomeTitle": "Welcome! 🎉",
+  "noticeWelcomeDesc": "Meet new connections daily at 12 PM. If you're both interested, you can start chatting!",
+  "noticeServiceLaunchTitle": "Service Official Launch! 🚀",
+  "noticeServiceLaunchDesc": "Hearty has officially launched! We're continuously updating for better matching.",
+  "noticeRealtimeChatTitle": "Real-time Chat Open! 💬",
+  "noticeRealtimeChatDesc": "Real-time chat available when you both like each other. Start with your first message!",
+  "waitForRecommendation": "Wait for today's recommendation",
+  "newMatchAtNoon": "New connections arrive daily at 12 PM",
+  "userAgeYears": "{name}, {age} years old",
+  "@userAgeYears": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "unknown": "Unknown",
+  "mutualInterest": "Both interested! 💕",
+  "receivedInterest": "Interested in you 💕",
+  "sentInterest": "You expressed interest 💝",
+  "newMatchWaiting": "A new connection awaits",
+  "matchingTips": "Matching Tips",
+  "tipProfilePhotoTitle": "Attractive Profile Photo",
+  "tipProfilePhotoDesc": "Upload photos with a natural smile and good lighting",
+  "tipInterestsTitle": "Update Interests",
+  "tipInterestsDesc": "Updating hobbies and interests frequently helps you get better matches",
+  "tipFirstMessageTitle": "First Message Tips",
+  "tipFirstMessageDesc": "Check their profile and start conversation with common interests",
+
+  "chatPartner": "Chat Partner",
+  "sendFirstMessage": "Send your first message! 💕",
+  "sendFirstMessageDesc": "You both liked each other - it's a special connection.\nStart the conversation naturally!",
+  "enterMessage": "Type a message...",
+  "sun": "Sun",
+  "mon": "Mon",
+  "tue": "Tue",
+  "wed": "Wed",
+  "thu": "Thu",
+  "fri": "Fri",
+  "sat": "Sat",
+  "weekdayFormat": "{weekday}",
+  "@weekdayFormat": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      }
+    }
+  },
+  "monthDay": "{month}/{day}",
+  "@monthDay": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "yearMonthDay": "{year}/{month}/{day}",
+  "@yearMonthDay": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "yesterdayTime": "Yesterday {time}",
+  "@yesterdayTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weekdayTime": "{weekday} {time}",
+  "@weekdayTime": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "monthDayTime": "{month}/{day} {time}",
+  "@monthDayTime": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yearMonthDayTime": "{year}/{month}/{day} {time}",
+  "@yearMonthDayTime": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "navHome": "Home",
+  "navRecommendations": "Matches",
+  "navChat": "Chat",
+  "navHistory": "History",
+  "navProfile": "Profile",
+
+  "settings": "Settings",
+  "settingsNotification": "Notification Settings",
+  "settingsNotificationMatch": "Match Notifications",
+  "settingsNotificationMatchDesc": "Receive notifications for new matches",
+  "settingsNotificationChat": "Chat Notifications",
+  "settingsNotificationChatDesc": "Receive notifications for new messages",
+  "settingsNotificationSystem": "System Notifications",
+  "settingsNotificationSystemDesc": "Receive app updates and announcements",
+  "settingsLanguage": "Language",
+  "settingsLanguageDesc": "Select your preferred language",
+  "settingsAppInfo": "App Information",
+  "settingsAppVersion": "App Version",
+  "settingsContact": "Contact Us",
+  "settingsContactDesc": "edgein00@gmail.com",
+  "settingsReview": "Rate the App",
+  "settingsReviewDesc": "Rate Hearty on the App Store",
+  "settingsContactSnackbar": "Please contact us via email: edgein00@gmail.com",
+  "settingsReviewSnackbar": "Opening App Store",
+  "languageKorean": "한국어 (Korean)",
+  "languageEnglish": "English"
+}

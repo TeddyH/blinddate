@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../app/routes.dart';
+import '../../../l10n/app_localizations.dart';
 import '../services/profile_service.dart';
 import '../widgets/profile_image_widget.dart';
 import '../widgets/profile_info_section.dart';
@@ -35,6 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
@@ -53,7 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Text(
-                '프로필',
+                l10n.profileTitle,
                 style: AppTextStyles.body2.copyWith(
                   color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
@@ -100,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   ElevatedButton(
                     onPressed: _loadProfileData,
-                    child: const Text('다시 시도'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -109,8 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           final profile = profileService.currentUserProfile;
           if (profile == null) {
-            return const Center(
-              child: Text('프로필 정보를 불러올 수 없습니다'),
+            return Center(
+              child: Text(l10n.profileError),
             );
           }
 
@@ -182,18 +185,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('로그아웃'),
-          content: const Text('정말로 로그아웃하시겠습니까?'),
+          title: Text(l10n.profileLogout),
+          content: Text(l10n.profileLogoutConfirm),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('취소'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () async {
@@ -207,14 +212,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context.go(AppRoutes.emailAuth);
                 } else if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('로그아웃 중 오류가 발생했습니다'),
+                    SnackBar(
+                      content: Text(l10n.errorLogout),
                     ),
                   );
                 }
               },
               child: Text(
-                '로그아웃',
+                l10n.profileLogout,
                 style: TextStyle(color: AppColors.error),
               ),
             ),

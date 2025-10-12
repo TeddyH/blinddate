@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../core/services/supabase_service.dart';
 import '../core/services/unread_message_service.dart';
+import '../core/services/locale_service.dart';
 import '../features/auth/services/auth_service.dart';
 import '../features/matching/services/scheduled_matching_service.dart';
 import '../features/profile/services/profile_service.dart';
 import '../features/chat/services/chat_service.dart';
+import '../l10n/app_localizations.dart';
 import 'routes.dart';
 
 class BlindDateApp extends StatelessWidget {
@@ -41,6 +44,16 @@ class BlindDateApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: ThemeMode.system,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'), // English
+          Locale('ko'), // Korean
+        ],
         routerConfig: AppRoutes.router,
       ),
     );

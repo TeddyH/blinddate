@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/services/unread_message_service.dart';
+import '../../../l10n/app_localizations.dart';
 import '../services/chat_service.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 
@@ -105,12 +106,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
     } catch (e) {
       debugPrint('Error loading chat data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('채팅을 불러오는 중 오류가 발생했습니다: $e'),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorChatLoad(e.toString())),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
@@ -141,7 +145,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final otherUserName = _otherUserProfile?['nickname'] ?? '채팅 상대';
+    final l10n = AppLocalizations.of(context)!;
+    final otherUserName = _otherUserProfile?['nickname'] ?? l10n.chatPartner;
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(6, 13, 24, 1),
@@ -197,6 +202,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -218,7 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              '첫 메시지를 보내보세요! 💕',
+              l10n.sendFirstMessage,
               style: AppTextStyles.h3.copyWith(
                 color: Colors.white.withOpacity(0.95),
               ),
@@ -226,7 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              '서로 좋아요를 누른 특별한 인연이에요.\n자연스럽게 대화를 시작해보세요!',
+              l10n.sendFirstMessageDesc,
               style: AppTextStyles.body1.copyWith(
                 color: Colors.white.withOpacity(0.7),
               ),
@@ -347,7 +354,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: Colors.white,
                 ),
                 decoration: InputDecoration(
-                  hintText: '메시지를 입력하세요...',
+                  hintText: AppLocalizations.of(context)!.enterMessage,
                   hintStyle: AppTextStyles.body1.copyWith(
                     color: Colors.white.withOpacity(0.5),
                   ),
@@ -406,6 +413,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // 날짜 구분선 위젯
   Widget _buildDateSeparator(DateTime dateTime) {
+    final l10n = AppLocalizations.of(context)!;
     final koreanTime = dateTime.toUtc().add(const Duration(hours: 9));
     final now = DateTime.now().toUtc().add(const Duration(hours: 9));
 
@@ -415,17 +423,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
     String dateText;
     if (diffDays == 0) {
-      dateText = '오늘';
+      dateText = l10n.today;
     } else if (diffDays == 1) {
-      dateText = '어제';
+      dateText = l10n.yesterday;
     } else if (diffDays < 7) {
-      final weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      final weekdays = [l10n.sun, l10n.mon, l10n.tue, l10n.wed, l10n.thu, l10n.fri, l10n.sat];
       final weekday = weekdays[koreanTime.weekday % 7];
-      dateText = '$weekday요일';
+      dateText = l10n.weekdayFormat(weekday);
     } else if (koreanTime.year == now.year) {
-      dateText = '${koreanTime.month}월 ${koreanTime.day}일';
+      dateText = l10n.monthDay(koreanTime.month, koreanTime.day);
     } else {
-      dateText = '${koreanTime.year}년 ${koreanTime.month}월 ${koreanTime.day}일';
+      dateText = l10n.yearMonthDay(koreanTime.year, koreanTime.month, koreanTime.day);
     }
 
     return Container(
@@ -470,6 +478,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   String _formatTime(DateTime dateTime) {
+    final l10n = AppLocalizations.of(context)!;
     // UTC를 한국 시간(GMT+9)으로 변환
     final koreanTime = dateTime.toUtc().add(const Duration(hours: 9));
     final now = DateTime.now().toUtc().add(const Duration(hours: 9));
@@ -486,18 +495,18 @@ class _ChatScreenState extends State<ChatScreen> {
       return timeStr;
     } else if (diffDays == 1) {
       // 어제 - "어제 시간" 형태
-      return '어제 $timeStr';
+      return l10n.yesterdayTime(timeStr);
     } else if (diffDays < 7) {
       // 일주일 이내 - "요일 시간" 형태
-      final weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+      final weekdays = [l10n.sun, l10n.mon, l10n.tue, l10n.wed, l10n.thu, l10n.fri, l10n.sat];
       final weekday = weekdays[koreanTime.weekday % 7];
-      return '$weekday요일 $timeStr';
+      return l10n.weekdayTime(weekday, timeStr);
     } else if (koreanTime.year == now.year) {
       // 올해 - "월일 시간" 형태
-      return '${koreanTime.month}월 ${koreanTime.day}일 $timeStr';
+      return l10n.monthDayTime(koreanTime.month, koreanTime.day, timeStr);
     } else {
       // 작년 이전 - "년월일 시간" 형태
-      return '${koreanTime.year}년 ${koreanTime.month}월 ${koreanTime.day}일 $timeStr';
+      return l10n.yearMonthDayTime(koreanTime.year, koreanTime.month, koreanTime.day, timeStr);
     }
   }
 }

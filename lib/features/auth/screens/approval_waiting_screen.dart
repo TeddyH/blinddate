@@ -6,6 +6,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../app/routes.dart';
+import '../../../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 
 class ApprovalWaitingScreen extends StatefulWidget {
@@ -40,9 +41,10 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
         if (profile == null) {
           // 프로필이 없는 경우 프로필 설정으로 이동
           debugPrint('No profile found, redirecting to profile setup');
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('프로필을 찾을 수 없습니다. 프로필을 다시 설정해주세요.'),
+            SnackBar(
+              content: Text(l10n.errorProfileNotFound),
               backgroundColor: Colors.orange,
             ),
           );
@@ -61,9 +63,10 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
           context.go(AppRoutes.approvalRejected);
         } else {
           // Still pending - show message
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('아직 검토 중입니다. 조금만 더 기다려주세요.'),
+            SnackBar(
+              content: Text(l10n.approvalStillPending),
               backgroundColor: Colors.blue,
             ),
           );
@@ -72,9 +75,10 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
     } catch (e) {
       debugPrint('Error checking approval status: $e');
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('상태 확인 중 오류가 발생했습니다: $e'),
+            content: Text(l10n.errorCheckingStatus(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -97,9 +101,10 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('로그아웃 중 오류가 발생했습니다: $e'),
+            content: Text(l10n.errorLogout),
             backgroundColor: AppColors.error,
           ),
         );
@@ -109,12 +114,14 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
-        title: const Text(
-          '승인 대기',
-          style: TextStyle(
+        title: Text(
+          l10n.approvalWaitingTitle,
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
@@ -126,9 +133,9 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
         actions: [
           TextButton(
             onPressed: _signOut,
-            child: const Text(
-              '로그아웃',
-              style: TextStyle(color: Colors.white),
+            child: Text(
+              l10n.profileLogout,
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -167,7 +174,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
 
                   // Title
                   Text(
-                    '프로필 검토 중입니다',
+                    l10n.approvalWaitingMessage,
                     style: AppTextStyles.h1.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -179,7 +186,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
 
                   // Description
                   Text(
-                    '안전한 만남을 위해 모든 프로필을 검토하고 있습니다.\n승인이 완료되면 알림을 보내드릴게요!',
+                    l10n.approvalWaitingDesc,
                     style: AppTextStyles.body1.copyWith(
                       color: Colors.white.withOpacity(0.7),
                     ),
@@ -191,24 +198,24 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                   // Info cards
                   _buildInfoCard(
                     icon: Icons.security_outlined,
-                    title: '철저한 검증',
-                    description: '모든 프로필 사진과 정보를 꼼꼼히 확인합니다',
+                    title: l10n.approvalInfoVerificationTitle,
+                    description: l10n.approvalInfoVerificationDesc,
                   ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   _buildInfoCard(
                     icon: Icons.schedule_outlined,
-                    title: '빠른 처리',
-                    description: '보통 24시간 이내에 검토가 완료됩니다',
+                    title: l10n.approvalInfoProcessTitle,
+                    description: l10n.approvalInfoProcessDesc,
                   ),
 
                   const SizedBox(height: AppSpacing.md),
 
                   _buildInfoCard(
                     icon: Icons.notifications_outlined,
-                    title: '즉시 알림',
-                    description: '승인 완료 시 앱과 이메일로 알려드립니다',
+                    title: l10n.approvalInfoNotificationTitle,
+                    description: l10n.approvalInfoNotificationDesc,
                   ),
 
                   const SizedBox(height: AppSpacing.xl),
@@ -234,7 +241,7 @@ class _ApprovalWaitingScreenState extends State<ApprovalWaitingScreen> {
                             ),
                           )
                         : const Icon(Icons.refresh),
-                      label: Text(_isChecking ? '확인 중...' : '승인 상태 확인'),
+                      label: Text(_isChecking ? l10n.checking : l10n.checkApprovalStatus),
                     ),
                   ),
 

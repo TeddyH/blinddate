@@ -8,6 +8,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../app/routes.dart';
+import '../../../l10n/app_localizations.dart';
 import '../services/scheduled_matching_service.dart';
 import '../widgets/scheduled_match_card.dart';
 import '../widgets/match_success_dialog.dart';
@@ -89,6 +90,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBodyBehindAppBar: true,
@@ -108,7 +111,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Text(
-                '오늘의 추천',
+                l10n.matchingTitle,
                 style: AppTextStyles.body2.copyWith(
                   color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
@@ -154,6 +157,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -163,7 +168,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            '오늘의 특별한 인연을 확인하고 있어요...',
+            l10n.matchingLoading,
             style: AppTextStyles.body1.copyWith(
               color: Colors.white.withOpacity(0.7),
             ),
@@ -174,6 +179,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildErrorState(String error) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -187,7 +194,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              '매칭 정보를 불러오는 중 오류가 발생했습니다',
+              l10n.errorLoadingMatch,
               style: AppTextStyles.h3.copyWith(
                 color: Colors.white.withOpacity(0.95),
               ),
@@ -204,7 +211,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             const SizedBox(height: AppSpacing.xl),
             ElevatedButton(
               onPressed: _loadTodaysMatches,
-              child: const Text('다시 시도'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -213,6 +220,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildNoMatchesState(bool isRevealTime, Duration timeUntilReveal) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -229,7 +238,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             const SizedBox(height: AppSpacing.xl),
 
             Text(
-              '오늘은 새로운 인연이 없어요',
+              l10n.noMatchToday,
               style: AppTextStyles.h2.copyWith(
                 color: Colors.white.withOpacity(0.95),
               ),
@@ -239,7 +248,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             const SizedBox(height: AppSpacing.md),
 
             Text(
-              '내일 새로운 분을 소개해드릴게요!\n매일 낮 12시에 새로운 매칭이 공개됩니다.',
+              l10n.noMatchTodayDesc,
               style: AppTextStyles.body1.copyWith(
                 color: Colors.white.withOpacity(0.7),
               ),
@@ -252,7 +261,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             Column(
               children: [
                 Text(
-                  '다음 매칭까지',
+                  l10n.untilNextMatch,
                   style: AppTextStyles.caption.copyWith(
                     color: Colors.white.withOpacity(0.6),
                   ),
@@ -296,6 +305,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildCountdownHeader(Duration timeUntilReveal) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(AppSpacing.lg),
@@ -314,7 +325,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
       child: Column(
         children: [
           Text(
-            '🎉 오늘의 매칭이 준비되었어요!',
+            l10n.matchReady,
             style: AppTextStyles.h3.copyWith(
               color: Colors.white.withOpacity(0.95),
               fontWeight: FontWeight.bold,
@@ -322,7 +333,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '낮 12시에 공개됩니다',
+            l10n.revealAtNoon,
             style: AppTextStyles.body1.copyWith(
               color: Colors.white.withOpacity(0.7),
             ),
@@ -362,6 +373,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
   }
 
   Widget _buildPendingMatches(List<ScheduledMatch> matches, bool isRevealTime) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -377,7 +390,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             const SizedBox(height: AppSpacing.xl),
 
             Text(
-              '오늘의 매칭이 준비되었어요!',
+              l10n.matchReadyShort,
               style: AppTextStyles.h2.copyWith(
                 color: Colors.white.withOpacity(0.95),
               ),
@@ -387,7 +400,7 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
             const SizedBox(height: AppSpacing.md),
 
             Text(
-              '${matches.length}명의 특별한 인연이 기다리고 있어요.\n낮 12시에 공개됩니다.',
+              l10n.matchPendingDesc(matches.length),
               style: AppTextStyles.body1.copyWith(
                 color: Colors.white.withOpacity(0.7),
               ),
@@ -427,7 +440,8 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
           _showMatchSuccessDialog(updatedMatch);
         } else {
           // 일반적인 액션 피드백
-          final message = action == AppConstants.actionLike ? '💖 좋아요를 보냈습니다!' : '다음 기회에 만나요';
+          final l10n = AppLocalizations.of(context)!;
+          final message = action == AppConstants.actionLike ? l10n.likeSent : l10n.passMessage;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(message),
@@ -439,9 +453,10 @@ class _ScheduledHomeScreenState extends State<ScheduledHomeScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('오류가 발생했습니다: $e'),
+            content: Text(l10n.errorOccurred(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );

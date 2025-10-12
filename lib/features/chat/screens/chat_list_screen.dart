@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/services/unread_message_service.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../app/routes.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 import '../services/chat_service.dart';
@@ -81,6 +82,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
@@ -99,7 +102,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Text(
-                '채팅',
+                l10n.chatTitle,
                 style: AppTextStyles.body2.copyWith(
                   color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
@@ -139,6 +142,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -148,7 +153,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            '채팅 목록을 불러오고 있어요...',
+            l10n.chatLoading,
             style: AppTextStyles.body1.copyWith(
               color: Colors.white.withOpacity(0.7),
             ),
@@ -159,6 +164,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildEmptyState() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -172,7 +179,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(
-              '아직 채팅할 상대가 없어요',
+              l10n.chatEmpty,
               style: AppTextStyles.h2.copyWith(
                 color: Colors.white.withOpacity(0.95),
               ),
@@ -180,7 +187,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             Text(
-              '추천받은 상대와 서로 좋아요를 누르면\n채팅을 시작할 수 있어요!',
+              l10n.chatEmptyDesc,
               style: AppTextStyles.body1.copyWith(
                 color: Colors.white.withOpacity(0.7),
               ),
@@ -204,8 +211,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
         itemBuilder: (context, index) {
         final chatRoom = chatRooms[index];
         final unreadCount = unreadService.getUnreadCountForRoom(chatRoom.id);
+        final l10n = AppLocalizations.of(context)!;
         final otherUserProfile = _chatRoomProfiles[chatRoom.id] ?? {};
-        final otherUserName = otherUserProfile['nickname'] ?? '채팅 상대';
+        final otherUserName = otherUserProfile['nickname'] ?? l10n.chatTitle;
         final matchingService = context.read<ScheduledMatchingService>();
         final profileImages = matchingService.getUserImages(otherUserProfile);
 
@@ -263,7 +271,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               ),
             ),
             subtitle: Text(
-              chatRoom.lastMessage ?? '대화를 시작해보세요!',
+              chatRoom.lastMessage ?? l10n.chatFirstMessage,
               style: AppTextStyles.body2.copyWith(
                 color: unreadCount > 0 ? Colors.white.withOpacity(0.9) : Colors.grey[400],
                 fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.normal,
@@ -308,6 +316,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Widget _buildChatList(List<ScheduledMatch> mutualMatches) {
+    final l10n = AppLocalizations.of(context)!;
+
     return ListView.builder(
       padding: const EdgeInsets.all(AppSpacing.lg),
       itemCount: mutualMatches.length,
@@ -364,14 +374,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     ),
             ),
             title: Text(
-              otherUser['nickname'] ?? '매칭 상대',
+              otherUser['nickname'] ?? l10n.chatTitle,
               style: AppTextStyles.body1.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-              '매칭 성공! 대화를 시작해보세요 💕',
+              l10n.chatFirstMessageDesc,
               style: AppTextStyles.body2.copyWith(
                 color: AppColors.accent,
               ),
@@ -400,8 +410,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
                     context.push('${AppRoutes.chat}/${newChatRoom.id}');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('채팅방을 생성하는 중 오류가 발생했습니다.'),
+                      SnackBar(
+                        content: Text(l10n.errorChatCreate),
                         backgroundColor: AppColors.error,
                       ),
                     );
@@ -410,7 +420,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('채팅을 시작하는 중 오류가 발생했습니다: $e'),
+                    content: Text(l10n.errorChatLoad(e.toString())),
                     backgroundColor: AppColors.error,
                   ),
                 );

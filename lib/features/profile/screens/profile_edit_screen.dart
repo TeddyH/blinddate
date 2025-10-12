@@ -690,7 +690,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     labelText: '거주지역',
                     hintText: '선택사항',
                   ),
-                  items: ProfileOptions.locations
+                  items: ProfileOptions.locations(context)
                       .map((location) => DropdownMenuItem(
                             value: location,
                             child: Text(location),
@@ -712,7 +712,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     labelText: '직업군',
                     hintText: '선택사항',
                   ),
-                  items: ProfileOptions.jobCategories
+                  items: ProfileOptions.jobCategories(context)
                       .map((job) => DropdownMenuItem(
                             value: job,
                             child: Text(job),
@@ -740,7 +740,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     labelText: '음주',
                     hintText: '선택',
                   ),
-                  items: ProfileOptions.drinkingStyles.entries
+                  items: ProfileOptions.drinkingStyles(context).entries
                       .map((entry) => DropdownMenuItem(
                             value: entry.key,
                             child: Text(entry.value),
@@ -762,7 +762,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     labelText: '흡연',
                     hintText: '선택',
                   ),
-                  items: ProfileOptions.smokingStatuses.entries
+                  items: ProfileOptions.smokingStatuses(context).entries
                       .map((entry) => DropdownMenuItem(
                             value: entry.key,
                             child: Text(entry.value),
@@ -787,7 +787,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTagSelector(
-            options: ProfileOptions.personalityTraits,
+            options: ProfileOptions.personalityTraits(context),
             selectedTags: _personalityTraits,
             maxSelection: 5,
             onTagToggle: (tag) {
@@ -828,7 +828,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           const SizedBox(height: AppSpacing.sm),
           _buildTagSelector(
-            options: ProfileOptions.othersSayAboutMe,
+            options: ProfileOptions.othersSayAboutMe(context),
             selectedTags: _othersSayAboutMe,
             maxSelection: 3,
             onTagToggle: (tag) {
@@ -865,7 +865,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTagSelector(
-            options: ProfileOptions.idealTypeTraits,
+            options: ProfileOptions.idealTypeTraits(context),
             selectedTags: _idealTypeTraits,
             maxSelection: 5,
             onTagToggle: (tag) {
@@ -902,7 +902,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTagSelector(
-            options: ProfileOptions.dateStyles,
+            options: ProfileOptions.dateStyles(context),
             selectedTags: _dateStyles,
             maxSelection: 2,
             onTagToggle: (tag) {
@@ -939,7 +939,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTagSelector(
-            options: ProfileOptions.interests,
+            options: ProfileOptions.interests(context),
             selectedTags: _interests,
             maxSelection: 5,
             onTagToggle: (tag) {

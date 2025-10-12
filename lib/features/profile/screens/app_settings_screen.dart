@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/services/locale_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AppSettingsScreen extends StatefulWidget {
   const AppSettingsScreen({super.key});
@@ -19,6 +22,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -37,7 +42,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 5),
               child: Text(
-                '설정',
+                l10n.settings,
                 style: AppTextStyles.body2.copyWith(
                   color: AppColors.accent,
                   fontWeight: FontWeight.w500,
@@ -68,6 +73,10 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
+                // Language Settings
+                _buildLanguageSettings(),
+                const SizedBox(height: AppSpacing.lg),
+
                 // Notification Settings
                 _buildNotificationSettings(),
                 const SizedBox(height: AppSpacing.lg),
@@ -82,7 +91,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     );
   }
 
-  Widget _buildNotificationSettings() {
+  Widget _buildLanguageSettings() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -100,7 +111,63 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '알림 설정',
+            l10n.settingsLanguage,
+            style: AppTextStyles.h3.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          Consumer<LocaleService>(
+            builder: (context, localeService, child) {
+              return Column(
+                children: [
+                  _buildLanguageTile(
+                    title: l10n.languageKorean,
+                    isSelected: localeService.isKorean,
+                    onTap: () {
+                      localeService.setLocale(const Locale('ko'));
+                    },
+                  ),
+                  const Divider(height: AppSpacing.lg),
+                  _buildLanguageTile(
+                    title: l10n.languageEnglish,
+                    isSelected: localeService.isEnglish,
+                    onTap: () {
+                      localeService.setLocale(const Locale('en'));
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationSettings() {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.settingsNotification,
             style: AppTextStyles.h3.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -110,8 +177,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // Match notifications
           _buildSwitchTile(
-            title: '매칭 알림',
-            subtitle: '새로운 매칭이 있을 때 알림을 받습니다',
+            title: l10n.settingsNotificationMatch,
+            subtitle: l10n.settingsNotificationMatchDesc,
             value: _matchNotifications,
             onChanged: (value) {
               setState(() {
@@ -124,8 +191,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // Chat notifications
           _buildSwitchTile(
-            title: '채팅 알림',
-            subtitle: '새로운 메시지가 도착했을 때 알림을 받습니다',
+            title: l10n.settingsNotificationChat,
+            subtitle: l10n.settingsNotificationChatDesc,
             value: _chatNotifications,
             onChanged: (value) {
               setState(() {
@@ -138,8 +205,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // System notifications
           _buildSwitchTile(
-            title: '시스템 알림',
-            subtitle: '앱 업데이트 및 공지사항 알림을 받습니다',
+            title: l10n.settingsNotificationSystem,
+            subtitle: l10n.settingsNotificationSystemDesc,
             value: _systemNotifications,
             onChanged: (value) {
               setState(() {
@@ -154,6 +221,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
 
   Widget _buildAppInformation() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -171,7 +240,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '앱 정보',
+            l10n.settingsAppInfo,
             style: AppTextStyles.h3.copyWith(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -181,7 +250,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // App version
           _buildInfoTile(
-            title: '앱 버전',
+            title: l10n.settingsAppVersion,
             value: '1.0.0',
           ),
 
@@ -189,13 +258,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // Contact
           _buildTappableTile(
-            title: '문의하기',
-            subtitle: 'edgein00@gmail.com',
+            title: l10n.settingsContact,
+            subtitle: l10n.settingsContactDesc,
             onTap: () {
               // TODO: Open email app
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('이메일 앱을 열어 문의해주세요: edgein00@gmail.com'),
+                SnackBar(
+                  content: Text(l10n.settingsContactSnackbar),
                 ),
               );
             },
@@ -205,13 +274,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
 
           // Review app
           _buildTappableTile(
-            title: '앱 평가하기',
-            subtitle: '앱스토어에서 Hearty를 평가해주세요',
+            title: l10n.settingsReview,
+            subtitle: l10n.settingsReviewDesc,
             onTap: () {
               // TODO: Open app store
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('앱스토어로 이동합니다'),
+                SnackBar(
+                  content: Text(l10n.settingsReviewSnackbar),
                 ),
               );
             },
@@ -287,6 +356,39 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLanguageTile({
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: AppTextStyles.body1.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: AppColors.primary,
+                size: 24,
+              ),
+          ],
+        ),
+      ),
     );
   }
 

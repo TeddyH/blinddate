@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/services/unread_message_service.dart';
 import '../core/widgets/badge_icon.dart';
+import '../l10n/app_localizations.dart';
 import '../features/auth/screens/splash_screen.dart';
 import '../features/auth/screens/email_auth_screen.dart';
 import '../features/auth/screens/profile_setup_screen.dart';
@@ -157,6 +158,8 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     // Update selected index based on current route
     final currentRoute = GoRouterState.of(context).fullPath;
     if (currentRoute == AppRoutes.home) _selectedIndex = 0;
@@ -209,7 +212,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   color: Color(0xFFf093fb),
                 ),
               ),
-              label: '홈',
+              label: l10n.navHome,
             ),
             BottomNavigationBarItem(
               icon: Padding(
@@ -227,7 +230,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   color: Color(0xFFf093fb),
                 ),
               ),
-              label: '추천',
+              label: l10n.navRecommendations,
             ),
             BottomNavigationBarItem(
               icon: Padding(
@@ -259,7 +262,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   },
                 ),
               ),
-              label: '채팅',
+              label: l10n.navChat,
             ),
             BottomNavigationBarItem(
               icon: Padding(
@@ -277,7 +280,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   color: Color(0xFFf093fb),
                 ),
               ),
-              label: '기록',
+              label: l10n.navHistory,
             ),
             BottomNavigationBarItem(
               icon: Padding(
@@ -295,7 +298,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
                   color: Color(0xFFf093fb),
                 ),
               ),
-              label: '프로필',
+              label: l10n.navProfile,
             ),
           ],
         ),

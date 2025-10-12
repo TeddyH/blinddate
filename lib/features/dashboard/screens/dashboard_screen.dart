@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../app/routes.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../matching/services/scheduled_matching_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -21,24 +22,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late Timer _noticeTimer;
   int _currentNoticeIndex = 0;
 
-  final List<Map<String, String>> _notices = [
-    {
-      'title': '🎁 얼리어댑터 특별 혜택!',
-      'description': '2025년까지 무제한 채팅을 무료로 이용하세요! 초기 사용자만을 위한 특별한 혜택입니다.'
-    },
-    {
-      'title': '환영합니다! 🎉',
-      'description': '매일 낮 12시에 새로운 인연을 만나보세요. 서로에게 관심이 있다면 채팅을 시작할 수 있어요!'
-    },
-    {
-      'title': '서비스 정식 오픈! 🚀',
-      'description': 'Hearty가 정식 서비스를 시작했습니다! 더 나은 매칭을 위해 지속적으로 업데이트하고 있어요.'
-    },
-    {
-      'title': '실시간 채팅 오픈! 💬',
-      'description': '상호 좋아요 시 실시간 채팅이 가능합니다. 첫 메시지로 인사를 나눠보세요!'
-    },
-  ];
+  List<Map<String, String>> _getNotices(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      {
+        'title': l10n.noticeEarlyAdopterTitle,
+        'description': l10n.noticeEarlyAdopterDesc
+      },
+      {
+        'title': l10n.noticeWelcomeTitle,
+        'description': l10n.noticeWelcomeDesc
+      },
+      {
+        'title': l10n.noticeServiceLaunchTitle,
+        'description': l10n.noticeServiceLaunchDesc
+      },
+      {
+        'title': l10n.noticeRealtimeChatTitle,
+        'description': l10n.noticeRealtimeChatDesc
+      },
+    ];
+  }
 
   @override
   void initState() {
@@ -60,7 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _startNoticeTimer() {
     _noticeTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (mounted) {
-        _currentNoticeIndex = (_currentNoticeIndex + 1) % _notices.length;
+        final noticesLength = _getNotices(context).length;
+        _currentNoticeIndex = (_currentNoticeIndex + 1) % noticesLength;
         _noticePageController.animateToPage(
           _currentNoticeIndex,
           duration: const Duration(milliseconds: 500),
@@ -125,6 +130,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
   Widget _buildNoticesSection() {
+    final l10n = AppLocalizations.of(context)!;
+    final notices = _getNotices(context);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -156,7 +164,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  '새 소식',
+                  l10n.news,
                   style: AppTextStyles.body1.copyWith(
                     color: Colors.grey[400],
                     fontWeight: FontWeight.w600,
@@ -164,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const Spacer(),
                 Row(
-                  children: List.generate(_notices.length, (index) {
+                  children: List.generate(notices.length, (index) {
                     return Container(
                       margin: const EdgeInsets.only(left: 4),
                       width: 6,
@@ -192,9 +200,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _currentNoticeIndex = index;
                   });
                 },
-                itemCount: _notices.length,
+                itemCount: notices.length,
                 itemBuilder: (context, index) {
-                  final notice = _notices[index];
+                  final notice = notices[index];
                   return Padding(
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     child: Column(
@@ -293,7 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(width: AppSpacing.xs),
                     Text(
-                      '오늘의 매칭',
+                      AppLocalizations.of(context)!.matchingTitle,
                       style: AppTextStyles.body1.copyWith(
                         color: Colors.grey[400],
                         fontWeight: FontWeight.w600,
@@ -320,6 +328,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildNoMatchesCard() {
+    final l10n = AppLocalizations.of(context)!;
+
     return SizedBox(
       height: 60,
       child: Row(
@@ -344,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '오늘의 추천을 기다려보세요',
+                  l10n.waitForRecommendation,
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withOpacity(0.9),
@@ -352,7 +362,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  '매일 낮 12시에 새로운 인연이 찾아와요',
+                  l10n.newMatchAtNoon,
                   style: AppTextStyles.body2.copyWith(
                     color: Colors.white.withOpacity(0.7),
                   ),
@@ -366,6 +376,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTodaysMatchCard(ScheduledMatch match) {
+    final l10n = AppLocalizations.of(context)!;
     final otherUser = match.otherUserProfile;
     final age = Provider.of<ScheduledMatchingService>(context, listen: false)
         .calculateAge(otherUser['birth_date'] ?? '2000-01-01');
@@ -414,7 +425,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${otherUser['nickname'] ?? '알 수 없음'}, $age세',
+                  l10n.userAgeYears(otherUser['nickname'] ?? l10n.unknown, age),
                   style: AppTextStyles.body1.copyWith(
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withOpacity(0.95),
@@ -423,12 +434,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   match.status == 'mutual_like'
-                    ? '서로 관심을 표현했어요! 💕'
+                    ? l10n.mutualInterest
                     : match.receivedLike
-                      ? '당신에게 관심을 표현했어요 💕'
+                      ? l10n.receivedInterest
                       : match.sentLike
-                        ? '당신이 관심을 표현했어요 💝'
-                        : '새로운 인연이 기다리고 있어요',
+                        ? l10n.sentInterest
+                        : l10n.newMatchWaiting,
                   style: AppTextStyles.body2.copyWith(
                     color: (match.receivedLike || match.sentLike)
                         ? Color(0xFFf093fb)
@@ -452,6 +463,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 
   Widget _buildMatchingTipsSection() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -483,7 +496,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  '매칭 팁',
+                  l10n.matchingTips,
                   style: AppTextStyles.body1.copyWith(
                     color: Colors.grey[400],
                     fontWeight: FontWeight.w600,
@@ -498,22 +511,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildTipCard(
                   icon: Icons.photo_camera_outlined,
-                  title: '매력적인 프로필 사진',
-                  description: '자연스러운 미소와 밝은 조명의 사진을 업로드하세요',
+                  title: l10n.tipProfilePhotoTitle,
+                  description: l10n.tipProfilePhotoDesc,
                   color: Color(0xFFf093fb),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildTipCard(
                   icon: Icons.favorite_outline,
-                  title: '관심사 업데이트',
-                  description: '취미와 관심사를 자주 업데이트하면 더 좋은 매칭을 받을 수 있어요',
+                  title: l10n.tipInterestsTitle,
+                  description: l10n.tipInterestsDesc,
                   color: Color(0xFF667eea),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 _buildTipCard(
                   icon: Icons.chat_bubble_outline,
-                  title: '첫 메시지 작성법',
-                  description: '상대방의 프로필을 보고 공통 관심사로 대화를 시작해보세요',
+                  title: l10n.tipFirstMessageTitle,
+                  description: l10n.tipFirstMessageDesc,
                   color: Color(0xFF43e97b),
                 ),
               ],
