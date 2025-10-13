@@ -1065,4 +1065,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navProfile => 'Profile';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get settingsNotification => 'Notification Settings';
+
+  @override
+  String get settingsNotificationMatch => 'Match Notifications';
+
+  @override
+  String get settingsNotificationMatchDesc =>
+      'Receive notifications for new matches';
+
+  @override
+  String get settingsNotificationChat => 'Chat Notifications';
+
+  @override
+  String get settingsNotificationChatDesc =>
+      'Receive notifications for new messages';
+
+  @override
+  String get settingsNotificationSystem => 'System Notifications';
+
+  @override
+  String get settingsNotificationSystemDesc =>
+      'Receive app updates and announcements';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageDesc => 'Select your preferred language';
+
+  @override
+  String get settingsAppInfo => 'App Information';
+
+  @override
+  String get settingsAppVersion => 'App Version';
+
+  @override
+  String get settingsContact => 'Contact Us';
+
+  @override
+  String get settingsContactDesc => 'edgein00@gmail.com';
+
+  @override
+  String get settingsReview => 'Rate the App';
+
+  @override
+  String get settingsReviewDesc => 'Rate Hearty on the App Store';
+
+  @override
+  String get settingsContactSnackbar =>
+      'Please contact us via email: edgein00@gmail.com';
+
+  @override
+  String get settingsReviewSnackbar => 'Opening App Store';
+
+  @override
+  String get languageKorean => '한국어 (Korean)';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get splashTagline => 'One special connection a day';
 }

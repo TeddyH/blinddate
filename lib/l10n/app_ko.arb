@@ -376,5 +376,7 @@
   "settingsContactSnackbar": "이메일 앱을 열어 문의해주세요: edgein00@gmail.com",
   "settingsReviewSnackbar": "앱스토어로 이동합니다",
   "languageKorean": "한국어 (Korean)",
-  "languageEnglish": "English"
+  "languageEnglish": "English",
+
+  "splashTagline": "하루 1명, 특별한 만남"
 }

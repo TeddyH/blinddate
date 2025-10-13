@@ -25,7 +25,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color.fromRGBO(6, 13, 24, 1),
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
@@ -34,7 +34,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             Text(
               '💕 Hearty',
               style: AppTextStyles.h1.copyWith(
-                color: AppColors.accent,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -44,7 +44,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               child: Text(
                 l10n.settings,
                 style: AppTextStyles.body2.copyWith(
-                  color: AppColors.accent,
+                  color: Colors.white.withOpacity(0.8),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -53,38 +53,25 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.accent.withValues(alpha: 0.02),
-              AppColors.accent.withValues(alpha: 0.05),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            children: [
+              // Language Settings
+              _buildLanguageSettings(),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Notification Settings
+              _buildNotificationSettings(),
+              const SizedBox(height: AppSpacing.lg),
+
+              // App Information
+              _buildAppInformation(),
             ],
-            stops: const [0.0, 0.7, 1.0],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              children: [
-                // Language Settings
-                _buildLanguageSettings(),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Notification Settings
-                _buildNotificationSettings(),
-                const SizedBox(height: AppSpacing.lg),
-
-                // App Information
-                _buildAppInformation(),
-              ],
-            ),
           ),
         ),
       ),
@@ -97,11 +84,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: const Color(0xFF252836),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -113,7 +100,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           Text(
             l10n.settingsLanguage,
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -153,11 +140,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: const Color(0xFF252836),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -169,7 +156,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           Text(
             l10n.settingsNotification,
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -226,11 +213,11 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: const Color(0xFF252836),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -242,7 +229,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           Text(
             l10n.settingsAppInfo,
             style: AppTextStyles.h3.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -305,7 +292,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               Text(
                 title,
                 style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -313,7 +300,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               Text(
                 subtitle,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Colors.white.withOpacity(0.6),
                 ),
               ),
             ],
@@ -322,10 +309,10 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+          activeTrackColor: const Color(0xFFf093fb).withValues(alpha: 0.5),
           thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
             if (states.contains(WidgetState.selected)) {
-              return AppColors.primary;
+              return const Color(0xFFf093fb);
             }
             return Colors.grey;
           }),
@@ -344,7 +331,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           child: Text(
             title,
             style: AppTextStyles.body1.copyWith(
-              color: AppColors.textPrimary,
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -352,7 +339,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         Text(
           value,
           style: AppTextStyles.body2.copyWith(
-            color: AppColors.textSecondary,
+            color: Colors.white.withOpacity(0.6),
           ),
         ),
       ],
@@ -375,15 +362,15 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               child: Text(
                 title,
                 style: AppTextStyles.body1.copyWith(
-                  color: AppColors.textPrimary,
+                  color: Colors.white,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ),
             if (isSelected)
-              Icon(
+              const Icon(
                 Icons.check_circle,
-                color: AppColors.primary,
+                color: Color(0xFFf093fb),
                 size: 24,
               ),
           ],
@@ -411,7 +398,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   Text(
                     title,
                     style: AppTextStyles.body1.copyWith(
-                      color: AppColors.textPrimary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -419,7 +406,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   Text(
                     subtitle,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
+                      color: Colors.white.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -427,7 +414,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             ),
             Icon(
               Icons.chevron_right,
-              color: AppColors.textSecondary,
+              color: Colors.white.withOpacity(0.6),
               size: 20,
             ),
           ],

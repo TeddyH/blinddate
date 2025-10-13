@@ -2089,6 +2089,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get navProfile;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @settingsNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Settings'**
+  String get settingsNotification;
+
+  /// No description provided for @settingsNotificationMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Notifications'**
+  String get settingsNotificationMatch;
+
+  /// No description provided for @settingsNotificationMatchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive notifications for new matches'**
+  String get settingsNotificationMatchDesc;
+
+  /// No description provided for @settingsNotificationChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Notifications'**
+  String get settingsNotificationChat;
+
+  /// No description provided for @settingsNotificationChatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive notifications for new messages'**
+  String get settingsNotificationChatDesc;
+
+  /// No description provided for @settingsNotificationSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System Notifications'**
+  String get settingsNotificationSystem;
+
+  /// No description provided for @settingsNotificationSystemDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive app updates and announcements'**
+  String get settingsNotificationSystemDesc;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @settingsLanguageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language'**
+  String get settingsLanguageDesc;
+
+  /// No description provided for @settingsAppInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'App Information'**
+  String get settingsAppInfo;
+
+  /// No description provided for @settingsAppVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App Version'**
+  String get settingsAppVersion;
+
+  /// No description provided for @settingsContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get settingsContact;
+
+  /// No description provided for @settingsContactDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'edgein00@gmail.com'**
+  String get settingsContactDesc;
+
+  /// No description provided for @settingsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the App'**
+  String get settingsReview;
+
+  /// No description provided for @settingsReviewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Hearty on the App Store'**
+  String get settingsReviewDesc;
+
+  /// No description provided for @settingsContactSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Please contact us via email: edgein00@gmail.com'**
+  String get settingsContactSnackbar;
+
+  /// No description provided for @settingsReviewSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening App Store'**
+  String get settingsReviewSnackbar;
+
+  /// No description provided for @languageKorean.
+  ///
+  /// In en, this message translates to:
+  /// **'한국어 (Korean)'**
+  String get languageKorean;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @splashTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'One special connection a day'**
+  String get splashTagline;
 }
 
 class _AppLocalizationsDelegate

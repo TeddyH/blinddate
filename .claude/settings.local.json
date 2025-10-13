@@ -50,7 +50,12 @@
       "Read(//Users/honghyungseok/**)",
       "Read(//private/tmp/**)",
       "Bash(pgrep:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(echo $ANDROID_HOME)",
+      "Bash(~/Library/Android/sdk/platform-tools/adb:*)",
+      "Bash(~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager \"system-images;android-35;google_apis_playstore;arm64-v8a\")",
+      "Bash(unzip:*)",
+      "Bash(bundletool dump manifest:*)"
     ],
     "deny": [],
     "ask": []

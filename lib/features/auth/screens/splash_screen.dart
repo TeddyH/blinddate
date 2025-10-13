@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../app/routes.dart';
 import '../services/auth_service.dart';
 
@@ -143,7 +144,7 @@ class _SplashScreenState extends State<SplashScreen>
 
                 // App Tagline
                 Text(
-                  '하루 1명, 특별한 만남',
+                  AppLocalizations.of(context)!.splashTagline,
                   style: AppTextStyles.body1.copyWith(
                     color: Colors.white.withOpacity(0.7),
                   ),

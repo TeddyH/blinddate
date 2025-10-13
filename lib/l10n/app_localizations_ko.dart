@@ -1050,4 +1050,67 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get navProfile => '프로필';
+
+  @override
+  String get settings => '설정';
+
+  @override
+  String get settingsNotification => '알림 설정';
+
+  @override
+  String get settingsNotificationMatch => '매칭 알림';
+
+  @override
+  String get settingsNotificationMatchDesc => '새로운 매칭이 있을 때 알림을 받습니다';
+
+  @override
+  String get settingsNotificationChat => '채팅 알림';
+
+  @override
+  String get settingsNotificationChatDesc => '새로운 메시지가 도착했을 때 알림을 받습니다';
+
+  @override
+  String get settingsNotificationSystem => '시스템 알림';
+
+  @override
+  String get settingsNotificationSystemDesc => '앱 업데이트 및 공지사항 알림을 받습니다';
+
+  @override
+  String get settingsLanguage => '언어';
+
+  @override
+  String get settingsLanguageDesc => '원하는 언어를 선택하세요';
+
+  @override
+  String get settingsAppInfo => '앱 정보';
+
+  @override
+  String get settingsAppVersion => '앱 버전';
+
+  @override
+  String get settingsContact => '문의하기';
+
+  @override
+  String get settingsContactDesc => 'edgein00@gmail.com';
+
+  @override
+  String get settingsReview => '앱 평가하기';
+
+  @override
+  String get settingsReviewDesc => '앱스토어에서 Hearty를 평가해주세요';
+
+  @override
+  String get settingsContactSnackbar => '이메일 앱을 열어 문의해주세요: edgein00@gmail.com';
+
+  @override
+  String get settingsReviewSnackbar => '앱스토어로 이동합니다';
+
+  @override
+  String get languageKorean => '한국어 (Korean)';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get splashTagline => '하루 1명, 특별한 만남';
 }

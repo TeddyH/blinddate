@@ -20,6 +20,9 @@ class BlindDateApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (context) => LocaleService(),
+        ),
+        ChangeNotifierProvider(
           create: (context) => AuthService(),
         ),
         ChangeNotifierProvider(
@@ -38,23 +41,28 @@ class BlindDateApp extends StatelessWidget {
           create: (context) => SupabaseService.instance,
         ),
       ],
-      child: MaterialApp.router(
-        title: 'Hearty',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en'), // English
-          Locale('ko'), // Korean
-        ],
-        routerConfig: AppRoutes.router,
+      child: Consumer<LocaleService>(
+        builder: (context, localeService, child) {
+          return MaterialApp.router(
+            title: 'Hearty',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.system,
+            locale: localeService.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('ko'), // Korean
+            ],
+            routerConfig: AppRoutes.router,
+          );
+        },
       ),
     );
   }

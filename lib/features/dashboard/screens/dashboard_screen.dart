@@ -330,8 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildNoMatchesCard() {
     final l10n = AppLocalizations.of(context)!;
 
-    return SizedBox(
-      height: 60,
+    return IntrinsicHeight(
       child: Row(
         children: [
           Container(
@@ -359,6 +358,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withOpacity(0.9),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
@@ -366,6 +367,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: AppTextStyles.body2.copyWith(
                     color: Colors.white.withOpacity(0.7),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
