@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui' as ui;
 
 class LocaleService extends ChangeNotifier {
   static const String _localeKey = 'app_locale';
-  Locale _locale = const Locale('ko'); // Default to Korean
+  Locale? _locale; // Will be initialized based on system or saved preference
 
-  Locale get locale => _locale;
+  Locale get locale => _locale ?? _getSystemLocale();
 
   LocaleService() {
     _loadLocale();
+  }
+
+  /// Get the system locale and return 'ko' if Korean, otherwise 'en'
+  Locale _getSystemLocale() {
+    final systemLocale = ui.PlatformDispatcher.instance.locale;
+    // Check if system language is Korean
+    if (systemLocale.languageCode == 'ko') {
+      return const Locale('ko');
+    }
+    // Default to English for all other languages
+    return const Locale('en');
   }
 
   Future<void> _loadLocale() async {
@@ -16,11 +28,17 @@ class LocaleService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final localeCode = prefs.getString(_localeKey);
       if (localeCode != null) {
+        // User has explicitly set a language preference
         _locale = Locale(localeCode);
-        notifyListeners();
+      } else {
+        // No saved preference, use system locale
+        _locale = _getSystemLocale();
       }
+      notifyListeners();
     } catch (e) {
       debugPrint('Error loading locale: $e');
+      // Fallback to system locale on error
+      _locale = _getSystemLocale();
     }
   }
 
